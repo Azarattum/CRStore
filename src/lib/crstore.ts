@@ -4,11 +4,11 @@ import {
   type CRSchema,
   type Encoded,
 } from "./database/schema";
-import { requirePrimaryKey, parse } from "./database/schema";
+import { requirePrimaryKey, parse, encode } from "./database/schema";
 import { writable, type Subscriber } from "svelte/store";
 import type { Infer, Struct } from "superstruct";
-import { init, encode } from "./database";
 import type { Kysely } from "kysely";
+import { init } from "./database/";
 
 const defaultPull = (changes: Encoded<CRChange>[]): any => {};
 const defaultPush =

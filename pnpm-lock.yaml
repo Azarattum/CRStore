@@ -13,6 +13,7 @@ specifiers:
   better-sqlite3: ^8.0.1
   kysely: ^0.22.0
   navigator.locks: ^0.8.6
+  ncp: ^2.0.0
   prettier: ^2.8.0
   prettier-plugin-svelte: ^2.8.1
   superstruct: ^1.0.3
@@ -40,6 +41,7 @@ devDependencies:
   '@types/ws': 8.5.3
   '@vlcn.io/crsqlite': 0.5.0
   better-sqlite3: 8.0.1
+  ncp: 2.0.0
   prettier: 2.8.1
   prettier-plugin-svelte: 2.8.1_sro2v6ld777payjtkjtiuogcxi
   svelte: 3.54.0
@@ -901,6 +903,11 @@ packages:
   /navigator.locks/0.8.6:
     resolution: {integrity: sha512-3ykNHTGTGS2xgFlSUqc7fPGnrwpBiuNbYBdW3i3aSwu05nvYdk3D6qEidLxMqufxpLJ3VRnt4TBzNigNL6hcYA==}
     dev: false
+
+  /ncp/2.0.0:
+    resolution: {integrity: sha512-zIdGUrPRFTUELUvr3Gmc7KZ2Sw/h1PiVM0Af/oHB6zgnV1ikqSfRk+TOufi79aHYCW3NiOXmr1BP5nWbzojLaA==}
+    hasBin: true
+    dev: true
 
   /no-case/3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}

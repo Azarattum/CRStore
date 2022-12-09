@@ -1,9 +1,14 @@
-import { encode, type CRChange, type Encoded } from "../lib/database/schema";
+import {
+  encode,
+  decode,
+  type CRChange,
+  type Encoded,
+} from "../lib/database/schema";
 import { any, array, number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
-import { init, decode } from "../lib/database";
 import { Database } from "../routes/schema";
 import { initTRPC } from "@trpc/server";
+import { init } from "../lib/database";
 import EventEmitter from "events";
 
 const emitter = new EventEmitter();

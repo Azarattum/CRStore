@@ -4,6 +4,15 @@ import type { Struct, Infer } from "superstruct";
 import { CRDialect } from "./dialect";
 
 const connections = new Map();
+const paths = {
+  wasm: "/sqlite.wasm",
+  extension: "node_modules/@vlcn.io/crsqlite/build/Release/crsqlite.node",
+  binding: undefined as string | undefined,
+};
+
+function updatePaths(value: Partial<typeof paths>) {
+  Object.assign(paths, value);
+}
 
 async function createProvider<T>(file: string) {
   /// TODO: custom wasm/ext path
@@ -14,18 +23,16 @@ async function createProvider<T>(file: string) {
       ? await import(/* @vite-ignore */ bunSqlite)
       : await import("better-sqlite3");
 
-    const database = new SQLite(file);
+    const database = new SQLite(file, { nativeBinding: paths.binding });
     if (bun) database.run("PRAGMA journal_mode = wal");
     else database.pragma("journal_mode = WAL");
 
-    database.loadExtension(
-      "node_modules/@vlcn.io/crsqlite/build/Release/crsqlite.node"
-    );
+    database.loadExtension(paths.extension);
     return new Kysely<T>({ dialect: new SqliteDialect({ database }) });
   } else {
     await import("navigator.locks");
     const { default: load } = await import("@vlcn.io/wa-crsqlite");
-    const sqlite = load(() => "/wa-sqlite-async.wasm");
+    const sqlite = load(() => paths.wasm);
     const database = await (await sqlite).open(file);
     return new Kysely<T>({ dialect: new CRDialect({ database }) });
   }
@@ -102,4 +109,4 @@ async function init<T extends CRSchema>(file: string, schema: T) {
   return connection;
 }
 
-export { init, encode, decode };
+export { init, updatePaths };
