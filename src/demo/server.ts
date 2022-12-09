@@ -6,9 +6,9 @@ import {
 } from "../lib/database/schema";
 import { any, array, number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
-import { Database } from "../routes/schema";
 import { initTRPC } from "@trpc/server";
 import { init } from "../lib/database";
+import { Database } from "./schema";
 import EventEmitter from "events";
 
 const emitter = new EventEmitter();

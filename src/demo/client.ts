@@ -1,6 +1,5 @@
-import { browser } from "$app/environment";
 import { createTRPCProxyClient, createWSClient, wsLink } from "@trpc/client";
-import type { App } from "../trpc";
+import type { App } from "./server";
 
 const client = () =>
   createTRPCProxyClient<App>({
@@ -19,6 +18,8 @@ const proxy: any = new Proxy(() => {}, {
   set: () => proxy,
 });
 
-const trpc = browser ? client() : (proxy as ReturnType<typeof client>);
+const trpc = import.meta.env.SSR
+  ? (proxy as ReturnType<typeof client>)
+  : client();
 
 export { trpc };

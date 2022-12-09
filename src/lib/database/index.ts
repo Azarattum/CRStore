@@ -15,7 +15,6 @@ function updatePaths(value: Partial<typeof paths>) {
 }
 
 async function createProvider<T>(file: string) {
-  /// TODO: custom wasm/ext path
   if (globalThis.process) {
     const bun = !!(process as any).isBun;
     const bunSqlite: string = "bun:sqlite";

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Database } from "./schema";
+  import { trpc } from "./client";
   import { crstore } from "$lib";
-  import { trpc } from "./trpc";
   import { sql } from "kysely";
 
   const todos = crstore("todos", Database, {
@@ -52,7 +52,6 @@
         >
           <h2>{todo.title}</h2>
           <p>{todo.text}</p>
-          <p>{todo.id}</p>
         </button>
         <button on:click={() => remove(todo.id)}>x</button>
       </li>

@@ -1,7 +1,7 @@
 import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import { sveltekit } from "@sveltejs/kit/vite";
+import { router } from "./src/demo/server";
 import { WebSocketServer } from "ws";
-import { router } from "./src/trpc";
 import { parse } from "url";
 
 /** @type {import('vite').UserConfig} */
