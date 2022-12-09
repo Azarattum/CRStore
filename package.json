@@ -13,7 +13,13 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "next",
 		"@sveltejs/kit": "next",
-		"@sveltejs/package": "next",
+		"@sveltejs/package": "1.0.0-next.6",
+		"@trpc/client": "^10.4.3",
+		"@trpc/server": "^10.4.3",
+		"@types/better-sqlite3": "^7.6.3",
+		"@types/ws": "^8.5.3",
+		"@vlcn.io/crsqlite": "^0.5.0",
+		"better-sqlite3": "^8.0.1",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.8.1",
 		"svelte": "^3.53.1",
@@ -21,7 +27,13 @@
 		"svelte-preprocess": "^4.10.7",
 		"tslib": "^2.4.1",
 		"typescript": "^4.9.3",
-		"vite": "^3.2.4"
+		"vite": "^4.0.0",
+		"ws": "^8.11.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@vlcn.io/wa-crsqlite": "^0.5.0",
+		"kysely": "^0.22.0",
+		"superstruct": "^1.0.3"
+	}
 }
