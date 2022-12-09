@@ -35,6 +35,7 @@ function crstore<T extends CRSchema>(
     : unknown;
   type Store = { set: Subscriber<Table>; db: DB };
 
+  const channel = new BroadcastChannel(`${name}-sync`);
   const primaryKey = requirePrimaryKey(schema, table);
   const getVersion = () => +(localStorage.getItem(`${name}-sync`) || -1);
   const setVersion = (version: number) =>
@@ -48,12 +49,14 @@ function crstore<T extends CRSchema>(
     let unsubscribe = () => {};
     const startSync = () => pull().then((x) => (unsubscribe = x));
     const stopSync = () => unsubscribe();
+    const tabMerge = (event: MessageEvent) => merge(event.data);
 
     setTimeout(async () => {
       await init(name, schema).then((db) => resolve({ set, db }));
       refresh();
       addEventListener("online", startSync);
       addEventListener("offline", stopSync);
+      channel.addEventListener("message", tabMerge);
       if (navigator.onLine) startSync();
     });
 
@@ -63,11 +66,11 @@ function crstore<T extends CRSchema>(
       db?.destroy();
       removeEventListener("online", startSync);
       removeEventListener("offline", stopSync);
+      channel.removeEventListener("message", tabMerge);
       store = new Promise<Store>((r) => (resolve = r));
     };
   });
 
-  /// TODO: Sync tabs
   function merge(changes: CRChange[]) {
     const delta: Record<string, any> = {};
     changes
@@ -133,7 +136,9 @@ function crstore<T extends CRSchema>(
     const { db } = await store;
     const version = await db.selectVersion().execute();
     await operation(db);
-    merge(await db.changesSince(version).execute());
+    const changes = await db.changesSince(version).execute();
+    merge(changes);
+    channel.postMessage(changes);
     await push();
   }
 
