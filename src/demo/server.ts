@@ -1,6 +1,7 @@
 import {
   encode,
   decode,
+  changes,
   type CRChange,
   type Encoded,
 } from "../lib/database/schema";
@@ -33,8 +34,7 @@ const app = routes({
       });
     }),
 
-  /// Add input validation
-  push: procedure.input(array(any())).mutation(async ({ input }) => {
+  push: procedure.input(changes(Database)).mutation(async ({ input }) => {
     const sender = input[0]?.site_id;
     const changes = input.map((x) => decode(x, "site_id")) as CRChange[];
     const resolved = await db.insertChanges(changes).execute();

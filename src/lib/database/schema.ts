@@ -1,3 +1,13 @@
+import {
+  array,
+  literal,
+  nullable,
+  number,
+  object,
+  string,
+  union,
+  type Struct,
+} from "superstruct";
 import { sql, type Kysely } from "kysely";
 
 function covert(type: string) {
@@ -85,6 +95,32 @@ const primary = <T extends object>(struct: T) => modify(struct, "primaryKey");
 const crr = <T extends object>(struct: T) =>
   Object.assign(struct, { crsql: true });
 
+/**
+ * Creates a changes
+ * @param schema Schema to derive the validator from
+ */
+function changes({ schema }: CRSchema) {
+  const tables = Object.entries(schema)
+    .filter(([_, { crsql }]) => crsql)
+    .map(([x, table]) => {
+      const columns = Object.keys(table.schema).map((x) => literal(x));
+      return object({
+        table: literal(x),
+        pk: string(),
+        cid: union([...columns, literal("__crsql_del")] as any),
+        val: nullable(string()),
+        version: number(),
+        site_id: string(),
+      });
+    });
+
+  type InnerStruct = typeof tables extends Struct<any, infer S>[] ? S : unknown;
+  return array(union(tables as any)) as any as Struct<
+    Encoded<CRChange>[],
+    Struct<Encoded<CRChange>, InnerStruct>
+  >;
+}
+
 type CRColumn = { type: string; modifiers?: string[] };
 type CRTable = { schema: Record<string, CRColumn>; crsql?: boolean };
 type CRSchema = { schema: Record<string, CRTable> };
@@ -100,5 +136,14 @@ type Encoded<T> = {
   [K in keyof T]: T[K] extends Uint8Array ? string : T[K];
 };
 
-export { apply, encode, decode, primary, crr, parse, requirePrimaryKey };
+export {
+  apply,
+  encode,
+  decode,
+  primary,
+  crr,
+  parse,
+  changes,
+  requirePrimaryKey,
+};
 export type { CRSchema, CRChange, Encoded };
