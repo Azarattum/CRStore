@@ -67,6 +67,7 @@ function crstore<T extends CRSchema>(
     };
   });
 
+  /// TODO: Sync tabs
   function merge(changes: CRChange[]) {
     const delta: Record<string, any> = {};
     changes

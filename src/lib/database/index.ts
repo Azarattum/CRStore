@@ -23,6 +23,7 @@ async function createProvider<T>(file: string) {
     );
     return new Kysely<T>({ dialect: new SqliteDialect({ database }) });
   } else {
+    await import("navigator.locks");
     const { default: load } = await import("@vlcn.io/wa-crsqlite");
     const sqlite = load(() => "/wa-sqlite-async.wasm");
     const database = await (await sqlite).open(file);
