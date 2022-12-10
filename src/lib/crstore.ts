@@ -125,7 +125,9 @@ function crstore<T extends CRSchema>(
     await push();
     return remotePull(version, client, async (changes) => {
       const decoded = changes.map((x) => decode(x, "site_id"));
-      const resolved = await db.insertChanges(decoded).execute();
+      const version = await db.selectVersion().execute();
+      await db.insertChanges(decoded).execute();
+      const resolved = await db.changesSince(version).execute();
       merge(resolved);
       const newVersion = await db.selectVersion().execute();
       setVersion(newVersion);

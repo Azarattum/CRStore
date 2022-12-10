@@ -32,7 +32,9 @@ const app = routes({
   push: procedure.input(changes(Database)).mutation(async ({ input }) => {
     const sender = input[0]?.site_id;
     const changes = input.map((x) => decode(x, "site_id")) as CRChange[];
-    const resolved = await db.insertChanges(changes).execute();
+    const version = await db.selectVersion().execute();
+    await db.insertChanges(changes).execute();
+    const resolved = await db.changesSince(version).execute();
     emitter.emit("push", resolved, sender);
   }),
 });

@@ -83,10 +83,8 @@ async function init<T extends CRSchema>(file: string, schema: T) {
 
     return {
       async execute() {
-        if (!changes.length) return [];
-        const version = await selectVersion().execute();
+        if (!changes.length) return;
         await query.execute();
-        return changesSince(version).execute();
       },
     };
   }
