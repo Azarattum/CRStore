@@ -8,6 +8,6 @@ const Todos = object({
   completed: boolean(),
 });
 
-const Database = object({ todos: crr(Todos) });
+const Schema = object({ todos: crr(Todos) });
 
-export { Database };
+export { Schema };

@@ -4,18 +4,18 @@ import { number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
 import { initTRPC } from "@trpc/server";
 import { init } from "../lib/database";
-import { Database } from "./schema";
+import { Schema } from "./schema";
 import EventEmitter from "events";
 
 const emitter = new EventEmitter();
-const db = await init("todo.db", Database);
+const db = await init("todo.db", Schema);
 
 const { router: routes, procedure } = initTRPC.create();
 const app = routes({
   pull: procedure
     .input(object({ version: number(), client: string() }))
     .subscription(async ({ input: { version, client } }) => {
-      const changes = await db.changesSince(version, client).execute();
+      const changes = await db.changesSince(version, "!=", client).execute();
 
       return observable<Encoded<CRChange>[]>((emit) => {
         const send = (changes: CRChange[], sender?: string) => {
@@ -29,13 +29,15 @@ const app = routes({
       });
     }),
 
-  push: procedure.input(changes(Database)).mutation(async ({ input }) => {
-    const sender = input[0]?.site_id;
-    const changes = input.map((x) => decode(x, "site_id")) as CRChange[];
+  push: procedure.input(changes(Schema)).mutation(async ({ input }) => {
+    const { client, changes } = input;
+    const decoded = changes.map((x) => decode(x, "site_id")) as CRChange[];
     const version = await db.selectVersion().execute();
-    await db.insertChanges(changes).execute();
+    await db.insertChanges(decoded).execute();
     const resolved = await db.changesSince(version).execute();
-    emitter.emit("push", resolved, sender);
+    /// Debug
+    console.log("version", version, "->", await db.selectVersion().execute());
+    emitter.emit("push", resolved, client);
   }),
 });
 

@@ -115,10 +115,14 @@ function changes({ schema }: CRSchema) {
     });
 
   type InnerStruct = typeof tables extends Struct<any, infer S>[] ? S : unknown;
-  return array(union(tables as any)) as any as Struct<
-    Encoded<CRChange>[],
-    Struct<Encoded<CRChange>, InnerStruct>
-  >;
+  /// Client string might not be needed when `self-changes` are implemented
+  return object({
+    client: string(),
+    changes: array(union(tables as any)) as any as Struct<
+      Encoded<CRChange>[],
+      Struct<Encoded<CRChange>, InnerStruct>
+    >,
+  });
 }
 
 type CRColumn = { type: string; modifiers?: string[] };

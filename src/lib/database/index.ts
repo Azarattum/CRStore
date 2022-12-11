@@ -1,5 +1,11 @@
 import { apply, encode, decode, type CRChange, type CRSchema } from "./schema";
-import { Kysely, sql, SqliteDialect } from "kysely";
+import {
+  CompiledQuery,
+  Kysely,
+  sql,
+  SqliteDialect,
+  type FilterOperator,
+} from "kysely";
 import type { Struct, Infer } from "superstruct";
 import { CRDialect } from "./dialect";
 
@@ -62,15 +68,22 @@ async function init<T extends CRSchema>(file: string, schema: T) {
     };
   }
 
-  function changesSince(since?: number, filter?: string) {
+  function changesSince(
+    since?: number,
+    operator: FilterOperator = "!=",
+    client?: string
+  ) {
     return {
       async execute() {
         since = since != null ? since : await selectVersion().execute();
         let query = kysely
           .selectFrom("crsql_changes" as any)
           .selectAll()
-          .where("version" as any, ">", since);
-        if (filter) query = query.where("site_id" as any, "!=", decode(filter));
+          .where("version" as any, ">", since)
+          .if(client != null, (qb) =>
+            qb.where("site_id" as any, operator, decode(client || ""))
+          );
+
         return (await query.execute()) as CRChange[];
       },
     };
@@ -106,4 +119,19 @@ async function init<T extends CRSchema>(file: string, schema: T) {
   return connection;
 }
 
-export { init, updatePaths };
+function affectedTables({ query }: CompiledQuery) {
+  if (query.kind === "SelectQueryNode" || query.kind === "DeleteQueryNode") {
+    return query.from.froms
+      .filter((x) => x.kind === "TableNode")
+      .map((x: any) => x.table.identifier.name as string);
+  } else if (query.kind === "InsertQueryNode") {
+    return [query.into.table.identifier.name];
+  } else if (query.kind === "UpdateQueryNode") {
+    if (query.table.kind === "AliasNode") return [];
+    return [query.table.table.identifier.name];
+  }
+
+  return [];
+}
+
+export { init, updatePaths, affectedTables };

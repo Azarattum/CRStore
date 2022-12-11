@@ -6,6 +6,7 @@
     "crsqlite",
     "crstore",
     "esbuild",
+    "froms",
     "Introspector",
     "Kysely",
     "superstruct",
