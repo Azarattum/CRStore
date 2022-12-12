@@ -1,26 +1,30 @@
-import type { Actions, Bound, Context, Query, Store, View } from "./types";
+import type {
+  Actions,
+  Bound,
+  Context,
+  Operation,
+  Pull,
+  Push,
+  Store,
+  Updater,
+  View,
+} from "./types";
 import { affectedTables } from "./database/operations";
 import type { CRSchema } from "./database/schema";
 import { writable } from "svelte/store";
-import type { Kysely } from "kysely";
 import { init } from "./database";
 
-const defaultPush = (changes: any[]): any => {};
-const defaultPull =
-  (version: number, client: string, callback: (changes: any[]) => any) =>
-  () => {};
-
 const noSSR = <T extends Promise<any>>(fn: () => T) =>
-  import.meta.env.SSR
+  import.meta.env?.SSR
     ? (new Promise<unknown>(() => {}) as T)
     : (new Promise((r) => setTimeout(() => r(fn()))) as T);
 
 function database<T extends CRSchema>(
   schema: T,
   {
-    name = "crstore",
-    push: remotePush = defaultPush,
-    pull: remotePull = defaultPull,
+    name = "crstore.db",
+    push: remotePush = undefined as Push,
+    pull: remotePull = undefined as Pull,
   } = {}
 ) {
   const connection = noSSR(() => init(name, schema));
@@ -35,11 +39,11 @@ function database<T extends CRSchema>(
   globalThis.addEventListener?.("online", pull);
   noSSR(() => pull());
 
-  const listeners = new Map<string, Set<() => any>>();
+  const listeners = new Map<string, Set<Updater>>();
   let hold = () => {};
 
   async function push() {
-    if (!navigator.onLine) return;
+    if (!remotePush || !navigator.onLine) return;
     const db = await connection;
     const lastVersion = getVersion();
     const currentVersion = await db.selectVersion().execute();
@@ -56,7 +60,7 @@ function database<T extends CRSchema>(
     globalThis.removeEventListener?.("offline", hold);
     hold();
 
-    if (!navigator.onLine) return;
+    if (!remotePull || !navigator.onLine) return;
     const db = await connection;
     const version = getVersion();
     const client = await db.selectClient().execute();
@@ -66,28 +70,53 @@ function database<T extends CRSchema>(
       await db.insertChanges(changes).execute();
       const newVersion = await db.selectVersion().execute();
       setVersion(newVersion);
-      trigger(affectedTables(changes), false);
+      trigger(changes, false);
     });
     globalThis.addEventListener?.("offline", hold);
   }
 
-  function subscribe(tables: string[], callback: () => any) {
+  function subscribe(
+    tables: string[],
+    callback: Updater,
+    options?: { client: string; version: number }
+  ) {
     tables.forEach((x) => {
       if (!listeners.has(x)) listeners.set(x, new Set());
       listeners.get(x)?.add(callback);
     });
+
+    // Immediately call the updater
+    if (options) {
+      connection.then(async (db) => {
+        const changes = await db
+          .changesSince(options.version, "!=", options.client)
+          .execute();
+        callback(changes);
+      });
+    } else callback([]);
+
     return () => tables.forEach((x) => listeners.get(x)?.delete(callback));
   }
 
-  function trigger(tables: string[], local = true) {
-    const callbacks = new Set<() => void>();
+  async function merge(changes: any[]) {
+    const db = await connection;
+    trigger(await db.resolveChanges(changes).execute());
+  }
+
+  async function trigger(changes: any[], local = true) {
+    if (!changes.length) return;
+    const callbacks = new Set<Updater>();
+    const tables = affectedTables(changes);
+    const sender = changes[0];
+
+    listeners.get("*")?.forEach((x) => callbacks.add(x));
     tables.forEach((table) =>
       listeners.get(table)?.forEach((x) => callbacks.add(x))
     );
 
-    callbacks.forEach((x) => x());
+    callbacks.forEach((x) => x(changes, sender));
     if (local) {
-      channel.postMessage(tables);
+      channel.postMessage(changes);
       push();
     }
   }
@@ -103,6 +132,9 @@ function database<T extends CRSchema>(
 
   return {
     close,
+    merge,
+    subscribe,
+    connection,
     store: store.bind({ connection, subscribe, trigger }) as Store<T>,
   };
 }
@@ -121,7 +153,6 @@ function store<Schema, Type>(
       unsubscribe = this.subscribe(affectedTables(query), refresh);
     });
 
-    refresh();
     return () => (unsubscribe?.(), (unsubscribe = null));
   });
 
@@ -130,20 +161,15 @@ function store<Schema, Type>(
     set(await view(db).execute());
   }
 
-  async function update(operation?: (db: Kysely<Schema>) => Query<unknown>) {
+  async function update<T extends any[]>(operation?: Operation<T>, ...args: T) {
     if (!operation) return refresh();
-    const query = operation(await connection);
-    await query.execute();
-    trigger(affectedTables(query.compile()));
+    const db = await (connection as ReturnType<typeof init>);
+    trigger(await db.applyOperation(operation, ...args).execute());
   }
 
   const bound: Bound<Actions<Schema>> = {};
   for (const name in actions) {
-    bound[name] = async (...args: any[]) => {
-      const query = actions[name](await connection, ...args);
-      await query.execute();
-      trigger(affectedTables(query.compile()));
-    };
+    bound[name] = (...args: any[]) => update(actions[name], ...args);
   }
 
   return {

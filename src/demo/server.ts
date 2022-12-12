@@ -1,36 +1,24 @@
 import { any, array, number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
 import { initTRPC } from "@trpc/server";
-import { init } from "../lib/database";
+import { database } from "../lib";
 import { Schema } from "./schema";
-import EventEmitter from "events";
 
-const emitter = new EventEmitter();
-const db = await init("todo.db", Schema);
+const { subscribe, merge } = database(Schema);
+const { router, procedure } = initTRPC.create();
 
-const { router: routes, procedure } = initTRPC.create();
-const app = routes({
+const app = router({
+  push: procedure.input(array(any())).mutation(({ input }) => merge(input)),
   pull: procedure
     .input(object({ version: number(), client: string() }))
-    .subscription(async ({ input: { version, client } }) => {
-      const changes = await db.changesSince(version, "!=", client).execute();
+    .subscription(({ input }) =>
+      observable<any[]>((emit) => {
+        const send = (changes: any[], sender?: string) =>
+          input.client !== sender && emit.next(changes);
 
-      return observable<any[]>((emit) => {
-        const send = (changes: any[], sender?: string) => {
-          if (changes.length && client !== sender) emit.next(changes);
-        };
-
-        send(changes);
-        emitter.on("push", send);
-        return () => emitter.off("push", send);
-      });
-    }),
-
-  push: procedure.input(array(any())).mutation(async ({ input }) => {
-    const client = input[0];
-    const changes = await db.resolveChanges(input).execute();
-    emitter.emit("push", changes, client);
-  }),
+        return subscribe(["*"], send, input);
+      })
+    ),
 });
 
 export { app as router };

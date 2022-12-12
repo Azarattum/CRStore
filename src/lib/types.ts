@@ -10,7 +10,10 @@ type Store<S extends CRSchema> = <T, A extends Actions<Schema<S>>>(
   actions?: A
 ) => Readable<T[]> &
   Bound<A> & {
-    update: <T>(operation?: (db: Kysely<Schema<S>>) => Query<T>) => Promise<T>;
+    update: <T, A extends any[]>(
+      operation?: Operation<A>,
+      ...args: A
+    ) => Promise<T>;
   };
 
 type View<Schema, Type> = (db: Kysely<Schema>) => Query<Type[]>;
@@ -32,7 +35,35 @@ type Bound<Actions> = {
 type Context<Schema> = {
   connection: Promise<Kysely<Schema>>;
   subscribe: (tables: string[], callback: () => any) => () => void;
-  trigger: (tables: string[]) => void;
+  trigger: (changes: any[]) => void;
 };
 
-export type { Schema, Store, View, Actions, Bound, Context, Query };
+type Push = ((changes: any[]) => any) | undefined;
+type Pull =
+  | ((
+      version: number,
+      client: string,
+      callback: (changes: any[]) => any
+    ) => () => any)
+  | undefined;
+
+type Updater = (changes: any[], sender?: string) => any;
+
+type Operation<T extends any[]> = (
+  db: Kysely<any>,
+  ...args: T
+) => { execute(): unknown };
+
+export type {
+  Operation,
+  Actions,
+  Context,
+  Updater,
+  Schema,
+  Store,
+  Bound,
+  Query,
+  View,
+  Push,
+  Pull,
+};

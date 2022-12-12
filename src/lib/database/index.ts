@@ -4,6 +4,7 @@ import {
   selectVersion,
   changesSince,
   selectClient,
+  applyOperation,
 } from "./operations";
 import { Kysely, SqliteDialect } from "kysely";
 import type { CRSchema } from "./schema";
@@ -54,6 +55,7 @@ async function init<T extends CRSchema>(file: string, schema: T) {
 
   const connection = Object.assign(kysely, {
     resolveChanges,
+    applyOperation,
     insertChanges,
     selectVersion,
     selectClient,

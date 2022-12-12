@@ -1,4 +1,5 @@
 import type { Kysely, FilterOperator, CompiledQuery } from "kysely";
+import type { Operation } from "../types";
 import type { CRChange } from "./schema";
 import { sql } from "kysely";
 
@@ -84,12 +85,19 @@ function insertChanges(this: Kysely<any>, changes: any[]) {
 }
 
 function resolveChanges(this: Kysely<any>, changes: any[]) {
+  return applyOperation.bind(this)((db) => insertChanges.bind(db)(changes));
+}
+
+function applyOperation<T extends any[]>(
+  this: Kysely<any>,
+  operation: Operation<T>,
+  ...args: T
+) {
   return {
     execute: async () => {
-      if (!changes.length) return [];
       return this.transaction().execute(async (db) => {
         const version = await selectVersion.bind(db)().execute();
-        await insertChanges.bind(db)(changes).execute();
+        await operation(db, ...args).execute();
         return await changesSince.bind(db)(version).execute();
       });
     },
@@ -123,6 +131,7 @@ export {
   selectVersion,
   changesSince,
   insertChanges,
+  applyOperation,
   resolveChanges,
   affectedTables,
 };
