@@ -1,12 +1,8 @@
-import { apply, encode, decode, type CRChange, type CRSchema } from "./schema";
-import {
-  CompiledQuery,
-  Kysely,
-  sql,
-  SqliteDialect,
-  type FilterOperator,
-} from "kysely";
-import type { Struct, Infer } from "superstruct";
+import { CompiledQuery, Kysely, sql, SqliteDialect } from "kysely";
+import type { CRChange, CRSchema, Encoded } from "./schema";
+import { apply, encode, decode } from "./schema";
+import type { FilterOperator } from "kysely";
+import type { Schema } from "../types";
 import { CRDialect } from "./dialect";
 
 const connections = new Map();
@@ -45,59 +41,67 @@ async function createProvider<T>(file: string) {
 
 async function init<T extends CRSchema>(file: string, schema: T) {
   if (connections.has(file)) return connections.get(file) as typeof connection;
-  type Schema = T extends Struct<any> ? Infer<T> : unknown;
 
-  const kysely = await createProvider<Schema>(file);
+  const kysely = await createProvider<Schema<T>>(file);
   const close = kysely.destroy.bind(kysely);
   await apply(kysely, schema);
 
-  function selectVersion() {
+  function selectVersion(this: Kysely<any>) {
     type Version = { version: number };
     const query = sql<Version>`SELECT crsql_dbversion() as version`;
     return {
-      execute: () => query.execute(kysely).then((x) => x.rows[0].version),
+      execute: () => query.execute(this).then((x) => x.rows[0].version),
     };
   }
 
-  function selectClient() {
+  function selectClient(this: Kysely<any>) {
     type Client = { client: Uint8Array };
     const query = sql<Client>`SELECT crsql_siteid() as client`;
     return {
-      execute: () =>
-        query.execute(kysely).then((x) => encode(x.rows[0].client)),
+      execute: () => query.execute(this).then((x) => encode(x.rows[0].client)),
     };
   }
 
   function changesSince(
-    since?: number,
+    this: Kysely<any>,
+    since: number,
     operator: FilterOperator = "!=",
     client?: string
   ) {
-    return {
-      async execute() {
-        since = since != null ? since : await selectVersion().execute();
-        let query = kysely
-          .selectFrom("crsql_changes" as any)
-          .selectAll()
-          .where("version" as any, ">", since)
-          .if(client != null, (qb) =>
-            qb.where("site_id" as any, operator, decode(client || ""))
-          );
+    let query = this.selectFrom("crsql_changes")
+      .selectAll()
+      .where("version", ">", since)
+      .if(client != null, (qb) =>
+        qb.where("site_id", operator, decode(client || ""))
+      );
 
-        return (await query.execute()) as CRChange[];
-      },
+    return {
+      execute: async () =>
+        (await query.execute()).map((x) => encode(x as CRChange)),
     };
   }
 
-  function insertChanges(changes: CRChange[]) {
-    const query = kysely
-      .insertInto("crsql_changes" as any)
-      .values(changes as any);
+  function insertChanges(this: Kysely<any>, changes: Encoded<CRChange>[]) {
+    const decoded = changes.map((x) => decode(x, "site_id"));
+    const query = this.insertInto("crsql_changes").values(decoded);
 
     return {
       async execute() {
         if (!changes.length) return;
         await query.execute();
+      },
+    };
+  }
+
+  function resolveChanges(changes: Encoded<CRChange>[]) {
+    return {
+      async execute() {
+        if (!changes.length) return [];
+        return kysely.transaction().execute(async (db) => {
+          const version = await selectVersion.bind(db)().execute();
+          await insertChanges.bind(db)(changes).execute();
+          return await changesSince.bind(db)(version).execute();
+        });
       },
     };
   }
@@ -108,6 +112,7 @@ async function init<T extends CRSchema>(file: string, schema: T) {
   }
 
   const connection = Object.assign(kysely, {
+    resolveChanges,
     insertChanges,
     selectVersion,
     selectClient,

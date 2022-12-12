@@ -1,6 +1,5 @@
 import type { Actions, Bound, Context, Query, Store, View } from "./types";
 import type { CRChange, CRSchema, Encoded } from "./database/schema";
-import { decode, encode } from "./database/schema";
 import { affectedTables, init } from "./database";
 import { writable } from "svelte/store";
 import type { Kysely } from "kysely";
@@ -53,10 +52,7 @@ function database<T extends CRSchema>(
     /// Wait till "=" resolution is implemented
     // const changes = await db.changesSince(lastVersion, "=", client).execute();
     const changes = await db.changesSince(lastVersion).execute();
-    const encoded = changes
-      .map(encode<CRChange>)
-      .filter((x) => x.site_id === client);
-    await remotePush(encoded);
+    await remotePush(changes.filter((x) => x.site_id === client));
     setVersion(currentVersion);
   }
 
@@ -71,8 +67,7 @@ function database<T extends CRSchema>(
 
     await push();
     hold = remotePull(version, client, async (changes) => {
-      const decoded = changes.map((x) => decode(x, "site_id"));
-      await db.insertChanges(decoded).execute();
+      await db.insertChanges(changes).execute();
       const newVersion = await db.selectVersion().execute();
       setVersion(newVersion);
 
