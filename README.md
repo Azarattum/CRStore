@@ -31,30 +31,43 @@ const Database = object({
 });
 ```
 
-Now you can create a store. You have to specify the table for it to reflect as well as the database schema.
+Now you can establish a database connection with your schema:
 ```ts
-const todos = crstore("todos", Database);
+import { database } from "crstore";
+
+const { store } = database(Schema);
 ```
 
-When you want to make changes, you can call the `.update` method on the store. In the callback you will be provided with `Kysely` instance which already has types for your schema. That way you can safely update your database. Let's make functions to create and remove todos:
+With the `store` function we can create arbitrary views to our database which are valid svelte stores. For example let's create a store that will have our entire `todos` table:
 ```ts
-function create(title: string, text: string) {
-  todos.update((db) => {
-    const id = Math.random().toString(36).slice(2);
-    const todo = { id, title, text, completed: false };
-    return db.insertInto("todos").values(todo).execute();
-  });
-}
-
-function remove(id: string) {
-  todos.update((db) => db.deleteFrom("todos").where("id", "=", id).execute());
-}
+const todos = store((db) => db.selectFrom("todos").selectAll());
 ```
 
-The value of your store is a JavaScript object where keys are you `PRIMARY KEY` and values are your rows. Note that the database loads asynchronously, so the store's data will not be available immediately. We might want to wrap our todos in an `if` block to properly show the loading state like so:
+To mutate the data we can either call `.update` on the store or add built-in actions upon creation:
+```ts
+const todos = store((db) => db.selectFrom("todos").selectAll(), {
+  // Define actions for your store
+  toggle(db, id: string) {
+    return db
+      .updateTable("todos")
+      .set({ completed: sql`NOT(completed)` })
+      .where("id", "=", id);
+  },
+  remove(db, id: string) {
+    return db.deleteFrom("todos").where("id", "=", id);
+  },
+});
+
+// Call an update manually
+todos.update((db) => db.insertInto("todos").values({ ... }));
+// Call an action
+todos.toggle("id");
+```
+
+We can simple iterate the store to render the results. Note that the database loads asynchronously, so the store's data will not be available immediately. We might want to wrap our todos in an `if` block to properly show the loading state like so:
 ```svelte
 {#if $todos}
-  {#each Object.values($todos) as todo}
+  {#each $todos as todo}
     <h2>{todo.title}</h2>
     <p>{todo.text}</p>
   {/each}
@@ -63,11 +76,13 @@ The value of your store is a JavaScript object where keys are you `PRIMARY KEY` 
 {/if}
 ```
 
+This we dynamically react to all the changes in our database even if we make them from a different store. Each store we create reacts only to changes in tables we have selected from.
+
 ## Connecting with tRPC
 
-You can provide custom handlers for your network layer in a store. `push` method is called when you make changes locally that need to be synchronized. `pull` is called when `crstore` wants to subscribe to any changes coming from the network. Let's say you have a `push` [tRPC mutation](https://trpc.io/docs/quickstart) and a `pull` [tRPC subscription](https://trpc.io/docs/subscriptions) then you can use them like so when creating a store:
+You can provide custom handlers for your network layer upon initialization. `push` method is called when you make changes locally that need to be synchronized. `pull` is called when `crstore` wants to subscribe to any changes coming from the network. Let's say you have a `push` [tRPC mutation](https://trpc.io/docs/quickstart) and a `pull` [tRPC subscription](https://trpc.io/docs/subscriptions) then you can use them like so when connection to a database:
 ```ts
-const todos = crstore("todos", Database, {
+const { store } = database(Schema, {
   push: (changes) => trpc.push.mutate(changes),
   pull: (version, client, onData) =>
     trpc.pull.subscribe({ version, client }, { onData }).unsubscribe,
@@ -76,47 +91,22 @@ const todos = crstore("todos", Database, {
 
 Then your server implementation would look something like this:
 ```ts
-import { encode, decode, changes } from "crstore/database/schema";
-import type { CRChange, Encoded } from "crstore/database/schema";
-import { init } from "crstore/database";
+import { database } from "crstore";
 
-const emitter = new EventEmitter();
-const db = await init("todo.db", Database);
-
+const { subscribe, merge } = database(Schema);
 const { router, procedure } = initTRPC.create();
+
 const app = router({
+  push: procedure.input(array(any())).mutation(({ input }) => merge(input)),
   pull: procedure
     .input(object({ version: number(), client: string() }))
-    .subscription(async ({ input: { version, client } }) => {
-      // Get changes for a client when it first subscribes
-      const changes = await db.changesSince(version, client).execute();
+    .subscription(({ input }) =>
+      observable<any[]>((emit) => {
+        const send = (changes: any[], sender?: string) =>
+          input.client !== sender && emit.next(changes);
 
-      return observable<Encoded<CRChange>[]>((emit) => {
-        const send = (changes: CRChange[], sender?: string) => {
-          // Don't emit empty changes or changes from yourself
-          if (!changes.length || client === sender) return;
-          emit.next(changes.map(encode<CRChange>));
-        };
-
-        // Immediately send current changes
-        send(changes);
-        // Send changes whenever someone else pushes them
-        emitter.on("push", send);
-        return () => emitter.off("push", send);
-      });
-    }),
-
-  // `changes(Database)` is an automagical validator that only allows changes
-  //    on CRR tables in the database schema and verifies column names
-  push: procedure.input(changes(Database)).mutation(async ({ input }) => {
-    // Identify the owner on the changes
-    const sender = input[0]?.site_id;
-    // Decode string to binary data
-    const changes = input.map((x) => decode(x, "site_id")) as CRChange[];
-    // Apply changes to the database and get resolved deltas
-    const resolved = await db.insertChanges(changes).execute();
-    // Emit resolved changes for everyone to receive
-    emitter.emit("push", resolved, sender);
-  }),
+        return subscribe(["*"], send, input);
+      })
+    ),
 });
 ```

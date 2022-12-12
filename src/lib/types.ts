@@ -11,7 +11,7 @@ type Store<S extends CRSchema> = <T, A extends Actions<Schema<S>>>(
 ) => Readable<T[]> &
   Bound<A> & {
     update: <T, A extends any[]>(
-      operation?: Operation<A>,
+      operation?: Operation<A, Schema<S>>,
       ...args: A
     ) => Promise<T>;
   };
@@ -49,8 +49,8 @@ type Pull =
 
 type Updater = (changes: any[], sender?: string) => any;
 
-type Operation<T extends any[]> = (
-  db: Kysely<any>,
+type Operation<T extends any[], S = any> = (
+  db: Kysely<S>,
   ...args: T
 ) => { execute(): unknown };
 
