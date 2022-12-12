@@ -29,7 +29,6 @@ dependencies:
   '@vlcn.io/wa-crsqlite': 0.5.1
   kysely: 0.22.0
   navigator.locks: 0.8.6
-  superstruct: 1.0.3
   svelte: 3.54.0
 
 devDependencies:
@@ -45,6 +44,7 @@ devDependencies:
   ncp: 2.0.0
   prettier: 2.8.1
   prettier-plugin-svelte: 2.9.0_sro2v6ld777payjtkjtiuogcxi
+  superstruct: 1.0.3
   svelte-check: 2.10.2_svelte@3.54.0
   svelte-preprocess: 5.0.0_vjccw6zkwqrmxudvmy4reaayx4
   tslib: 2.4.1
@@ -1184,7 +1184,7 @@ packages:
   /superstruct/1.0.3:
     resolution: {integrity: sha512-8iTn3oSS8nRGn+C2pgXSKPI3jmpm6FExNazNpjvqS6ZUJQCej3PUXEKM8NjHBOs54ExM+LPW/FBRhymrdcCiSg==}
     engines: {node: '>=14.0.0'}
-    dev: false
+    dev: true
 
   /supports-preserve-symlinks-flag/1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}

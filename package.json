@@ -24,6 +24,7 @@
     "ncp": "^2.0.0",
     "prettier": "^2.8.0",
     "prettier-plugin-svelte": "^2.9.0",
+    "superstruct": "^1.0.3",
     "svelte-check": "^2.9.2",
     "svelte-preprocess": "^5.0.0",
     "tslib": "^2.4.1",
@@ -36,7 +37,6 @@
     "@vlcn.io/wa-crsqlite": "^0.5.1",
     "kysely": "^0.22.0",
     "navigator.locks": "^0.8.6",
-    "superstruct": "^1.0.3",
     "svelte": "^3.54.0"
   }
 }

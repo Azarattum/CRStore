@@ -1,9 +1,8 @@
 import type { CompiledQuery, Kysely } from "kysely";
 import type { CRSchema } from "./database/schema";
-import type { Infer, Struct } from "superstruct";
 import type { Readable } from "svelte/store";
 
-type Schema<T> = T extends Struct<any> ? Infer<T> : unknown;
+type Schema<T> = T extends { TYPE: infer U } ? U : unknown;
 type Query<T> = { execute(): Promise<T>; compile(): CompiledQuery };
 
 type Store<S extends CRSchema> = <T, A extends Actions<Schema<S>>>(
@@ -36,4 +35,4 @@ type Context<Schema> = {
   trigger: (tables: string[]) => void;
 };
 
-export type { Store, View, Actions, Bound, Context, Query };
+export type { Schema, Store, View, Actions, Bound, Context, Query };
