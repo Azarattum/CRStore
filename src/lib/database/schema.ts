@@ -50,32 +50,6 @@ function parse(change: string | null) {
   if (Number.isFinite(+change)) return +change;
 }
 
-function encode(data: Uint8Array): string;
-function encode<T extends Record<any, any>>(data: T): Encoded<T>;
-function encode(data: Uint8Array | Record<any, any>) {
-  if (data instanceof Uint8Array) return String.fromCharCode(...data);
-  const copy = {} as Record<any, any>;
-  for (const key in data) {
-    if (data[key] instanceof Uint8Array) copy[key] = encode(data[key]);
-    else copy[key] = data[key];
-  }
-  return copy;
-}
-
-function decode(data: string): Uint8Array;
-function decode<T extends Record<any, any>>(data: Encoded<T>, key: string): T;
-function decode(data: string | Record<any, any>, target?: string) {
-  if (typeof data === "string") {
-    return Uint8Array.from([...data].map((x) => x.charCodeAt(0)));
-  }
-  const copy = {} as Record<any, any>;
-  for (const key in data) {
-    if (key !== target || typeof data[key] !== "string") copy[key] = data[key];
-    else copy[key] = decode(data[key]);
-  }
-  return copy;
-}
-
 const modify = <T extends object>(struct: T, modifier: string) =>
   Object.assign(struct, {
     modifiers: [...((struct as any).modifiers || []), modifier] as string[],
@@ -96,9 +70,6 @@ type CRChange = {
   version: number;
   site_id: Uint8Array;
 };
-type Encoded<T> = {
-  [K in keyof T]: T[K] extends Uint8Array ? string : T[K];
-};
 
-export { apply, encode, decode, primary, crr, parse, requirePrimaryKey };
-export type { CRSchema, CRChange, Encoded };
+export { apply, primary, crr, parse, requirePrimaryKey };
+export type { CRSchema, CRChange };

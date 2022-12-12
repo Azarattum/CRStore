@@ -1,16 +1,13 @@
 import type { Actions, Bound, Context, Query, Store, View } from "./types";
-import type { CRChange, CRSchema, Encoded } from "./database/schema";
-import { affectedTables, init } from "./database";
+import { affectedTables } from "./database/operations";
+import type { CRSchema } from "./database/schema";
 import { writable } from "svelte/store";
 import type { Kysely } from "kysely";
+import { init } from "./database";
 
-const defaultPush = (changes: Encoded<CRChange>[]): any => {};
+const defaultPush = (changes: any[]): any => {};
 const defaultPull =
-  (
-    version: number,
-    client: string,
-    callback: (changes: Encoded<CRChange>[]) => any
-  ) =>
+  (version: number, client: string, callback: (changes: any[]) => any) =>
   () => {};
 
 const noSSR = <T extends Promise<any>>(fn: () => T) =>
@@ -48,11 +45,10 @@ function database<T extends CRSchema>(
     const currentVersion = await db.selectVersion().execute();
     if (currentVersion <= lastVersion) return;
 
-    const client = await db.selectClient().execute();
     /// Wait till "=" resolution is implemented
     // const changes = await db.changesSince(lastVersion, "=", client).execute();
     const changes = await db.changesSince(lastVersion).execute();
-    await remotePush(changes.filter((x) => x.site_id === client));
+    await remotePush(changes);
     setVersion(currentVersion);
   }
 
@@ -70,10 +66,7 @@ function database<T extends CRSchema>(
       await db.insertChanges(changes).execute();
       const newVersion = await db.selectVersion().execute();
       setVersion(newVersion);
-
-      const tables = new Set<string>();
-      changes.forEach((x) => tables.add(x.table));
-      trigger([...tables], false);
+      trigger(affectedTables(changes), false);
     });
     globalThis.addEventListener?.("offline", hold);
   }

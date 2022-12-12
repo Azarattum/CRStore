@@ -1,6 +1,5 @@
 import { any, array, number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
-import type { CRChange, Encoded } from "../lib";
 import { initTRPC } from "@trpc/server";
 import { init } from "../lib/database";
 import { Schema } from "./schema";
@@ -16,8 +15,8 @@ const app = routes({
     .subscription(async ({ input: { version, client } }) => {
       const changes = await db.changesSince(version, "!=", client).execute();
 
-      return observable<Encoded<CRChange>[]>((emit) => {
-        const send = (changes: Encoded<CRChange>[], sender?: string) => {
+      return observable<any[]>((emit) => {
+        const send = (changes: any[], sender?: string) => {
           if (changes.length && client !== sender) emit.next(changes);
         };
 
@@ -28,7 +27,7 @@ const app = routes({
     }),
 
   push: procedure.input(array(any())).mutation(async ({ input }) => {
-    const client = input[0]?.["site_id"];
+    const client = input[0];
     const changes = await db.resolveChanges(input).execute();
     emitter.emit("push", changes, client);
   }),
