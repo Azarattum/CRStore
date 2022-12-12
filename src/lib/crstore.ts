@@ -1,17 +1,11 @@
-import {
-  decode,
-  type CRChange,
-  type CRSchema,
-  type Encoded,
-} from "./database/schema";
-import { requirePrimaryKey, parse, encode } from "./database/schema";
-import { writable, type Subscriber } from "svelte/store";
-import type { Infer, Struct } from "superstruct";
+import type { Actions, Bound, Context, Query, Store, View } from "./types";
+import type { CRChange, CRSchema, Encoded } from "./database/schema";
+import { affectedTables, init } from "./database";
+import { writable } from "svelte/store";
 import type { Kysely } from "kysely";
-import { init } from "./database/";
 
-const defaultPull = (changes: Encoded<CRChange>[]): any => {};
-const defaultPush =
+const defaultPush = (changes: Encoded<CRChange>[]): any => {};
+const defaultPull =
   (
     version: number,
     client: string,
@@ -19,135 +13,151 @@ const defaultPush =
   ) =>
   () => {};
 
-function crstore<T extends CRSchema>(
-  table: keyof T["schema"],
+const noSSR = <T extends Promise<any>>(fn: () => T) =>
+  import.meta.env.SSR
+    ? (new Promise<unknown>(() => {}) as T)
+    : (new Promise((r) => setTimeout(() => r(fn()))) as T);
+
+function database<T extends CRSchema>(
   schema: T,
   {
     name = "crstore",
-    push: remotePush = defaultPull,
-    pull: remotePull = defaultPush,
+    push: remotePush = defaultPush,
+    pull: remotePull = defaultPull,
   } = {}
 ) {
-  type Schema = T extends Struct<any> ? Infer<T> : unknown;
-  type DB = Awaited<ReturnType<typeof init<T>>>;
-  type Table = typeof table extends keyof Schema
-    ? Record<string, Schema[typeof table]>
-    : unknown;
-  type Store = { set: Subscriber<Table>; db: DB };
-
+  const connection = noSSR(() => init(name, schema));
   const channel = new BroadcastChannel(`${name}-sync`);
-  const primaryKey = requirePrimaryKey(schema, table);
-  const getVersion = () => +(localStorage.getItem(`${name}-sync`) || -1);
-  const setVersion = (version: number) =>
+  const tabUpdate = (event: MessageEvent) => trigger(event.data, false);
+
+  const getVersion = () => +(localStorage.getItem(`${name}-sync`) || 0);
+  const setVersion = async (version: number) =>
     localStorage.setItem(`${name}-sync`, version.toString());
 
-  let resolve = (store: Store) => {};
-  let store = new Promise<Store>((r) => (resolve = r));
+  channel.addEventListener("message", tabUpdate);
+  globalThis.addEventListener?.("online", pull);
+  noSSR(() => pull());
 
-  const { subscribe, update } = writable<Table>(undefined, (set) => {
-    if (import.meta.env.SSR) return;
-    let unsubscribe = () => {};
-    const startSync = () => pull().then((x) => (unsubscribe = x));
-    const stopSync = () => unsubscribe();
-    const tabMerge = (event: MessageEvent) => merge(event.data);
-
-    setTimeout(async () => {
-      await init(name, schema).then((db) => resolve({ set, db }));
-      refresh();
-      addEventListener("online", startSync);
-      addEventListener("offline", stopSync);
-      channel.addEventListener("message", tabMerge);
-      if (navigator.onLine) startSync();
-    });
-
-    return async () => {
-      const { db } = await store;
-      stopSync();
-      db?.destroy();
-      removeEventListener("online", startSync);
-      removeEventListener("offline", stopSync);
-      channel.removeEventListener("message", tabMerge);
-      store = new Promise<Store>((r) => (resolve = r));
-    };
-  });
-
-  function merge(changes: CRChange[]) {
-    const delta: Record<string, any> = {};
-    changes
-      .filter((x) => x.table === table)
-      .forEach((change) => {
-        const id = parse(change.pk);
-        if (id == null) return;
-        delta[id] = Object.assign(delta[id] || {}, {
-          [change.cid]: parse(change.val),
-        });
-      });
-
-    update((table: any) => {
-      for (const key in delta) {
-        if ("__crsql_del" in delta[key]) {
-          delete table[key];
-          continue;
-        }
-        if (!table[key]) table[key] = { [primaryKey]: key };
-        Object.assign(table[key], delta[key]);
-      }
-      return table;
-    });
-  }
-
-  async function refresh() {
-    const { set, db } = await store;
-    const data = await db
-      .selectFrom(table as any)
-      .selectAll()
-      .execute();
-    set(Object.fromEntries(data.map((x: any) => [x[primaryKey], x])));
-  }
+  const listeners = new Map<string, Set<() => any>>();
+  let hold = () => {};
 
   async function push() {
     if (!navigator.onLine) return;
-    const { db } = await store;
+    const db = await connection;
     const lastVersion = getVersion();
     const currentVersion = await db.selectVersion().execute();
     if (currentVersion <= lastVersion) return;
 
+    const client = await db.selectClient().execute();
+    /// Wait till "=" resolution is implemented
+    // const changes = await db.changesSince(lastVersion, "=", client).execute();
     const changes = await db.changesSince(lastVersion).execute();
-    await remotePush(changes.map(encode<CRChange>));
+    await remotePush(changes.filter((x) => x.site_id === client));
     setVersion(currentVersion);
   }
 
   async function pull() {
-    const { db } = await store;
+    globalThis.removeEventListener?.("offline", hold);
+    hold();
+
+    if (!navigator.onLine) return;
+    const db = await connection;
     const version = getVersion();
     const client = await db.selectClient().execute();
 
     await push();
-    return remotePull(version, client, async (changes) => {
-      const decoded = changes.map((x) => decode(x, "site_id"));
-      const version = await db.selectVersion().execute();
-      await db.insertChanges(decoded).execute();
-      const resolved = await db.changesSince(version).execute();
-      merge(resolved);
+    hold = remotePull(version, client, async (changes) => {
+      await db.insertChanges(changes).execute();
       const newVersion = await db.selectVersion().execute();
       setVersion(newVersion);
+
+      const tables = new Set<string>();
+      changes.forEach((x) => tables.add(x.table));
+      trigger([...tables], false);
     });
+    globalThis.addEventListener?.("offline", hold);
   }
 
-  async function transact(operation: (db: Kysely<Schema>) => any) {
-    const { db } = await store;
-    const version = await db.selectVersion().execute();
-    await operation(db);
-    const changes = await db.changesSince(version).execute();
-    merge(changes);
-    channel.postMessage(changes);
-    await push();
+  function subscribe(tables: string[], callback: () => any) {
+    tables.forEach((x) => {
+      if (!listeners.has(x)) listeners.set(x, new Set());
+      listeners.get(x)?.add(callback);
+    });
+    return () => tables.forEach((x) => listeners.get(x)?.delete(callback));
+  }
+
+  function trigger(tables: string[], local = true) {
+    const callbacks = new Set<() => void>();
+    tables.forEach((table) =>
+      listeners.get(table)?.forEach((x) => callbacks.add(x))
+    );
+
+    callbacks.forEach((x) => x());
+    if (local) {
+      channel.postMessage(tables);
+      push();
+    }
+  }
+
+  function close() {
+    hold();
+    listeners.clear();
+    connection.then((x) => x.destroy());
+    globalThis.removeEventListener?.("online", pull);
+    globalThis.removeEventListener?.("offline", hold);
+    channel.removeEventListener("message", tabUpdate);
   }
 
   return {
-    subscribe,
-    update: transact,
+    close,
+    store: store.bind({ connection, subscribe, trigger }) as Store<T>,
   };
 }
 
-export { crstore };
+function store<Schema, Type>(
+  this: Context<Schema>,
+  view: View<Schema, Type>,
+  actions: Actions<Schema> = {}
+) {
+  const { connection, trigger } = this;
+  const { subscribe, set } = writable<Type[]>(undefined, () => {
+    let unsubscribe: (() => void) | null = () => {};
+    connection.then((db) => {
+      if (!unsubscribe) return;
+      const query = view(db).compile();
+      unsubscribe = this.subscribe(affectedTables(query), refresh);
+    });
+
+    refresh();
+    return () => (unsubscribe?.(), (unsubscribe = null));
+  });
+
+  async function refresh() {
+    const db = await connection;
+    set(await view(db).execute());
+  }
+
+  async function update(operation?: (db: Kysely<Schema>) => Query<unknown>) {
+    if (!operation) return refresh();
+    const query = operation(await connection);
+    await query.execute();
+    trigger(affectedTables(query.compile()));
+  }
+
+  const bound: Bound<Actions<Schema>> = {};
+  for (const name in actions) {
+    bound[name] = async (...args: any[]) => {
+      const query = actions[name](await connection, ...args);
+      await query.execute();
+      trigger(affectedTables(query.compile()));
+    };
+  }
+
+  return {
+    ...bound,
+    subscribe,
+    update,
+  };
+}
+
+export { database };
