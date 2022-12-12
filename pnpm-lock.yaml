@@ -17,7 +17,7 @@ specifiers:
   prettier: ^2.8.0
   prettier-plugin-svelte: ^2.9.0
   superstruct: ^1.0.3
-  svelte: ^3.53.1
+  svelte: ^3.54.0
   svelte-check: ^2.9.2
   svelte-preprocess: ^5.0.0
   tslib: ^2.4.1
@@ -30,6 +30,7 @@ dependencies:
   kysely: 0.22.0
   navigator.locks: 0.8.6
   superstruct: 1.0.3
+  svelte: 3.54.0
 
 devDependencies:
   '@sveltejs/adapter-auto': 1.0.0-next.90
@@ -44,7 +45,6 @@ devDependencies:
   ncp: 2.0.0
   prettier: 2.8.1
   prettier-plugin-svelte: 2.9.0_sro2v6ld777payjtkjtiuogcxi
-  svelte: 3.54.0
   svelte-check: 2.10.2_svelte@3.54.0
   svelte-preprocess: 5.0.0_vjccw6zkwqrmxudvmy4reaayx4
   tslib: 2.4.1
@@ -1330,7 +1330,6 @@ packages:
   /svelte/3.54.0:
     resolution: {integrity: sha512-tdrgeJU0hob0ZWAMoKXkhcxXA7dpTg6lZGxUeko5YqvPdJBiyRspGsCwV27kIrbrqPP2WUoSV9ca0gnLlw8YzQ==}
     engines: {node: '>= 8'}
-    dev: true
 
   /svelte2tsx/0.5.22_vjccw6zkwqrmxudvmy4reaayx4:
     resolution: {integrity: sha512-OytIql7Bv53oFuL0jjsnp/gNvR4ngAUdAjswgibmIQT2Lj2OIQYn2J3gKqRd+wSj/n3M/wrz4zJpudQRSfncZw==}
