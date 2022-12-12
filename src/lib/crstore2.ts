@@ -1,11 +1,11 @@
-import type { CRChange, CRSchema, Encoded } from "./database/schema";
 import type { Actions, Bound, Context, Query, Store, View } from "./types";
+import type { CRChange, CRSchema, Encoded } from "./database/schema";
 import { decode, encode } from "./database/schema";
-import { writable } from "svelte/store";
-import type { Kysely, TableNode } from "kysely";
 import { affectedTables, init } from "./database";
+import { writable } from "svelte/store";
+import type { Kysely } from "kysely";
 
-const defaultPush = (changes: Encoded<CRChange>[], client: string): any => {};
+const defaultPush = (changes: Encoded<CRChange>[]): any => {};
 const defaultPull =
   (
     version: number,
@@ -31,59 +31,56 @@ function database<T extends CRSchema>(
   const channel = new BroadcastChannel(`${name}-sync`);
   const tabUpdate = (event: MessageEvent) => trigger(event.data, false);
 
-  const getVersion = (type: "pull" | "push") =>
-    +(localStorage.getItem(`${name}-sync-${type}`) || 0);
-  const setVersion = async (version: number, type: "pull" | "push") => {
-    /// Debug
-    console.log(type, getVersion(type), "->", version);
-    localStorage.setItem(`${name}-sync-${type}`, version.toString());
-  };
+  const getVersion = () => +(localStorage.getItem(`${name}-sync`) || 0);
+  const setVersion = async (version: number) =>
+    localStorage.setItem(`${name}-sync`, version.toString());
 
   channel.addEventListener("message", tabUpdate);
-  globalThis.addEventListener?.("online", sync);
-  noSSR(async () => navigator.onLine && sync());
+  globalThis.addEventListener?.("online", pull);
+  noSSR(() => pull());
 
-  let stopSync = () => {};
   const listeners = new Map<string, Set<() => any>>();
+  let hold = () => {};
 
   async function push() {
     if (!navigator.onLine) return;
     const db = await connection;
-    const lastVersion = getVersion("push");
+    const lastVersion = getVersion();
     const currentVersion = await db.selectVersion().execute();
     if (currentVersion <= lastVersion) return;
 
-    /// Wait till "=" resolution is implemented
     const client = await db.selectClient().execute();
+    /// Wait till "=" resolution is implemented
     // const changes = await db.changesSince(lastVersion, "=", client).execute();
     const changes = await db.changesSince(lastVersion).execute();
-    await remotePush(changes.map(encode<CRChange>), client);
-    setVersion(currentVersion, "push");
+    const encoded = changes
+      .map(encode<CRChange>)
+      .filter((x) => x.site_id === client);
+    await remotePush(encoded);
+    setVersion(currentVersion);
   }
 
   async function pull() {
+    globalThis.removeEventListener?.("offline", hold);
+    hold();
+
+    if (!navigator.onLine) return;
     const db = await connection;
-    const version = getVersion("pull");
+    const version = getVersion();
     const client = await db.selectClient().execute();
 
-    return remotePull(version, client, async (changes) => {
+    await push();
+    hold = remotePull(version, client, async (changes) => {
       const decoded = changes.map((x) => decode(x, "site_id"));
       await db.insertChanges(decoded).execute();
       const newVersion = await db.selectVersion().execute();
-      setVersion(newVersion, "pull");
+      setVersion(newVersion);
 
       const tables = new Set<string>();
       changes.forEach((x) => tables.add(x.table));
       trigger([...tables], false);
     });
-  }
-
-  async function sync() {
-    await push();
-    stopSync();
-    globalThis.removeEventListener?.("offline", stopSync);
-    stopSync = await pull();
-    globalThis.addEventListener?.("offline", stopSync);
+    globalThis.addEventListener?.("offline", hold);
   }
 
   function subscribe(tables: string[], callback: () => any) {
@@ -108,12 +105,12 @@ function database<T extends CRSchema>(
   }
 
   function close() {
-    stopSync();
+    hold();
     listeners.clear();
     connection.then((x) => x.destroy());
+    globalThis.removeEventListener?.("online", pull);
+    globalThis.removeEventListener?.("offline", hold);
     channel.removeEventListener("message", tabUpdate);
-    globalThis.removeEventListener?.("online", sync);
-    globalThis.removeEventListener?.("offline", stopSync);
   }
 
   return {
@@ -127,9 +124,7 @@ function store<Schema, Type>(
   view: View<Schema, Type>,
   actions: Actions<Schema> = {}
 ) {
-  const connection = this.connection;
-  const trigger = this.trigger;
-
+  const { connection, trigger } = this;
   const { subscribe, set } = writable<Type[]>(undefined, () => {
     let unsubscribe: (() => void) | null = () => {};
     connection.then((db) => {

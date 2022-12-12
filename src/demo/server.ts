@@ -1,6 +1,6 @@
 import { encode, decode, changes } from "../lib/database/schema";
 import type { CRChange, Encoded } from "../lib/database/schema";
-import { number, object, string } from "superstruct";
+import { any, array, number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
 import { initTRPC } from "@trpc/server";
 import { init } from "../lib/database";
@@ -29,14 +29,12 @@ const app = routes({
       });
     }),
 
-  push: procedure.input(changes(Schema)).mutation(async ({ input }) => {
-    const { client, changes } = input;
-    const decoded = changes.map((x) => decode(x, "site_id")) as CRChange[];
+  push: procedure.input(array(any())).mutation(async ({ input }) => {
+    const client = input[0]?.["site_id"];
+    const decoded = input.map((x) => decode(x, "site_id")) as CRChange[];
     const version = await db.selectVersion().execute();
     await db.insertChanges(decoded).execute();
     const resolved = await db.changesSince(version).execute();
-    /// Debug
-    console.log("version", version, "->", await db.selectVersion().execute());
     emitter.emit("push", resolved, client);
   }),
 });

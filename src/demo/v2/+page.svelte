@@ -6,7 +6,7 @@
   import { onDestroy } from "svelte";
 
   const { store, close } = database(Schema, {
-    push: (changes, client) => trpc.push.mutate({changes, client}),
+    push: (changes) => trpc.push.mutate(changes),
     pull: (version, client, onData) =>
       trpc.pull.subscribe({ version, client }, { onData }).unsubscribe,
   });
