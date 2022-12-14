@@ -64,16 +64,13 @@ todos.update((db) => db.insertInto("todos").values({ ... }));
 todos.toggle("id");
 ```
 
-We can simple iterate the store to render the results. Note that the database loads asynchronously, so the store's data will not be available immediately. We might want to wrap our todos in an `if` block to properly show the loading state like so:
+We can simple iterate the store to render the results:
+> Note that the database loads asynchronously, so the store will contain an empty array util it loads.
 ```svelte
-{#if $todos}
-  {#each $todos as todo}
-    <h2>{todo.title}</h2>
-    <p>{todo.text}</p>
-  {/each}
-{:else}
-  Loading...
-{/if}
+{#each $todos as todo}
+  <h2>{todo.title}</h2>
+  <p>{todo.text}</p>
+{/each}
 ```
 
 This we dynamically react to all the changes in our database even if we make them from a different store. Each store we create reacts only to changes in tables we have selected from.
