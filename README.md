@@ -26,7 +26,7 @@ const Todos = object({
   completed: boolean(),
 });
 
-const Database = object({ 
+const Schema = object({ 
   todos: crr(Todos) 
 });
 ```
