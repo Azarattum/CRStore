@@ -2,13 +2,13 @@
   import { database } from "$lib/crstore";
   import { onDestroy } from "svelte";
   import { Schema } from "./schema";
-  import { trpc } from "./client";
+  import { trpc } from "../client";
   import { sql } from "kysely";
 
   const { store, close } = database(Schema, {
-    push: (changes) => trpc.push.mutate(changes),
+    push: (changes) => trpc.todo.push.mutate(changes),
     pull: (version, client, onData) =>
-      trpc.pull.subscribe({ version, client }, { onData }).unsubscribe,
+      trpc.todo.pull.subscribe({ version, client }, { onData }).unsubscribe,
   });
   onDestroy(close);
 

@@ -1,5 +1,5 @@
 import { boolean, object, string } from "superstruct";
-import { crr, primary } from "../lib";
+import { crr, primary } from "../../lib";
 
 const Todos = object({
   id: primary(string()),
