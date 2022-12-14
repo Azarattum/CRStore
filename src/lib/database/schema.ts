@@ -25,8 +25,17 @@ async function apply(db: Kysely<unknown>, { schema }: CRSchema) {
       );
     }
     await query.execute();
+
+    const columns = schema[table].index;
+    if (columns && columns.length) {
+      await db.schema
+        .createIndex(`${table}-${columns?.join("-")}`)
+        .on(table)
+        .columns(columns)
+        .execute();
+    }
     if (schema[table].crsql) {
-      sql`SELECT crsql_as_crr(${table})`.execute(db);
+      await sql`SELECT crsql_as_crr(${table})`.execute(db);
     }
   }
 }
@@ -58,9 +67,15 @@ const modify = <T extends object>(struct: T, modifier: string) =>
 const primary = <T extends object>(struct: T) => modify(struct, "primaryKey");
 const crr = <T extends object>(struct: T) =>
   Object.assign(struct, { crsql: true });
+const index = <T extends object>(struct: T, columns: string[]) =>
+  Object.assign(struct, { index: columns });
 
 type CRColumn = { type: string; modifiers?: string[] };
-type CRTable = { schema: Record<string, CRColumn>; crsql?: boolean };
+type CRTable = {
+  schema: Record<string, CRColumn>;
+  crsql?: boolean;
+  index?: string[];
+};
 type CRSchema = { schema: Record<string, CRTable> };
 type CRChange = {
   table: string;
@@ -71,5 +86,5 @@ type CRChange = {
   site_id: Uint8Array;
 };
 
-export { apply, primary, crr, parse, requirePrimaryKey };
+export { apply, primary, crr, index, parse, requirePrimaryKey };
 export type { CRSchema, CRChange };

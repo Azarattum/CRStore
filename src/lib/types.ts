@@ -20,15 +20,15 @@ type View<Schema, Type> = (db: Kysely<Schema>) => Query<Type[]>;
 
 type Actions<Schema> = Record<
   string,
-  (db: Kysely<Schema>, ...args: any[]) => Query<any>
+  (db: Kysely<Schema>, ...args: any[]) => Query<any> | Query<any>[]
 >;
 
 type Bound<Actions> = {
   [K in keyof Actions]: Actions[K] extends (
     db: Kysely<any>,
     ...args: infer A
-  ) => Query<infer R>
-    ? (...args: A) => Promise<R>
+  ) => any
+    ? (...args: A) => Promise<void>
     : never;
 };
 
@@ -52,7 +52,7 @@ type Updater = (changes: any[], sender?: string) => any;
 type Operation<T extends any[], S = any> = (
   db: Kysely<S>,
   ...args: T
-) => { execute(): unknown };
+) => { execute(): unknown } | { execute(): unknown }[];
 
 export type {
   Operation,

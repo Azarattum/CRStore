@@ -103,7 +103,9 @@ function applyOperation<T extends any[]>(
     execute: async () => {
       return this.transaction().execute(async (db) => {
         const version = await selectVersion.bind(db)().execute();
-        await operation(db, ...args).execute();
+        let results = operation(db, ...args);
+        if (!Array.isArray(results)) results = [results];
+        await Promise.allSettled(results.map((x) => x.execute()));
         return await changesSince.bind(db)(version).execute();
       });
     },
