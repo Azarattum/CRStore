@@ -14,8 +14,8 @@ const all = store(
   (db) =>
     db
       .selectFrom("tracks")
-      .innerJoin("artists", "tracks.artist", "artists.id")
-      .innerJoin("albums", "tracks.album", "albums.id")
+      .leftJoin("artists", "tracks.artist", "artists.id")
+      .leftJoin("albums", "tracks.album", "albums.id")
       .select([
         "tracks.id as id",
         "tracks.title as title",
@@ -23,35 +23,34 @@ const all = store(
         "albums.title as album",
       ]),
   {
-    add(db, title: string, artist: string, album: string) {
-      const trackId = [...title].map((x) => x.charCodeAt(0)).join("");
-      const artistId = [...artist].map((x) => x.charCodeAt(0)).join("");
-      const albumId = [...album].map((x) => x.charCodeAt(0)).join("");
-
-      return [
-        db
-          .insertInto("artists")
-          .onConflict((oc) => oc.doNothing())
-          .values({ id: artistId, title: artist }),
-        db
-          .insertInto("albums")
-          .onConflict((oc) => oc.doNothing())
-          .values({ id: albumId, title: album }),
-        db
-          .insertInto("tracks")
-          .values({ id: trackId, title, artist: artistId, album: albumId }),
-      ];
+    add(db, title: string, artistId: string, albumId: string) {
+      const id = [...title].map((x) => x.charCodeAt(0)).join("");
+      return db
+        .insertInto("tracks")
+        .values({ id, title, artist: artistId, album: albumId });
     },
   }
 );
 
-const artists = store((db) => db.selectFrom("artists").selectAll());
+const artists = store((db) => db.selectFrom("artists").selectAll(), {
+  add(db, title: string) {
+    const id = [...title].map((x) => x.charCodeAt(0)).join("");
+    return db.insertInto("artists").values({ id, title });
+  },
+});
+
+const albums = store((db) => db.selectFrom("albums").selectAll(), {
+  add(db, title: string) {
+    const id = [...title].map((x) => x.charCodeAt(0)).join("");
+    return db.insertInto("albums").values({ id, title });
+  },
+});
 
 const grouped = store((db) =>
   db
     .selectFrom("tracks")
-    .innerJoin("artists", "tracks.artist", "artists.id")
-    .innerJoin("albums", "tracks.album", "albums.id")
+    .leftJoin("artists", "tracks.artist", "artists.id")
+    .leftJoin("albums", "tracks.album", "albums.id")
     .select([
       "albums.title as album",
       /// This is quite ugly, should be reworked
@@ -65,4 +64,4 @@ const grouped = store((db) =>
     .groupBy("album")
 );
 
-export { all, artists, grouped };
+export { all, artists, albums, grouped };

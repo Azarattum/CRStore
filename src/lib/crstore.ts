@@ -145,7 +145,7 @@ function store<Schema, Type>(
   actions: Actions<Schema> = {}
 ) {
   const { connection, trigger } = this;
-  const { subscribe, set } = writable<Type[]>(undefined, () => {
+  const { subscribe, set } = writable<Type[]>([], () => {
     let unsubscribe: (() => void) | null = () => {};
     connection.then((db) => {
       if (!unsubscribe) return;

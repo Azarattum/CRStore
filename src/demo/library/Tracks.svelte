@@ -2,23 +2,31 @@
   export let tracks: {
     id: string;
     title: string;
-    artist: string;
-    album: string;
+    artist: string | null;
+    album: string | null;
   }[] = [];
 </script>
 
-<thead>
-  <th>Artist</th><th>Title</th><th>Album</th>
-</thead>
-<tbody>
-  {#each tracks as track (track.id)}
-    <tr>
-      <td>{track.artist}</td><td>{track.title}</td><td>{track.album}</td>
-    </tr>
-  {/each}
-</tbody>
+<table>
+  <thead>
+    <th>Artist</th><th>Title</th><th>Album</th>
+  </thead>
+  <tbody>
+    {#each tracks as track (track.id)}
+      <tr>
+        <td>{track.artist || "-"}</td>
+        <td>{track.title}</td>
+        <td>{track.album || "-"}</td>
+      </tr>
+    {/each}
+  </tbody>
+</table>
 
 <style>
+  table {
+    border-collapse: collapse;
+  }
+
   tr:nth-child(2n) {
     background-color: gainsboro;
   }
