@@ -5,6 +5,7 @@ import {
   changesSince,
   selectClient,
   applyOperation,
+  finalize,
 } from "./operations";
 import { Kysely, SqliteDialect } from "kysely";
 import type { CRSchema } from "./schema";
@@ -60,9 +61,10 @@ async function init<T extends CRSchema>(file: string, schema: T) {
     selectVersion,
     selectClient,
     changesSince,
-    destroy() {
+    async destroy() {
       connections.delete(file);
-      close();
+      await finalize.bind(kysely)().execute();
+      return close();
     },
   });
 

@@ -112,6 +112,13 @@ function applyOperation<T extends any[]>(
   };
 }
 
+function finalize(this: Kysely<any>) {
+  const query = sql`select crsql_finalize();`;
+  return {
+    execute: () => query.execute(this),
+  };
+}
+
 function affectedTables(target: Partial<CompiledQuery> | any[]) {
   if (Array.isArray(target)) {
     const tables = new Set<string>();
@@ -148,6 +155,7 @@ function affectedTables(target: Partial<CompiledQuery> | any[]) {
 }
 
 export {
+  finalize,
   selectClient,
   selectVersion,
   changesSince,
