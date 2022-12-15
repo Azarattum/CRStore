@@ -1,4 +1,14 @@
-import type { Kysely, SelectQueryNode } from "kysely";
+import type {
+  AggregateFunctionNode,
+  SelectQueryNode,
+  ReferenceNode,
+  SelectAllNode,
+  ColumnNode,
+  TableNode,
+  AliasNode,
+  RawNode,
+  Kysely,
+} from "kysely";
 import type { CRSchema } from "./database/schema";
 import type { Readable } from "svelte/store";
 
@@ -58,6 +68,16 @@ type Operation<T extends any[], S = any> = (
   ...args: T
 ) => Executable | Executable[];
 
+type Node =
+  | SelectQueryNode
+  | TableNode
+  | ColumnNode
+  | ReferenceNode
+  | RawNode
+  | AggregateFunctionNode
+  | AliasNode
+  | SelectAllNode;
+
 export type {
   Operation,
   Actions,
@@ -69,4 +89,5 @@ export type {
   View,
   Push,
   Pull,
+  Node,
 };

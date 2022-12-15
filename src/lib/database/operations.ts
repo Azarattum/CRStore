@@ -1,5 +1,5 @@
-import type { FilterOperator, SelectQueryNode, Kysely } from "kysely";
-import type { Operation } from "../types";
+import type { FilterOperator, Kysely } from "kysely";
+import type { Operation, Node } from "../types";
 import type { CRChange } from "./schema";
 import { sql } from "kysely";
 
@@ -113,15 +113,30 @@ function finalize(this: Kysely<any>) {
   };
 }
 
-function affectedTables(target: SelectQueryNode | any[]) {
+function affectedTables(target: Node | any[]): string[] {
   if (Array.isArray(target)) {
     const tables = new Set<string>();
     for (let i = 3; i < target.length; i += 6) tables.add(target[i]);
     return [...tables];
   }
-  return [...target.from.froms, ...(target.joins || [])]
-    .filter((x) => x.kind === "TableNode")
-    .map((x: any) => x.table.identifier.name as string);
+  if (target.kind === "TableNode") {
+    return [target.table.identifier.name];
+  }
+  if (target.kind === "ReferenceNode") {
+    return [target.table.table.identifier.name];
+  }
+  if (target.kind === "AliasNode") {
+    return affectedTables(target.node);
+  }
+  if (target.kind === "SelectQueryNode") {
+    const tables = [
+      ...target.from.froms,
+      ...(target.joins?.map((x) => x.table) || []),
+      ...(target.selections?.map((x) => x.selection) || []),
+    ].flatMap(affectedTables);
+    return [...new Set(tables)];
+  }
+  return [];
 }
 
 export {
