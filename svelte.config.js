@@ -11,6 +11,7 @@ const config = {
     adapter: adapter(),
     files: {
       routes: "src/demo",
+      appTemplate: "src/demo/app.html",
     },
   },
 };
