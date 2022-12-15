@@ -1,9 +1,13 @@
-import type { CompiledQuery, Kysely } from "kysely";
+import type { Kysely, SelectQueryNode } from "kysely";
 import type { CRSchema } from "./database/schema";
 import type { Readable } from "svelte/store";
 
 type Schema<T> = T extends { TYPE: infer U } ? U : unknown;
-type Query<T> = { execute(): Promise<T>; compile(): CompiledQuery };
+type Executable<T = any> = { execute(): T };
+type Selectable<T> = {
+  execute(): Promise<T>;
+  toOperationNode(): SelectQueryNode;
+};
 
 type Store<S extends CRSchema> = <T, A extends Actions<Schema<S>>>(
   view: View<Schema<S>, T>,
@@ -16,11 +20,11 @@ type Store<S extends CRSchema> = <T, A extends Actions<Schema<S>>>(
     ) => Promise<T>;
   };
 
-type View<Schema, Type> = (db: Kysely<Schema>) => Query<Type[]>;
+type View<Schema, Type> = (db: Kysely<Schema>) => Selectable<Type[]>;
 
 type Actions<Schema> = Record<
   string,
-  (db: Kysely<Schema>, ...args: any[]) => Query<any> | Query<any>[]
+  (db: Kysely<Schema>, ...args: any[]) => Executable | Executable[]
 >;
 
 type Bound<Actions> = {
@@ -52,7 +56,7 @@ type Updater = (changes: any[], sender?: string) => any;
 type Operation<T extends any[], S = any> = (
   db: Kysely<S>,
   ...args: T
-) => { execute(): unknown } | { execute(): unknown }[];
+) => Executable | Executable[];
 
 export type {
   Operation,
@@ -62,7 +66,6 @@ export type {
   Schema,
   Store,
   Bound,
-  Query,
   View,
   Push,
   Pull,

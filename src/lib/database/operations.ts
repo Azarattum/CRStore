@@ -1,10 +1,4 @@
-import type {
-  TableExpressionNode,
-  FilterOperator,
-  CompiledQuery,
-  JoinNode,
-  Kysely,
-} from "kysely";
+import type { FilterOperator, SelectQueryNode, Kysely } from "kysely";
 import type { Operation } from "../types";
 import type { CRChange } from "./schema";
 import { sql } from "kysely";
@@ -119,39 +113,15 @@ function finalize(this: Kysely<any>) {
   };
 }
 
-function affectedTables(target: Partial<CompiledQuery> | any[]) {
+function affectedTables(target: SelectQueryNode | any[]) {
   if (Array.isArray(target)) {
     const tables = new Set<string>();
     for (let i = 3; i < target.length; i += 6) tables.add(target[i]);
     return [...tables];
   }
-
-  const toTables = (x: readonly (TableExpressionNode | JoinNode)[]) =>
-    x
-      .filter((x) => x.kind === "TableNode")
-      .map((x: any) => x.table.identifier.name as string);
-
-  const { query } = target;
-  if (!query) return [];
-
-  if (query.kind === "SelectQueryNode" || query.kind === "DeleteQueryNode") {
-    return toTables([...query.from.froms, ...(query.joins || [])]);
-  } else if (query.kind === "InsertQueryNode") {
-    const selects: string[] =
-      query.values?.kind === "SelectQueryNode"
-        ? affectedTables({ query: query.values })
-        : [];
-
-    return [query.into.table.identifier.name, ...selects];
-  } else if (query.kind === "UpdateQueryNode") {
-    if (query.table.kind === "AliasNode") return [];
-    return [
-      query.table.table.identifier.name,
-      ...toTables(query.from?.froms || []),
-    ];
-  }
-
-  return [];
+  return [...target.from.froms, ...(target.joins || [])]
+    .filter((x) => x.kind === "TableNode")
+    .map((x: any) => x.table.identifier.name as string);
 }
 
 export {

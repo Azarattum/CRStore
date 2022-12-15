@@ -149,8 +149,8 @@ function store<Schema, Type>(
     let unsubscribe: (() => void) | null = () => {};
     connection.then((db) => {
       if (!unsubscribe) return;
-      const query = view(db).compile();
-      unsubscribe = this.subscribe(affectedTables(query), refresh);
+      const node = view(db).toOperationNode();
+      unsubscribe = this.subscribe(affectedTables(node), refresh);
     });
 
     return () => (unsubscribe?.(), (unsubscribe = null));
