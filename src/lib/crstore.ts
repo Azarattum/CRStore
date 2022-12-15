@@ -11,8 +11,8 @@ import type {
 } from "./types";
 import { affectedTables } from "./database/operations";
 import type { CRSchema } from "./database/schema";
+import { defaultPaths, init } from "./database";
 import { writable } from "svelte/store";
-import { init } from "./database";
 
 const noSSR = <T extends Promise<any>>(fn: () => T) =>
   import.meta.env?.SSR
@@ -25,9 +25,10 @@ function database<T extends CRSchema>(
     name = "crstore.db",
     push: remotePush = undefined as Push,
     pull: remotePull = undefined as Pull,
+    paths = defaultPaths,
   } = {}
 ) {
-  const connection = noSSR(() => init(name, schema));
+  const connection = noSSR(() => init(name, schema, paths));
   const channel = new BroadcastChannel(`${name}-sync`);
   const tabUpdate = (event: MessageEvent) => trigger(event.data, false);
 
