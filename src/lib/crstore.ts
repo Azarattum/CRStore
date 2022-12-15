@@ -15,9 +15,13 @@ import { defaultPaths, init } from "./database";
 import { writable } from "svelte/store";
 
 const noSSR = <T extends Promise<any>>(fn: () => T) =>
-  import.meta.env?.SSR
+  import.meta && import.meta.env && import.meta.env.SSR
     ? (new Promise<unknown>(() => {}) as T)
     : (new Promise((r) => setTimeout(() => r(fn()))) as T);
+
+if (!("navigator" in globalThis)) {
+  (globalThis as any).navigator = { onLine: false };
+}
 
 function database<T extends CRSchema>(
   schema: T,
@@ -38,7 +42,7 @@ function database<T extends CRSchema>(
 
   channel.addEventListener("message", tabUpdate);
   globalThis.addEventListener?.("online", pull);
-  noSSR(() => pull());
+  noSSR(pull);
 
   const listeners = new Map<string, Set<Updater>>();
   let hold = () => {};
