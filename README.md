@@ -10,6 +10,7 @@ Conflict-free replicated svelte store.
 - ⚡ CRDTs powered by [cr-sqlite](https://github.com/vlcn-io/cr-sqlite)
 - 🔮 Automagical schema using [superstruct](https://github.com/ianstormtaylor/superstruct)
 - 🤝 First class [tRPC](https://github.com/trpc/trpc) support
+- 🐇 Supports [bun:sqlite](https://github.com/oven-sh/bun#bunsqlite-sqlite3-module) (experimental)
 
 ## Using CRStore
 
