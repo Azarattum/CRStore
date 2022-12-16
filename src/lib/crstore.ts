@@ -75,7 +75,7 @@ function database<T extends CRSchema>(
       await db.insertChanges(changes).execute();
       const newVersion = await db.selectVersion().execute();
       setVersion(newVersion);
-      trigger(changes, false);
+      await trigger(changes, false);
     });
     globalThis.addEventListener?.("offline", hold);
   }
@@ -105,7 +105,7 @@ function database<T extends CRSchema>(
 
   async function merge(changes: any[]) {
     const db = await connection;
-    trigger(await db.resolveChanges(changes).execute());
+    await trigger(await db.resolveChanges(changes).execute());
   }
 
   async function trigger(changes: any[], local = true) {
@@ -119,11 +119,13 @@ function database<T extends CRSchema>(
       listeners.get(table)?.forEach((x) => callbacks.add(x))
     );
 
-    callbacks.forEach((x) => x(changes, sender));
+    const promises = [...callbacks].map((x) => x(changes, sender));
     if (local) {
       channel.postMessage(changes);
-      push();
+      await push();
     }
+
+    await Promise.all(promises);
   }
 
   function close() {
@@ -169,7 +171,8 @@ function store<Schema, Type>(
   async function update<T extends any[]>(operation?: Operation<T>, ...args: T) {
     if (!operation) return refresh();
     const db = await (connection as ReturnType<typeof init>);
-    trigger(await db.applyOperation(operation, ...args).execute());
+    const changes = await db.applyOperation(operation, ...args).execute();
+    await trigger(changes);
   }
 
   const bound: Bound<Actions<Schema>> = {};
