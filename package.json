@@ -19,7 +19,7 @@
     "@trpc/server": "^10.5.0",
     "@types/better-sqlite3": "^7.6.3",
     "@types/ws": "^8.5.3",
-    "@vlcn.io/crsqlite": "^0.5.1",
+    "@vlcn.io/crsqlite": "^0.5.2",
     "better-sqlite3": "^8.0.1",
     "ncp": "^2.0.0",
     "prettier": "^2.8.0",
@@ -34,7 +34,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@vlcn.io/wa-crsqlite": "^0.5.1",
+    "@vlcn.io/wa-crsqlite": "^0.5.2",
     "kysely": "^0.22.0",
     "navigator.locks": "^0.8.6",
     "svelte": "^3.55.0"

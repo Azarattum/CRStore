@@ -8,8 +8,8 @@ specifiers:
   '@trpc/server': ^10.5.0
   '@types/better-sqlite3': ^7.6.3
   '@types/ws': ^8.5.3
-  '@vlcn.io/crsqlite': ^0.5.1
-  '@vlcn.io/wa-crsqlite': ^0.5.1
+  '@vlcn.io/crsqlite': ^0.5.2
+  '@vlcn.io/wa-crsqlite': ^0.5.2
   better-sqlite3: ^8.0.1
   kysely: ^0.22.0
   navigator.locks: ^0.8.6
@@ -26,7 +26,7 @@ specifiers:
   ws: ^8.11.0
 
 dependencies:
-  '@vlcn.io/wa-crsqlite': 0.5.1
+  '@vlcn.io/wa-crsqlite': 0.5.2
   kysely: 0.22.0
   navigator.locks: 0.8.6
   svelte: 3.55.0
@@ -39,7 +39,7 @@ devDependencies:
   '@trpc/server': 10.5.0
   '@types/better-sqlite3': 7.6.3
   '@types/ws': 8.5.3
-  '@vlcn.io/crsqlite': 0.5.1
+  '@vlcn.io/crsqlite': 0.5.2
   better-sqlite3: 8.0.1
   ncp: 2.0.0
   prettier: 2.8.1
@@ -407,24 +407,24 @@ packages:
       '@types/node': 18.11.12
     dev: true
 
-  /@vlcn.io/crsqlite/0.5.1:
-    resolution: {integrity: sha512-77cU/HLL8eqLIf8ftZXc5kjf4ZdfuDvLYnYwc8Td0zUf48ob1uJCtq9iM3W8jIpDrnUEEPvGQanRmV0JnqZU5A==}
+  /@vlcn.io/crsqlite/0.5.2:
+    resolution: {integrity: sha512-YGkB+wRWIpJyUVjB4Kx6dgFgMRg46z1GGsoPDMg7LBd9fTjK9dwFFAxRMyba4L5CZHmNeYNtFfgWQe1ORLEr/Q==}
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
       prebuild-install: 7.1.1
     dev: true
 
-  /@vlcn.io/wa-crsqlite/0.5.1:
-    resolution: {integrity: sha512-SqGAEic+qyCq8pf97PdhbJZhzZbPYja5V7SMtQsiw7PRJuO+2RcrUoWEfmqFtw5/FpNgbnjYt0T4X8XdI2h98A==}
+  /@vlcn.io/wa-crsqlite/0.5.2:
+    resolution: {integrity: sha512-HFEML/94oXyyD83DSq9ACFQl5IvDzFNOc4uxlerXx42aUPoSyIjSRnLsLTF1OjeMXPnqUZOeTpiYfrS6H+vngQ==}
     dependencies:
-      '@vlcn.io/wa-sqlite': 0.12.1
+      '@vlcn.io/wa-sqlite': 0.12.2
       '@vlcn.io/xplat-api': 0.4.1
       comlink: 4.3.1
     dev: false
 
-  /@vlcn.io/wa-sqlite/0.12.1:
-    resolution: {integrity: sha512-2swWZhDJR2ET4q/v8QReWp46h7Z3gAJAMSUfsHIaUzF6x4G2MyEGj/ZcMsGxHMI5W9U3SQN0ulJklFDOrtBR/w==}
+  /@vlcn.io/wa-sqlite/0.12.2:
+    resolution: {integrity: sha512-s2GO9CxtHRZu2IMsbFpblTXnvBz3oV4RlDMc1CTo5ihMHQeCDsA8ablSKmCF7NU1f39g3Iob34EDFZWaNs7IRQ==}
     dev: false
 
   /@vlcn.io/xplat-api/0.4.1:
