@@ -32,6 +32,7 @@ const config = {
       target: "es2020",
     },
   },
+  test: { env: { SSR: "" } },
 };
 
 export default config;
