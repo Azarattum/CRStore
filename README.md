@@ -108,3 +108,20 @@ const app = router({
     ),
 });
 ```
+
+## Advanced Usage
+
+### Depend on other stores
+
+When creating a `crstore` you might want it to subscribe to some other stores. For example you can have a writable `query` store and a `search` crstore. Where `search` updates every time `query` updates. To do so you can use `.with(...stores)` syntax when creating a store. All the resolved dependencies will be passed to your SELECT callback.
+```ts
+import { writable } from "svelte/store";
+import { database } from "crstore";
+
+const { store } = database(Schema);
+
+const query = writable("hey");
+const search = store.with(query)((db, query) => 
+  db.selectFrom("todos").where("text", "=", query).selectAll()
+);
+```

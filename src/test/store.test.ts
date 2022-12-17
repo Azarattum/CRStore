@@ -1,7 +1,7 @@
 import { afterAll, expect, it, vi } from "vitest";
 import { crr, database, primary } from "$lib";
 import { object, string } from "superstruct";
-import { get } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { rm } from "fs/promises";
 
 const delay = (ms = 1) => new Promise((r) => setTimeout(r, ms));
@@ -58,6 +58,26 @@ it("merges changes", async () => {
   const changes = ["client", "data", "'1'", "test", "'updated'", 2];
   await merge(changes);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
+  expect(spy).toHaveBeenCalledTimes(3);
+  unsubscribe();
+});
+
+it("works with stores", async () => {
+  const select = vi.fn((db, query) =>
+    db.selectFrom("test").where("data", "=", query).selectAll()
+  );
+  const spy = vi.fn();
+
+  const query = writable("updated");
+  const searched = store.with(query)(select);
+  const unsubscribe = searched.subscribe(spy);
+
+  expect(spy).toHaveBeenCalledWith([]);
+  await delay();
+  expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
+  query.set("data");
+  await delay();
+  expect(spy).toHaveBeenCalledWith([]);
   expect(spy).toHaveBeenCalledTimes(3);
   unsubscribe();
 });

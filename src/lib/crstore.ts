@@ -1,18 +1,18 @@
 import type {
-  Actions,
-  Bound,
-  Context,
   Operation,
+  Extended,
+  Actions,
+  Context,
+  Updater,
+  Bound,
   Pull,
   Push,
-  Store,
-  Updater,
   View,
 } from "./types";
+import { derived, get, writable, type Readable } from "svelte/store";
 import { affectedTables } from "./database/operations";
 import type { CRSchema } from "./database/schema";
 import { defaultPaths, init } from "./database";
-import { writable } from "svelte/store";
 
 const noSSR = <T extends Promise<any>>(fn: () => T) =>
   import.meta && import.meta.env && import.meta.env.SSR
@@ -90,7 +90,7 @@ function database<T extends CRSchema>(
       listeners.get(x)?.add(callback);
     });
 
-    // Immediately call the updater
+    // Immediately call when have options
     if (options) {
       connection.then(async (db) => {
         const changes = await db
@@ -98,7 +98,7 @@ function database<T extends CRSchema>(
           .execute();
         callback(changes);
       });
-    } else callback([]);
+    }
 
     return () => tables.forEach((x) => listeners.get(x)?.delete(callback));
   }
@@ -137,35 +137,48 @@ function database<T extends CRSchema>(
     channel.removeEventListener("message", tabUpdate);
   }
 
+  const bound = Object.assign(
+    store.bind({ connection, subscribe, trigger }, []),
+    {
+      with: (...args: any[]) =>
+        store.bind({ connection, subscribe, trigger }, args) as any,
+    }
+  ) as Extended<T>;
+
   return {
     close,
     merge,
     subscribe,
     connection,
-    store: store.bind({ connection, subscribe, trigger }) as Store<T>,
+    store: bound,
   };
 }
 
 function store<Schema, Type>(
   this: Context<Schema>,
+  dependencies: Readable<unknown>[],
   view: View<Schema, Type>,
   actions: Actions<Schema> = {}
 ) {
   const { connection, trigger } = this;
+  const dependency = derived(dependencies, (x) => x);
   const { subscribe, set } = writable<Type[]>([], () => {
     let unsubscribe: (() => void) | null = () => {};
     connection.then((db) => {
       if (!unsubscribe) return;
-      const node = view(db).toOperationNode();
-      unsubscribe = this.subscribe(affectedTables(node), refresh);
+      const node = view(db, ...(get(dependency) as [])).toOperationNode();
+      const stop2 = this.subscribe(affectedTables(node), () => refresh());
+      const stop1 = dependency.subscribe(refresh);
+      unsubscribe = () => (stop1(), stop2());
     });
 
     return () => (unsubscribe?.(), (unsubscribe = null));
   });
 
-  async function refresh() {
+  async function refresh(values?: unknown[]) {
+    if (!values) values = get(dependency);
     const db = await connection;
-    set(await view(db).execute());
+    set(await view(db, ...(values as [])).execute());
   }
 
   async function update<T extends any[]>(operation?: Operation<T>, ...args: T) {

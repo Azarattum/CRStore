@@ -9,7 +9,6 @@ import type {
   RawNode,
   Kysely,
 } from "kysely";
-import type { CRSchema } from "./database/schema";
 import type { Readable } from "svelte/store";
 
 type Schema<T> = T extends { TYPE: infer U } ? U : unknown;
@@ -19,18 +18,26 @@ type Selectable<T> = {
   toOperationNode(): SelectQueryNode;
 };
 
-type Store<S extends CRSchema> = <T, A extends Actions<Schema<S>>>(
-  view: View<Schema<S>, T>,
+type Extended<S> = Store<Schema<S>> & {
+  with<D extends Readable<any>[]>(...stores: D): Store<Schema<S>, D>;
+};
+
+type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
+  view: View<S, T, D>,
   actions?: A
 ) => Readable<T[]> &
   Bound<A> & {
     update: <T, A extends any[]>(
-      operation?: Operation<A, Schema<S>>,
+      operation?: Operation<A, S>,
       ...args: A
     ) => Promise<T>;
   };
 
-type View<Schema, Type> = (db: Kysely<Schema>) => Selectable<Type[]>;
+type Values<T> = { [K in keyof T]: T[K] extends Readable<infer V> ? V : T[K] };
+type View<Schema, Type, Deps extends any[] = []> = (
+  db: Kysely<Schema>,
+  ..._: Values<Deps>
+) => Selectable<Type[]>;
 
 type Actions<Schema> = Record<
   string,
@@ -80,6 +87,7 @@ type Node =
 
 export type {
   Operation,
+  Extended,
   Actions,
   Context,
   Updater,
