@@ -96,7 +96,7 @@ function database<T extends CRSchema>(
         const changes = await db
           .changesSince(options.version, "!=", options.client)
           .execute();
-        callback(changes);
+        if (changes.length) callback(changes);
       });
     }
 
