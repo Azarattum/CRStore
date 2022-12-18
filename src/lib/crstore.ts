@@ -128,13 +128,13 @@ function database<T extends CRSchema>(
     await Promise.all(promises);
   }
 
-  function close() {
+  async function close() {
     hold();
     listeners.clear();
-    connection.then((x) => x.destroy());
     globalThis.removeEventListener?.("online", pull);
     globalThis.removeEventListener?.("offline", hold);
     channel.removeEventListener("message", tabUpdate);
+    await connection.then((x) => x.destroy());
   }
 
   const bound = Object.assign(
