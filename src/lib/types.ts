@@ -41,7 +41,7 @@ type View<Schema, Type, Deps extends any[] = []> = (
 
 type Actions<Schema> = Record<
   string,
-  (db: Kysely<Schema>, ...args: any[]) => Executable | Executable[]
+  (db: Kysely<Schema>, ...args: any[]) => any
 >;
 
 type Bound<Actions> = {
@@ -69,11 +69,7 @@ type Pull =
   | undefined;
 
 type Updater = (changes: any[], sender?: string) => any;
-
-type Operation<T extends any[], S = any> = (
-  db: Kysely<S>,
-  ...args: T
-) => Executable | Executable[];
+type Operation<T extends any[], S = any> = (db: Kysely<S>, ...args: T) => any;
 
 type Node =
   | SelectQueryNode

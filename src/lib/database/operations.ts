@@ -97,9 +97,9 @@ function applyOperation<T extends any[]>(
     execute: async () => {
       return this.transaction().execute(async (db) => {
         const version = await selectVersion.bind(db)().execute();
-        let results = operation(db, ...args);
-        if (!Array.isArray(results)) results = [results];
-        await Promise.allSettled(results.map((x) => x.execute()));
+        let result = operation(db, ...args);
+        if (!isExecutable(result)) result = await result;
+        if (isExecutable(result)) await result.execute();
         return await changesSince.bind(db)(version).execute();
       });
     },
@@ -137,6 +137,15 @@ function affectedTables(target: Node | any[]): string[] {
     return [...new Set(tables)];
   }
   return [];
+}
+
+function isExecutable(data: any): data is { execute: () => any } {
+  return (
+    data &&
+    typeof data === "object" &&
+    "execute" in data &&
+    typeof data["execute"] === "function"
+  );
 }
 
 export {

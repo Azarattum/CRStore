@@ -51,14 +51,19 @@ const playlists = store((db) => db.selectFrom("playlists").selectAll(), {
     const id = [...title].map((x) => x.charCodeAt(0)).join("");
     return db.insertInto("playlists").values({ id, title });
   },
-  link(db, track: string, playlist: string) {
+  async link(db, track: string, playlist: string) {
     const id = Math.random().toString(36).slice(2);
-    /// Order is random for testing purposes,
-    //    we should make this a transaction actually
-    const order = Math.random().toString(36).slice(2);
+    const max = await db
+      .selectFrom("tracksByPlaylist")
+      .where("playlist", "=", playlist)
+      .select((db) => db.fn.max("order").as("order"))
+      .executeTakeFirst();
+    // Append "|" to make the next item
+    const order = max ? (max.order || "") + "|" : "|";
     return db
       .insertInto("tracksByPlaylist")
-      .values({ id, track, playlist, order });
+      .values({ id, track, playlist, order })
+      .execute();
   },
 });
 
@@ -91,7 +96,7 @@ const organized = store((db) =>
         .leftJoin("albums", "tracks.album", "albums.id")
         .select([
           "playlists.title as playlist",
-          "tracks.id as id",
+          "tracksByPlaylist.id as id",
           "tracks.title as title",
           "artists.title as artist",
           "albums.title as album",
