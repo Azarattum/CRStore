@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^1.0.0",
-    "@sveltejs/kit": "1.0.0",
-    "@sveltejs/package": "1.0.0",
+    "@sveltejs/kit": "1.0.1",
+    "@sveltejs/package": "1.0.1",
     "@trpc/client": "^10.5.0",
     "@trpc/server": "^10.5.0",
     "@types/better-sqlite3": "^7.6.3",
