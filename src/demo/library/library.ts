@@ -46,6 +46,22 @@ const albums = store((db) => db.selectFrom("albums").selectAll(), {
   },
 });
 
+const playlists = store((db) => db.selectFrom("playlists").selectAll(), {
+  add(db, title: string) {
+    const id = [...title].map((x) => x.charCodeAt(0)).join("");
+    return db.insertInto("playlists").values({ id, title });
+  },
+  link(db, track: string, playlist: string) {
+    const id = Math.random().toString(36).slice(2);
+    /// Order is random for testing purposes,
+    //    we should make this a transaction actually
+    const order = Math.random().toString(36).slice(2);
+    return db
+      .insertInto("tracksByPlaylist")
+      .values({ id, track, playlist, order });
+  },
+});
+
 const grouped = store((db) =>
   db
     .selectFrom("tracks")
@@ -64,4 +80,32 @@ const grouped = store((db) =>
     .groupBy("album")
 );
 
-export { all, artists, albums, grouped };
+const organized = store((db) =>
+  db
+    .selectFrom((db) =>
+      db
+        .selectFrom("playlists")
+        .innerJoin("tracksByPlaylist", "playlist", "playlists.id")
+        .innerJoin("tracks", "track", "tracks.id")
+        .leftJoin("artists", "tracks.artist", "artists.id")
+        .leftJoin("albums", "tracks.album", "albums.id")
+        .select([
+          "playlists.title as playlist",
+          "tracks.id as id",
+          "tracks.title as title",
+          "artists.title as artist",
+          "albums.title as album",
+        ])
+        .orderBy("order")
+        .as("data")
+    )
+    .select([
+      "playlist",
+      sql<string>`json_group_array(json_object(
+          'id', id, 'title', title, 'artist', artist, 'album', album
+        ))`.as("tracks"),
+    ])
+    .groupBy("playlist")
+);
+
+export { all, artists, albums, playlists, grouped, organized };

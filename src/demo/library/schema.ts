@@ -22,6 +22,21 @@ const albums = table({
   title: string(),
 });
 
-const schema = object({ tracks, artists, albums });
+const playlists = table({
+  id: primary(string()),
+  title: string(),
+});
+
+const tracksByPlaylist = table(
+  {
+    id: primary(string()),
+    track: string(),
+    playlist: string(),
+    order: string(),
+  },
+  ["order", "playlist"]
+);
+
+const schema = object({ tracks, artists, albums, playlists, tracksByPlaylist });
 
 export { schema };
