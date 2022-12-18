@@ -28,11 +28,13 @@ async function apply(db: Kysely<unknown>, { schema }: CRSchema) {
 
     const columns = schema[table].index;
     if (columns && columns.length) {
-      await db.schema
-        .createIndex(`${table}-${columns?.join("-")}`)
-        .on(table)
-        .columns(columns)
-        .execute();
+      const name = `${table}_${columns.join("_")}`;
+
+      /// This is a raw sql hack until
+      //    https://github.com/koskimas/kysely/issues/253 is resolved
+      const indexed = columns.map((x) => `"${x}"`).join(",");
+      const query = `CREATE INDEX IF NOT EXISTS "${name}" ON "${table}"(${indexed})`;
+      await sql([query] as any).execute(db);
     }
     if (schema[table].crsql) {
       await sql`SELECT crsql_as_crr(${table})`.execute(db);
