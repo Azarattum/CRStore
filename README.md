@@ -163,4 +163,28 @@ const { store } = database(Schema, {
   online: () => true // Always online
 });
 ```
-Note, that this is only really needed if you use `pull` and `push` helpers. If your server implementation uses `subscribe` and `merge` methods instead, the online checker is unnecessary (defaults to `false`).
+Note that this is only really needed if you use `pull` and `push` helpers. If your [server implementation](#connecting-with-trpc) uses `subscribe` and `merge` methods instead, the online checker is unnecessary (defaults to `false`).
+
+### Apply updates without creating a store
+
+Use can apply any updates right after you have initialized your database connection by using the `update` function. If there are any stores initialized, they will also be updated if you change any tables they depend on.
+```ts
+import { database } from "crstore";
+
+const { update } = database(Schema);
+update((db) => db.insertInto("todos").values({ ... }));
+```
+
+### Access raw database connection
+
+Use can access the raw database connection. This can sometime be useful for debugging. Note that any mutations you do directly from the connection **will not trigger any reactive updates**! To mutate data safely please use [the `update` function](#apply-updates-without-creating-a-store) instead.
+
+```ts
+import { database } from "crstore";
+
+const { connection } = database(Schema);
+const db = await connection;
+
+const data = await db.selectFrom("todos").selectAll().execute()
+console.log(data);
+```

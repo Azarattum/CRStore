@@ -58,9 +58,9 @@ type View<Schema, Type, Deps extends any[] = []> = (
 ) => Selectable<Type[]>;
 
 type Context<Schema> = {
-  connection: Promise<Kysely<Schema>>;
+  update<T extends any[]>(operation: Operation<T>, ...args: T): Promise<void>;
   subscribe: (tables: string[], callback: () => any) => () => void;
-  trigger: (changes: any[]) => void;
+  connection: Promise<Kysely<Schema>>;
 };
 
 type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
@@ -110,6 +110,7 @@ interface Database<S> {
     with<D extends Readable<any>[]>(...stores: D): Store<S, D>;
   };
 
+  update<T extends any[]>(operation: Operation<T>, ...args: T): Promise<void>;
   merge(changes: any[]): Promise<void>;
   close(): Promise<void>;
   subscribe(

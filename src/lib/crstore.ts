@@ -43,6 +43,29 @@ function database<T extends CRSchema>(
   const listeners = new Map<string, Set<Updater>>();
   let hold = () => {};
 
+  function subscribe(
+    tables: string[],
+    callback: Updater,
+    options?: { client: string; version: number }
+  ) {
+    tables.forEach((x) => {
+      if (!listeners.has(x)) listeners.set(x, new Set());
+      listeners.get(x)?.add(callback);
+    });
+
+    // Immediately call when have options
+    if (options) {
+      connection.then(async (db) => {
+        const changes = await db
+          .changesSince(options.version, "!=", options.client)
+          .execute();
+        if (changes.length) callback(changes);
+      });
+    } else callback([]);
+
+    return () => tables.forEach((x) => listeners.get(x)?.delete(callback));
+  }
+
   async function push() {
     if (!remotePush || !online()) return;
     const db = await connection;
@@ -75,27 +98,10 @@ function database<T extends CRSchema>(
     globalThis.addEventListener?.("offline", hold);
   }
 
-  function subscribe(
-    tables: string[],
-    callback: Updater,
-    options?: { client: string; version: number }
-  ) {
-    tables.forEach((x) => {
-      if (!listeners.has(x)) listeners.set(x, new Set());
-      listeners.get(x)?.add(callback);
-    });
-
-    // Immediately call when have options
-    if (options) {
-      connection.then(async (db) => {
-        const changes = await db
-          .changesSince(options.version, "!=", options.client)
-          .execute();
-        if (changes.length) callback(changes);
-      });
-    } else callback([]);
-
-    return () => tables.forEach((x) => listeners.get(x)?.delete(callback));
+  async function update<T extends any[]>(operation: Operation<T>, ...args: T) {
+    const db = await connection;
+    const changes = await db.applyOperation(operation, ...args).execute();
+    await trigger(changes);
   }
 
   async function merge(changes: any[]) {
@@ -133,16 +139,17 @@ function database<T extends CRSchema>(
   }
 
   const bound: any = Object.assign(
-    store.bind({ connection, subscribe, trigger }, []),
+    store.bind({ connection, subscribe, update }, []),
     {
       with: (...args: any[]) =>
-        store.bind({ connection, subscribe, trigger }, args),
+        store.bind({ connection, subscribe, update }, args),
     }
   );
 
   return {
     close,
     merge,
+    update,
     subscribe,
     connection,
     store: bound,
@@ -155,7 +162,7 @@ function store<Schema, Type>(
   view: View<Schema, Type>,
   actions: Actions<Schema> = {}
 ) {
-  const { connection, trigger } = this;
+  const { connection, update } = this;
   const dependency = derived(dependencies, (x) => x);
 
   let query = null as CompiledQuery | null;
@@ -190,13 +197,6 @@ function store<Schema, Type>(
     set(rows as Type[]);
   }
 
-  async function update<T extends any[]>(operation?: Operation<T>, ...args: T) {
-    if (!operation) return refresh();
-    const db = await (connection as ReturnType<typeof init>);
-    const changes = await db.applyOperation(operation, ...args).execute();
-    await trigger(changes);
-  }
-
   const bound: Bound<Actions<Schema>> = {};
   for (const name in actions) {
     bound[name] = (...args: any[]) => update(actions[name], ...args);
@@ -205,7 +205,10 @@ function store<Schema, Type>(
   return {
     ...bound,
     subscribe,
-    update,
+    update<T extends any[]>(operation?: Operation<T>, ...args: T) {
+      if (!operation) return refresh();
+      return update(operation, ...args);
+    },
   };
 }
 
