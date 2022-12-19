@@ -9,7 +9,7 @@ const config = {
   plugins: [
     sveltekit(),
     {
-      name: "sveltekit-ws",
+      name: "vite-trpc-ws",
       configureServer(server) {
         const wss = new WebSocketServer({ noServer: true });
         server.httpServer.on("upgrade", (request, socket, head) => {
