@@ -12,6 +12,11 @@ Conflict-free replicated svelte store.
 - 🤝 First class [tRPC](https://github.com/trpc/trpc) support
 - 🐇 Supports [bun:sqlite](https://github.com/oven-sh/bun#bunsqlite-sqlite3-module) (experimental)
 
+Install `crstore` and `superstruct` (for automatic schema):
+```sh
+npm install crstore superstruct
+```
+
 ## Using CRStore
 
 To start using `CRStore` first you need to define a schema for your database. This is like a [Kysely schema](https://github.com/koskimas/kysely/blob/master/recipes/schemas.md), but defined with [superstruct](https://github.com/ianstormtaylor/superstruct), so we can have a runtime access to it. 
