@@ -125,3 +125,42 @@ const search = store.with(query)((db, query) =>
   db.selectFrom("todos").where("text", "=", query).selectAll()
 );
 ```
+
+### Specify custom paths
+
+If needed you can specify custom paths to `better-sqlite3` binding, `crsqlite` extension and `wa-crsqlite` wasm binary. To do so, provide `path` option upon `database` initialization:
+```ts
+import { database } from "crstore";
+
+const { store } = database(Schema, {
+  // These are the default values:
+  paths: {
+    wasm: "/sqlite.wasm",
+    extension: "node_modules/@vlcn.io/crsqlite/build/Release/crsqlite.node",
+    binding: undefined,
+  }
+});
+```
+
+### Specify database name
+
+If you need to manage multiple databases you can specify `name` database option. This will be used as a filename on a server or a VFS path on a client.
+```ts
+import { database } from "crstore";
+
+const { store } = database(Schema, {
+  name: "data/example.db"
+});
+```
+
+### Specify a custom online checker
+
+`push` and `pull` capabilities rely on checking current online status. When available `navigator.onLine` is used by default. You have an option to override it by providing a custom online function.
+```ts
+import { database } from "crstore";
+
+const { store } = database(Schema, {
+  online: () => true // Always online
+});
+```
+Note, that this is only really needed if you use `pull` and `push` helpers. If your server implementation uses `subscribe` and `merge` methods instead, the online checker is unnecessary (defaults to `false`).
