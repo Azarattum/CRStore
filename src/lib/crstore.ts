@@ -22,17 +22,14 @@ const noSSR = <T extends Promise<any>>(fn: () => T) =>
     ? (new Promise<unknown>(() => {}) as T)
     : (new Promise((r) => setTimeout(() => r(fn()))) as T);
 
-if (!("navigator" in globalThis)) {
-  (globalThis as any).navigator = { onLine: false };
-}
-
 function database<T extends CRSchema>(
   schema: T,
   {
     name = "crstore.db",
+    paths = defaultPaths,
     push: remotePush = undefined as Push,
     pull: remotePull = undefined as Pull,
-    paths = defaultPaths,
+    online = () => !!(globalThis as any).navigator?.onLine,
   } = {}
 ): Database<Schema<T>> {
   const connection = noSSR(() => init(name, schema, paths));
@@ -47,7 +44,7 @@ function database<T extends CRSchema>(
   let hold = () => {};
 
   async function push() {
-    if (!remotePush || !navigator.onLine) return;
+    if (!remotePush || !online()) return;
     const db = await connection;
 
     const { current, synced } = await db.selectVersion().execute();
@@ -64,7 +61,7 @@ function database<T extends CRSchema>(
     globalThis.removeEventListener?.("offline", hold);
     hold();
 
-    if (!remotePull || !navigator.onLine) return;
+    if (!remotePull || !online()) return;
     const db = await connection;
     const { synced } = await db.selectVersion().execute();
     const client = await db.selectClient().execute();
