@@ -1,7 +1,6 @@
-import { database } from "../../lib";
+import { database, json } from "../../lib";
 import { schema } from "./schema";
 import { trpc } from "../client";
-import { sql } from "kysely";
 
 const { store } = database(schema, {
   name: "library.db",
@@ -74,13 +73,13 @@ const grouped = store((db) =>
     .leftJoin("albums", "tracks.album", "albums.id")
     .select([
       "albums.title as album",
-      /// This is quite ugly, should be reworked
-      sql<string>`json_group_array(json_object(
-        'id', tracks.id,
-        'title', tracks.title,
-        'artist', artists.title,
-        'album', albums.title
-      ))`.as("tracks"),
+      (qb) =>
+        json(qb, {
+          id: "tracks.id",
+          title: "tracks.title",
+          artist: "artists.title",
+          album: "albums.title",
+        }).as("tracks"),
     ])
     .groupBy("album")
 );
@@ -106,9 +105,13 @@ const organized = store((db) =>
     )
     .select([
       "playlist",
-      sql<string>`json_group_array(json_object(
-          'id', id, 'title', title, 'artist', artist, 'album', album
-        ))`.as("tracks"),
+      (qb) =>
+        json(qb, {
+          id: "id",
+          title: "title",
+          artist: "artist",
+          album: "album",
+        }).as("tracks"),
     ])
     .groupBy("playlist")
 );

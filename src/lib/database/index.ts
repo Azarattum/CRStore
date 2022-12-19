@@ -11,6 +11,7 @@ import { Kysely, SqliteDialect } from "kysely";
 import type { CRSchema } from "./schema";
 import type { Schema } from "../types";
 import { CRDialect } from "./dialect";
+import { JSONPlugin } from "./json";
 import { apply } from "./schema";
 import { load } from "./load";
 
@@ -30,7 +31,11 @@ async function init<T extends CRSchema>(
 
   const { database, browser } = await load(file, paths);
   const Dialect = browser ? CRDialect : SqliteDialect;
-  const kysely = new Kysely<Schema<T>>({ dialect: new Dialect({ database }) });
+  const kysely = new Kysely<Schema<T>>({
+    dialect: new Dialect({ database }),
+    plugins: [new JSONPlugin()],
+  });
+
   const close = kysely.destroy.bind(kysely);
   await apply(kysely, schema);
 

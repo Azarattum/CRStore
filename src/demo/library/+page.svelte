@@ -73,7 +73,7 @@
 {#each $grouped as { album, tracks }}
   <details>
     <summary>{album}</summary>
-    <Tracks tracks={JSON.parse(tracks)} />
+    <Tracks {tracks} />
   </details>
 {/each}
 
@@ -81,7 +81,7 @@
 {#each $organized as { playlist, tracks }}
   <details>
     <summary>{playlist}</summary>
-    <Tracks tracks={JSON.parse(tracks)} />
+    <Tracks {tracks} />
   </details>
 {/each}
 
