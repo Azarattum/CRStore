@@ -86,9 +86,10 @@ type Pull =
   | undefined;
 
 interface Connection<S> extends Kysely<S> {
+  selectVersion(): Executable<{ current: number; synced: number }>;
   resolveChanges(changes: any[]): Executable<any[]>;
+  updateVersion(version?: number): Executable<any>;
   insertChanges(changes: any[]): Executable<void>;
-  selectVersion(): Executable<number>;
   selectClient(): Executable<string>;
 
   changesSince(

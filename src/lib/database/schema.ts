@@ -15,7 +15,7 @@ function covert(type: string) {
   throw new Error(`Type "${type}" is not allowed in the database schema!`);
 }
 
-async function apply(db: Kysely<unknown>, { schema }: CRSchema) {
+async function apply(db: Kysely<any>, { schema }: CRSchema) {
   for (const table in schema) {
     let query = db.schema.createTable(table).ifNotExists();
     for (const column in schema[table].schema) {
@@ -40,25 +40,16 @@ async function apply(db: Kysely<unknown>, { schema }: CRSchema) {
       await sql`SELECT crsql_as_crr(${table})`.execute(db);
     }
   }
-}
-
-function requirePrimaryKey<T extends CRSchema>(
-  { schema }: T,
-  table: keyof T["schema"]
-) {
-  const key = Object.entries(schema[table as string].schema).find(
-    ([_, value]) => value.modifiers?.includes("primaryKey")
-  )?.[0];
-  if (key) return key as keyof T["schema"][typeof table]["schema"];
-  throw new Error(`Primary key is required on table "${table.toString()}"!`);
-}
-
-function parse(change: string | null) {
-  if (!change) return null;
-  if (change.startsWith("'") && change.endsWith("'")) {
-    return change.substring(1, change.length - 1);
-  }
-  if (Number.isFinite(+change)) return +change;
+  // Create a special table for sync version
+  await db.schema
+    .createTable("__crstore_sync")
+    .ifNotExists()
+    .addColumn("version", "integer")
+    .execute();
+  // Initialize the version with 0
+  await sql`INSERT INTO __crstore_sync (version) SELECT 0
+    WHERE NOT EXISTS (SELECT * FROM __crstore_sync)
+  `.execute(db);
 }
 
 const modify = <T extends object>(struct: T, modifier: string) =>
@@ -88,5 +79,5 @@ type CRChange = {
   site_id: Uint8Array;
 };
 
-export { apply, primary, crr, index, parse, requirePrimaryKey };
+export { apply, primary, crr, index };
 export type { CRSchema, CRChange };

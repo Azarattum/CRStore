@@ -39,10 +39,6 @@ function database<T extends CRSchema>(
   const channel = new BroadcastChannel(`${name}-sync`);
   const tabUpdate = (event: MessageEvent) => trigger(event.data, false);
 
-  const getVersion = () => +(localStorage.getItem(`${name}-sync`) || 0);
-  const setVersion = async (version: number) =>
-    localStorage.setItem(`${name}-sync`, version.toString());
-
   channel.addEventListener("message", tabUpdate);
   globalThis.addEventListener?.("online", pull);
   noSSR(pull);
@@ -53,15 +49,15 @@ function database<T extends CRSchema>(
   async function push() {
     if (!remotePush || !navigator.onLine) return;
     const db = await connection;
-    const lastVersion = getVersion();
-    const currentVersion = await db.selectVersion().execute();
-    if (currentVersion <= lastVersion) return;
+
+    const { current, synced } = await db.selectVersion().execute();
+    if (current <= synced) return;
 
     /// Wait till "=" resolution is implemented
     // const changes = await db.changesSince(lastVersion, "=", client).execute();
-    const changes = await db.changesSince(lastVersion).execute();
+    const changes = await db.changesSince(synced).execute();
     await remotePush(changes);
-    setVersion(currentVersion);
+    await db.updateVersion(current).execute();
   }
 
   async function pull() {
@@ -70,14 +66,13 @@ function database<T extends CRSchema>(
 
     if (!remotePull || !navigator.onLine) return;
     const db = await connection;
-    const version = getVersion();
+    const { synced } = await db.selectVersion().execute();
     const client = await db.selectClient().execute();
 
     await push();
-    hold = remotePull(version, client, async (changes) => {
+    hold = remotePull(synced, client, async (changes) => {
       await db.insertChanges(changes).execute();
-      const newVersion = await db.selectVersion().execute();
-      setVersion(newVersion);
+      await db.updateVersion().execute();
       await trigger(changes, false);
     });
     globalThis.addEventListener?.("offline", hold);
@@ -144,7 +139,7 @@ function database<T extends CRSchema>(
     store.bind({ connection, subscribe, trigger }, []),
     {
       with: (...args: any[]) =>
-        store.bind({ connection, subscribe, trigger }, args) as any,
+        store.bind({ connection, subscribe, trigger }, args),
     }
   );
 

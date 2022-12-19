@@ -1,6 +1,6 @@
-import type { FilterOperator, Kysely } from "kysely";
 import type { Operation, Node } from "../types";
 import type { CRChange } from "./schema";
+import type { Kysely } from "kysely";
 import { sql } from "kysely";
 
 function toBytes(data: string) {
@@ -38,11 +38,21 @@ function decode(encoded: any[]) {
 }
 
 function selectVersion(this: Kysely<any>) {
-  type Version = { version: number };
-  const query = sql<Version>`SELECT crsql_dbversion() as version`;
+  type Version = { current: number; synced: number };
+  const query = sql<Version>`SELECT 
+    crsql_dbversion() as current,
+    version as synced
+  FROM "__crstore_sync" LIMIT 1`;
+
   return {
-    execute: () => query.execute(this).then((x) => x.rows[0].version),
+    execute: () => query.execute(this).then((x) => x.rows[0]),
   };
+}
+
+function updateVersion(this: Kysely<any>, version?: number) {
+  return this.updateTable("__crstore_sync").set({
+    version: version != null ? version : sql`crsql_dbversion()`,
+  });
 }
 
 function selectClient(this: Kysely<any>) {
@@ -96,11 +106,11 @@ function applyOperation<T extends any[]>(
   return {
     execute: async () => {
       return this.transaction().execute(async (db) => {
-        const version = await selectVersion.bind(db)().execute();
+        const { current } = await selectVersion.bind(db)().execute();
         let result = operation(db, ...args);
         if (!isExecutable(result)) result = await result;
         if (isExecutable(result)) await result.execute();
-        return await changesSince.bind(db)(version).execute();
+        return await changesSince.bind(db)(current).execute();
       });
     },
   };
@@ -150,9 +160,10 @@ function isExecutable(data: any): data is { execute: () => any } {
 
 export {
   finalize,
+  changesSince,
   selectClient,
   selectVersion,
-  changesSince,
+  updateVersion,
   insertChanges,
   applyOperation,
   resolveChanges,

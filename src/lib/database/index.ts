@@ -1,10 +1,11 @@
 import {
+  applyOperation,
   resolveChanges,
   insertChanges,
+  updateVersion,
   selectVersion,
   changesSince,
   selectClient,
-  applyOperation,
   finalize,
 } from "./operations";
 import type { Connection, Schema } from "../types";
@@ -38,12 +39,13 @@ async function init<T extends CRSchema>(
   });
 
   const close = kysely.destroy.bind(kysely);
-  await apply(kysely, schema);
+  await kysely.transaction().execute((db) => apply(db, schema));
 
   const connection = Object.assign(kysely, {
     resolveChanges,
     applyOperation,
     insertChanges,
+    updateVersion,
     selectVersion,
     selectClient,
     changesSince,
