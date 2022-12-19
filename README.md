@@ -188,3 +188,41 @@ const db = await connection;
 const data = await db.selectFrom("todos").selectAll().execute()
 console.log(data);
 ```
+
+### Nested JSON queries
+
+`crstore` provides support for nested JSON queries via it's own [JSON Kysely plugin](src/lib/database/json.ts). You can see how it's used in practice be looking at the [library demo](src/demo/library/library.ts).
+```ts
+import { json } from "crstore";
+
+const grouped = store((db) =>
+  db
+    .selectFrom("tracks")
+    .leftJoin("artists", "tracks.artist", "artists.id")
+    .leftJoin("albums", "tracks.album", "albums.id")
+    .select([
+      "albums.title as album",
+      (qb) =>
+        // Here we aggregate all the tracks for the album using the `json` function
+        json(qb, {
+          id: "tracks.id",
+          title: "tracks.title",
+          artist: "artists.title",
+          album: "albums.title",
+        }).as("tracks"),
+    ])
+    // `groupBy` is essential for the aggregation to work
+    .groupBy("album")
+);
+
+$grouped[0] // ↓ The type is inferred from `json`
+// {
+//   album: string | null;
+//   tracks: {
+//     id: string;
+//     title: string;
+//     artist: string | null;
+//     album: string | null;
+//   }[]
+// }
+```
