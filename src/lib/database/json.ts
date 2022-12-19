@@ -33,7 +33,7 @@ function json<
 }
 
 class JSONPlugin implements KyselyPlugin {
-  #jsonNodes = new Map<object, Set<string>>();
+  #jsonNodes = new WeakMap<object, Set<string>>();
 
   transformQuery({ node, queryId }: PluginTransformQueryArgs) {
     if (node.kind !== "SelectQueryNode") return node;
@@ -57,7 +57,6 @@ class JSONPlugin implements KyselyPlugin {
     const mapped = this.#jsonNodes.get(queryId);
     if (!mapped) return result;
 
-    this.#jsonNodes.delete(queryId);
     result.rows.forEach((row) => {
       for (const key in row) {
         if (mapped?.has(key)) row[key] = JSON.parse(String(row[key]));

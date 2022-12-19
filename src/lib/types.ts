@@ -3,6 +3,7 @@ import type {
   SelectQueryNode,
   ReferenceNode,
   SelectAllNode,
+  CompiledQuery,
   ColumnNode,
   TableNode,
   AliasNode,
@@ -21,6 +22,7 @@ type Values<T> = { [K in keyof T]: T[K] extends Readable<infer V> ? V : T[K] };
 
 type Selectable<T> = {
   execute(): Promise<T>;
+  compile(): CompiledQuery;
   toOperationNode(): SelectQueryNode;
 };
 

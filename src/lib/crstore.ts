@@ -10,10 +10,12 @@ import type {
   Push,
   View,
 } from "./types";
-import { derived, get, writable, type Readable } from "svelte/store";
+import { createQueryId, type QueryId } from "kysely/dist/cjs/util/query-id";
+import { derived, writable, type Readable } from "svelte/store";
 import { affectedTables } from "./database/operations";
 import type { CRSchema } from "./database/schema";
 import { defaultPaths, init } from "./database";
+import type { CompiledQuery } from "kysely";
 
 const noSSR = <T extends Promise<any>>(fn: () => T) =>
   import.meta && import.meta.env && import.meta.env.SSR
@@ -99,7 +101,7 @@ function database<T extends CRSchema>(
           .execute();
         if (changes.length) callback(changes);
       });
-    }
+    } else callback([]);
 
     return () => tables.forEach((x) => listeners.get(x)?.delete(callback));
   }
@@ -163,23 +165,37 @@ function store<Schema, Type>(
 ) {
   const { connection, trigger } = this;
   const dependency = derived(dependencies, (x) => x);
+
+  let query = null as CompiledQuery | null;
+  let id = null as QueryId | null;
+
   const { subscribe, set } = writable<Type[]>([], () => {
     let unsubscribe: (() => void) | null = () => {};
     connection.then((db) => {
       if (!unsubscribe) return;
-      const node = view(db, ...(get(dependency) as [])).toOperationNode();
-      const stop2 = this.subscribe(affectedTables(node), () => refresh());
-      const stop1 = dependency.subscribe(refresh);
-      unsubscribe = () => (stop1(), stop2());
+      let forget = () => {};
+      const stop = dependency.subscribe((values) => {
+        const node = view(db, ...(values as [])).toOperationNode();
+        const tables = affectedTables(node);
+        const executor = db.getExecutor();
+
+        id = createQueryId();
+        query = executor.compileQuery(executor.transformQuery(node, id), id);
+
+        forget();
+        forget = this.subscribe(tables, refresh);
+      });
+      unsubscribe = () => (stop(), forget());
     });
 
     return () => (unsubscribe?.(), (unsubscribe = null));
   });
 
-  async function refresh(values?: unknown[]) {
-    if (!values) values = get(dependency);
+  async function refresh() {
     const db = await connection;
-    set(await view(db, ...(values as [])).execute());
+    if (!query || !id) return;
+    const { rows } = await db.getExecutor().executeQuery(query, id);
+    set(rows as Type[]);
   }
 
   async function update<T extends any[]>(operation?: Operation<T>, ...args: T) {
