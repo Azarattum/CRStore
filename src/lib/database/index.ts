@@ -7,9 +7,9 @@ import {
   applyOperation,
   finalize,
 } from "./operations";
+import type { Connection, Schema } from "../types";
 import { Kysely, SqliteDialect } from "kysely";
 import type { CRSchema } from "./schema";
-import type { Schema } from "../types";
 import { CRDialect } from "./dialect";
 import { JSONPlugin } from "./json";
 import { apply } from "./schema";
@@ -27,11 +27,12 @@ async function init<T extends CRSchema>(
   schema: T,
   paths = defaultPaths
 ) {
-  if (connections.has(file)) return connections.get(file) as typeof connection;
+  type DB = Schema<T>;
+  if (connections.has(file)) return connections.get(file) as Connection<DB>;
 
   const { database, browser } = await load(file, paths);
   const Dialect = browser ? CRDialect : SqliteDialect;
-  const kysely = new Kysely<Schema<T>>({
+  const kysely = new Kysely<DB>({
     dialect: new Dialect({ database }),
     plugins: [new JSONPlugin()],
   });
@@ -51,7 +52,7 @@ async function init<T extends CRSchema>(
       await finalize.bind(kysely)().execute();
       return close();
     },
-  });
+  }) as Connection<DB>;
 
   connections.set(file, connection);
   return connection;

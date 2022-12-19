@@ -1,9 +1,10 @@
 import type {
   Operation,
-  Extended,
+  Database,
   Actions,
   Context,
   Updater,
+  Schema,
   Bound,
   Pull,
   Push,
@@ -31,7 +32,7 @@ function database<T extends CRSchema>(
     pull: remotePull = undefined as Pull,
     paths = defaultPaths,
   } = {}
-) {
+): Database<Schema<T>> {
   const connection = noSSR(() => init(name, schema, paths));
   const channel = new BroadcastChannel(`${name}-sync`);
   const tabUpdate = (event: MessageEvent) => trigger(event.data, false);
@@ -137,13 +138,13 @@ function database<T extends CRSchema>(
     await connection.then((x) => x.destroy());
   }
 
-  const bound = Object.assign(
+  const bound: any = Object.assign(
     store.bind({ connection, subscribe, trigger }, []),
     {
       with: (...args: any[]) =>
         store.bind({ connection, subscribe, trigger }, args) as any,
     }
-  ) as Extended<T>;
+  );
 
   return {
     close,

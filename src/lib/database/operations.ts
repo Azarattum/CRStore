@@ -56,7 +56,7 @@ function selectClient(this: Kysely<any>) {
 function changesSince(
   this: Kysely<any>,
   since: number,
-  operator: FilterOperator = "!=",
+  operator: "=" | "!=" = "!=",
   client?: string
 ) {
   let query = this.selectFrom("crsql_changes")
