@@ -86,17 +86,12 @@ type Pull =
   | undefined;
 
 interface Connection<S> extends Kysely<S> {
+  changesSince(since: number, filter?: string | null): Executable<any[]>;
   selectVersion(): Executable<{ current: number; synced: number }>;
   resolveChanges(changes: any[]): Executable<any[]>;
   updateVersion(version?: number): Executable<any>;
   insertChanges(changes: any[]): Executable<void>;
   selectClient(): Executable<string>;
-
-  changesSince(
-    since: number,
-    operator?: "=" | "!=",
-    client?: string
-  ): Executable<any[]>;
 
   applyOperation<T extends any[]>(
     operation: Operation<T>,

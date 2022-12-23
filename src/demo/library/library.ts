@@ -23,7 +23,9 @@ const all = store(
       ]),
   {
     add(db, title: string, artistId: string, albumId: string) {
-      const id = [...title].map((x) => x.charCodeAt(0)).join("");
+      const id = [...title, ...artistId, ...albumId]
+        .map((x) => x.charCodeAt(0))
+        .join("");
       return db
         .insertInto("tracks")
         .values({ id, title, artist: artistId, album: albumId });

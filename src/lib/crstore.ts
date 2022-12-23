@@ -57,7 +57,7 @@ function database<T extends CRSchema>(
     if (options) {
       connection.then(async (db) => {
         const changes = await db
-          .changesSince(options.version, "!=", options.client)
+          .changesSince(options.version, options.client)
           .execute();
         if (changes.length) callback(changes);
       });
@@ -73,9 +73,7 @@ function database<T extends CRSchema>(
     const { current, synced } = await db.selectVersion().execute();
     if (current <= synced) return;
 
-    /// Wait till "=" resolution is implemented
-    // const changes = await db.changesSince(lastVersion, "=", client).execute();
-    const changes = await db.changesSince(synced).execute();
+    const changes = await db.changesSince(synced, null).execute();
     await remotePush(changes);
     await db.updateVersion(current).execute();
   }

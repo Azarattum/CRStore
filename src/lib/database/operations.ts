@@ -18,20 +18,22 @@ function encode(changes: CRChange[]) {
     x.pk,
     x.table,
     x.val,
-    x.version,
+    x.db_version,
+    x.col_version,
   ]);
 }
 
 function decode(encoded: any[]) {
   const changes: CRChange[] = [];
-  for (let i = 0; i < encoded.length; i += 6) {
+  for (let i = 0; i < encoded.length; i += 7) {
     changes.push({
       site_id: Uint8Array.from([...encoded[i]].map((x) => x.charCodeAt(0))),
       cid: encoded[i + 1],
       pk: encoded[i + 2],
       table: encoded[i + 3],
       val: encoded[i + 4],
-      version: encoded[i + 5],
+      db_version: encoded[i + 5],
+      col_version: encoded[i + 6],
     });
   }
   return changes;
@@ -66,16 +68,16 @@ function selectClient(this: Kysely<any>) {
 function changesSince(
   this: Kysely<any>,
   since: number,
-  operator: "=" | "!=" = "!=",
-  client?: string
+  filter?: string | null
 ) {
   let query = this.selectFrom("crsql_changes")
     .selectAll()
-    .where("version", ">", since)
+    .where("db_version", ">", since)
     // Don't return tombstones when requesting the entire db
     .if(!since, (qb) => qb.where("cid", "!=", "__crsql_del"))
-    .if(client != null, (qb) =>
-      qb.where("site_id", operator, toBytes(client || ""))
+    .if(filter === null, (qb) => qb.where("site_id", "is", null))
+    .if(typeof filter === "string", (qb) =>
+      qb.where("site_id", "!=", toBytes(filter as any))
     );
 
   return {

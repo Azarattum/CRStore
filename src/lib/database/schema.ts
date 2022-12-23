@@ -75,7 +75,8 @@ type CRChange = {
   pk: string;
   cid: string;
   val: string | null;
-  version: number;
+  db_version: number;
+  col_version: number;
   site_id: Uint8Array;
 };
 
