@@ -55,7 +55,7 @@ it("merges changes", async () => {
   expect(spy).toHaveBeenCalledWith([]);
   await delay();
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "data" }]);
-  const changes = ["client", "data", "'1'", "test", "'updated'", 2];
+  const changes = ["client", "data", "'1'", "test", "'updated'", 2, 2];
   await merge(changes);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
   expect(spy).toHaveBeenCalledTimes(3);
