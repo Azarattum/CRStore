@@ -104,12 +104,7 @@ const app = router({
   pull: procedure
     .input(object({ version: number(), client: string() }))
     .subscription(({ input }) =>
-      observable<any[]>((emit) => {
-        const send = (changes: any[], sender?: string) =>
-          input.client !== sender && emit.next(changes);
-
-        return subscribe(["*"], send, input);
-      })
+      observable<any[]>(({ next }) => subscribe(["*"], next, input))
     ),
 });
 ```
