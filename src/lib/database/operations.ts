@@ -138,14 +138,16 @@ function affectedTables(target: Node | any[]): string[] {
     return [target.table.table.identifier.name];
   }
   if (target.kind === "AliasNode") {
-    return affectedTables(target.node);
+    return affectedTables(target.node as Node);
   }
   if (target.kind === "SelectQueryNode") {
-    const tables = [
-      ...target.from.froms,
-      ...(target.joins?.map((x) => x.table) || []),
-      ...(target.selections?.map((x) => x.selection) || []),
-    ].flatMap(affectedTables);
+    const tables = (
+      [
+        ...target.from.froms,
+        ...(target.joins?.map((x) => x.table) || []),
+        ...(target.selections?.map((x) => x.selection) || []),
+      ] as Node[]
+    ).flatMap(affectedTables);
     return [...new Set(tables)];
   }
   return [];

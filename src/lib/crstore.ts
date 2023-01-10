@@ -137,10 +137,10 @@ function database<T extends CRSchema>(
   }
 
   const bound: any = Object.assign(
-    store.bind({ connection, subscribe, update }, []),
+    store.bind({ connection, subscribe, update } as any, []),
     {
       with: (...args: any[]) =>
-        store.bind({ connection, subscribe, update }, args),
+        store.bind({ connection, subscribe, update } as any, args),
     }
   );
 

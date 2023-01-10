@@ -44,6 +44,8 @@ class JSONPlugin implements KyselyPlugin {
       if (target.kind !== "AliasNode") continue;
       if (!("json" in target.node)) continue;
       if (target.alias.kind !== "IdentifierNode") continue;
+      if (!("name" in target.alias)) continue;
+      if (typeof target.alias.name !== "string") continue;
 
       const mapped = this.#jsonNodes.get(queryId) || new Set();
       mapped.add(target.alias.name);
