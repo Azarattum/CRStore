@@ -48,9 +48,14 @@ function database<T extends CRSchema>(
     callback: Updater,
     options?: { client: string; version: number }
   ) {
+    const listener = (changes: any[], sender?: string) =>
+      options
+        ? options.client !== sender && callback(changes, sender)
+        : callback(changes, sender);
+
     tables.forEach((x) => {
       if (!listeners.has(x)) listeners.set(x, new Set());
-      listeners.get(x)?.add(callback);
+      listeners.get(x)?.add(listener);
     });
 
     // Immediately call when have options
@@ -63,7 +68,7 @@ function database<T extends CRSchema>(
       });
     } else callback([]);
 
-    return () => tables.forEach((x) => listeners.get(x)?.delete(callback));
+    return () => tables.forEach((x) => listeners.get(x)?.delete(listener));
   }
 
   async function push() {
