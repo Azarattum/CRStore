@@ -9,6 +9,7 @@
     "crstore",
     "esbuild",
     "froms",
+    "IFNULL",
     "Introspector",
     "Kysely",
     "superstruct",

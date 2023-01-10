@@ -96,7 +96,6 @@ function database<T extends CRSchema>(
     hold = remotePull(synced, client, async (changes) => {
       if (!changes.length) return;
       await db.insertChanges(changes).execute();
-      await db.updateVersion().execute();
       await trigger(changes, changes[0]);
     });
     globalThis.addEventListener?.("offline", hold);

@@ -47,8 +47,8 @@ function selectVersion(this: Kysely<any>) {
   type Version = { current: number; synced: number };
   const query = sql<Version>`SELECT 
     crsql_dbversion() as current,
-    version as synced
-  FROM "__crstore_sync" LIMIT 1`;
+    IFNULL(MAX(version), 0) as synced
+  FROM "crsql_tracked_peers"`;
 
   return {
     execute: () => query.execute(this).then((x) => x.rows[0]),
@@ -56,7 +56,7 @@ function selectVersion(this: Kysely<any>) {
 }
 
 function updateVersion(this: Kysely<any>, version?: number) {
-  return this.updateTable("__crstore_sync").set({
+  return this.updateTable("crsql_tracked_peers").set({
     version: version != null ? version : sql`crsql_dbversion()`,
   });
 }

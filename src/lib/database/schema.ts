@@ -40,16 +40,6 @@ async function apply(db: Kysely<any>, { schema }: CRSchema) {
       await sql`SELECT crsql_as_crr(${table})`.execute(db);
     }
   }
-  // Create a special table for sync version
-  await db.schema
-    .createTable("__crstore_sync")
-    .ifNotExists()
-    .addColumn("version", "integer")
-    .execute();
-  // Initialize the version with 0
-  await sql`INSERT INTO __crstore_sync (version) SELECT 0
-    WHERE NOT EXISTS (SELECT * FROM __crstore_sync)
-  `.execute(db);
 }
 
 const modify = <T extends object>(struct: T, modifier: string) =>
