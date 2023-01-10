@@ -12,28 +12,32 @@ function fromBytes(data: Uint8Array) {
 }
 
 function encode(changes: CRChange[]) {
-  return changes.flatMap((x) => [
-    String.fromCharCode(...x.site_id),
-    x.cid,
-    x.pk,
-    x.table,
-    x.val,
-    x.db_version,
-    x.col_version,
-  ]);
+  if (!changes.length) return [];
+  return [
+    fromBytes(changes[0].site_id),
+    ...changes.flatMap((x) => [
+      x.cid,
+      x.pk,
+      x.table,
+      x.val,
+      x.db_version,
+      x.col_version,
+    ]),
+  ];
 }
 
 function decode(encoded: any[]) {
+  const client = toBytes(encoded[0]);
   const changes: CRChange[] = [];
-  for (let i = 0; i < encoded.length; i += 7) {
+  for (let i = 1; i < encoded.length; i += 6) {
     changes.push({
-      site_id: Uint8Array.from([...encoded[i]].map((x) => x.charCodeAt(0))),
-      cid: encoded[i + 1],
-      pk: encoded[i + 2],
-      table: encoded[i + 3],
-      val: encoded[i + 4],
-      db_version: encoded[i + 5],
-      col_version: encoded[i + 6],
+      site_id: client,
+      cid: encoded[i],
+      pk: encoded[i + 1],
+      table: encoded[i + 2],
+      val: encoded[i + 3],
+      db_version: encoded[i + 4],
+      col_version: encoded[i + 5],
     });
   }
   return changes;
@@ -71,7 +75,9 @@ function changesSince(
   filter?: string | null
 ) {
   let query = this.selectFrom("crsql_changes")
-    .selectAll()
+    // Overwrite `site_id` with the local one
+    .select(sql`crsql_siteid()`.as("site_id"))
+    .select(["cid", "pk", "table", "val", "db_version", "col_version"])
     .where("db_version", ">", since)
     // Don't return tombstones when requesting the entire db
     .if(!since, (qb) => qb.where("cid", "!=", "__crsql_del"))

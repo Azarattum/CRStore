@@ -34,7 +34,7 @@ function database<T extends CRSchema>(
 ): Database<Schema<T>> {
   const connection = noSSR(() => init(name, schema, paths));
   const channel = new BroadcastChannel(`${name}-sync`);
-  const tabUpdate = (event: MessageEvent) => trigger(event.data, false);
+  const tabUpdate = (event: MessageEvent) => trigger(event.data, event.data[0]);
 
   channel.addEventListener("message", tabUpdate);
   globalThis.addEventListener?.("online", pull);
@@ -89,9 +89,10 @@ function database<T extends CRSchema>(
 
     await push();
     hold = remotePull(synced, client, async (changes) => {
+      if (!changes.length) return;
       await db.insertChanges(changes).execute();
       await db.updateVersion().execute();
-      await trigger(changes, false);
+      await trigger(changes, changes[0]);
     });
     globalThis.addEventListener?.("offline", hold);
   }
@@ -103,15 +104,15 @@ function database<T extends CRSchema>(
   }
 
   async function merge(changes: any[]) {
+    if (!changes.length) return;
     const db = await connection;
-    await trigger(await db.resolveChanges(changes).execute());
+    await trigger(await db.resolveChanges(changes).execute(), changes[0]);
   }
 
-  async function trigger(changes: any[], local = true) {
+  async function trigger(changes: any[], sender?: string) {
     if (!changes.length) return;
     const callbacks = new Set<Updater>();
     const tables = affectedTables(changes);
-    const sender = changes[0];
 
     listeners.get("*")?.forEach((x) => callbacks.add(x));
     tables.forEach((table) =>
@@ -119,7 +120,7 @@ function database<T extends CRSchema>(
     );
 
     const promises = [...callbacks].map((x) => x(changes, sender));
-    if (local) {
+    if (!sender) {
       channel.postMessage(changes);
       await push();
     }
