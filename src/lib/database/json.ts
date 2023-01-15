@@ -58,14 +58,15 @@ class JSONPlugin implements KyselyPlugin {
     if (!Array.isArray(result.rows)) return result;
     const mapped = this.#jsonNodes.get(queryId);
     if (!mapped) return result;
-
-    result.rows.forEach((row) => {
-      for (const key in row) {
-        if (mapped?.has(key)) row[key] = JSON.parse(String(row[key]));
-      }
-    });
-
+    result.rows.forEach((row) => this.parseObject(row, mapped));
     return result;
+  }
+
+  private parseObject(object: Record<string, any>, keys: Set<string>) {
+    for (const key in object) {
+      if (keys.has(key)) object[key] = JSON.parse(String(object[key]));
+      if (typeof object[key] === "object") this.parseObject(object[key], keys);
+    }
   }
 }
 
