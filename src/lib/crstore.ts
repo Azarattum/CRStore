@@ -10,7 +10,7 @@ import type {
   Push,
   View,
 } from "./types";
-import { createQueryId, type QueryId } from "kysely/dist/cjs/util/query-id";
+import { createQueryId, type QueryId } from "kysely/dist/esm/util/query-id";
 import { derived, writable, type Readable } from "svelte/store";
 import { affectedTables } from "./database/operations";
 import type { CRSchema } from "./database/schema";
