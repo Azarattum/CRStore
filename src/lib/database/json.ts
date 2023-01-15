@@ -3,6 +3,7 @@ import type {
   PluginTransformQueryArgs,
   ExpressionBuilder,
   StringReference,
+  SelectionNode,
   KyselyPlugin,
 } from "kysely";
 import type { ExtractTypeFromReferenceExpression } from "kysely/dist/cjs/parser/reference-parser";
@@ -37,9 +38,7 @@ class JSONPlugin implements KyselyPlugin {
 
   transformQuery({ node, queryId }: PluginTransformQueryArgs) {
     if (node.kind !== "SelectQueryNode") return node;
-    if (!node.selections) return node;
-
-    for (const selection of node.selections) {
+    for (const selection of this.getSelections(node)) {
       const target = selection.selection;
       if (target.kind !== "AliasNode") continue;
       if (!("json" in target.node)) continue;
@@ -60,6 +59,19 @@ class JSONPlugin implements KyselyPlugin {
     if (!mapped) return result;
     result.rows.forEach((row) => this.parseObject(row, mapped));
     return result;
+  }
+
+  private getSelections(node: Record<string, any>) {
+    const selections: SelectionNode[] = [];
+    for (const key in node) {
+      if (key === "selections" && Array.isArray(node[key])) {
+        const nodes = node[key].filter((x: any) => x.kind === "SelectionNode");
+        selections.push(...nodes);
+      } else if (typeof node[key] === "object") {
+        selections.push(...this.getSelections(node[key]));
+      }
+    }
+    return selections;
   }
 
   private parseObject(object: Record<string, any>, keys: Set<string>) {
