@@ -67,7 +67,8 @@ class JSONPlugin implements KyselyPlugin {
       if (key === "selections" && Array.isArray(node[key])) {
         const nodes = node[key].filter((x: any) => x.kind === "SelectionNode");
         selections.push(...nodes);
-      } else if (typeof node[key] === "object") {
+      }
+      if (typeof node[key] === "object") {
         selections.push(...this.getSelections(node[key]));
       }
     }
