@@ -17,47 +17,60 @@ function covert(type: string) {
 
 async function apply(db: Kysely<any>, { schema }: CRSchema) {
   for (const table in schema) {
+    const current = schema[table];
+    // Create tables
     let query = db.schema.createTable(table).ifNotExists();
-    for (const column in schema[table].schema) {
-      const { type, modifiers = [] } = schema[table].schema[column];
-      query = query.addColumn(column, covert(type), (col: any) =>
-        modifiers.reduce((acc, x) => acc[x](), col)
+    for (const column in current.schema) {
+      const { type } = current.schema[column];
+      query = query.addColumn(column, covert(type));
+    }
+    // Add constrains
+    if (current.primary) {
+      query = query.addPrimaryKeyConstraint(
+        "primary_key",
+        current.primary as any
       );
     }
     await query.execute();
-
-    const columns = schema[table].index;
-    if (columns && columns.length) {
-      const name = `${table}_${columns.join("_")}`;
-
-      /// This is a raw sql hack until
-      //    https://github.com/koskimas/kysely/issues/253 is resolved
-      const indexed = columns.map((x) => `"${x}"`).join(",");
-      const query = `CREATE INDEX IF NOT EXISTS "${name}" ON "${table}"(${indexed})`;
-      await sql([query] as any).execute(db);
+    // Create indices
+    for (const index of current.indices || []) {
+      await db.schema
+        .createIndex(`${table}_${index.join("_")}`)
+        .ifNotExists()
+        .on(table)
+        .columns(index)
+        .execute();
     }
-    if (schema[table].crsql) {
+    // Register CRRs
+    if (current.crr) {
       await sql`SELECT crsql_as_crr(${table})`.execute(db);
     }
   }
 }
 
-const modify = <T extends object>(struct: T, modifier: string) =>
-  Object.assign(struct, {
-    modifiers: [...((struct as any).modifiers || []), modifier] as string[],
-  });
+function primary<T extends CRTable>(table: T, ...keys: Keys<T["schema"]>[]) {
+  table.primary = keys;
+  return table;
+}
 
-const primary = <T extends object>(struct: T) => modify(struct, "primaryKey");
-const crr = <T extends object>(struct: T) =>
-  Object.assign(struct, { crsql: true });
-const index = <T extends object>(struct: T, columns: string[]) =>
-  Object.assign(struct, { index: columns });
+function crr<T extends CRTable>(table: T) {
+  table.crr = true;
+  return table;
+}
 
-type CRColumn = { type: string; modifiers?: string[] };
+function index<T extends CRTable>(table: T, ...keys: Keys<T["schema"]>[]) {
+  if (!table.indices) table.indices = [];
+  table.indices.push(keys);
+  return table;
+}
+
+type Keys<T> = Exclude<keyof T, number | symbol>;
+type CRColumn = { type: string };
 type CRTable = {
   schema: Record<string, CRColumn>;
-  crsql?: boolean;
-  index?: string[];
+  indices?: string[][];
+  primary?: string[];
+  crr?: boolean;
 };
 type CRSchema = { schema: Record<string, CRTable> };
 type CRChange = {

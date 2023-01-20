@@ -7,10 +7,13 @@ import { rm } from "fs/promises";
 const delay = (ms = 1) => new Promise((r) => setTimeout(r, ms));
 const schema = object({
   test: crr(
-    object({
-      id: primary(string()),
-      data: string(),
-    })
+    primary(
+      object({
+        id: string(),
+        data: string(),
+      }),
+      "id"
+    )
   ),
 });
 

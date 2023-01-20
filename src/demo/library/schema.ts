@@ -1,41 +1,46 @@
-import type { ObjectSchema } from "superstruct/dist/utils";
 import { crr, primary, index } from "../../lib";
 import { object, string } from "superstruct";
 
-const table = <S extends ObjectSchema>(schema: S, indexes: (keyof S)[] = []) =>
-  index(crr(object(schema)), indexes as string[]);
-
-const tracks = table({
-  id: primary(string()),
+const tracks = object({
+  id: string(),
   title: string(),
   artist: string(),
   album: string(),
 });
+crr(tracks);
+primary(tracks, "id");
 
-const artists = table({
-  id: primary(string()),
+const artists = object({
+  id: string(),
   title: string(),
 });
+crr(artists);
+primary(artists, "id");
 
-const albums = table({
-  id: primary(string()),
+const albums = object({
+  id: string(),
   title: string(),
 });
+crr(albums);
+primary(albums, "id");
 
-const playlists = table({
-  id: primary(string()),
+const playlists = object({
+  id: string(),
   title: string(),
 });
+crr(playlists);
+primary(playlists, "id");
 
-const tracksByPlaylist = table(
-  {
-    id: primary(string()),
-    track: string(),
-    playlist: string(),
-    order: string(),
-  },
-  ["order", "playlist"]
-);
+const tracksByPlaylist = object({
+  id: string(),
+  track: string(),
+  playlist: string(),
+  order: string(),
+});
+crr(tracksByPlaylist);
+primary(tracksByPlaylist, "id");
+index(tracksByPlaylist, "order");
+index(tracksByPlaylist, "playlist");
 
 const schema = object({ tracks, artists, albums, playlists, tracksByPlaylist });
 

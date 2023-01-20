@@ -2,9 +2,9 @@ import { any, array, number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
 import { router, procedure } from "../trpc";
 import { database } from "../../lib";
-import { Schema } from "./schema";
+import { schema } from "./schema";
 
-const { subscribe, merge } = database(Schema, { name: "data/todo.db" });
+const { subscribe, merge } = database(schema, { name: "data/todo.db" });
 
 const routes = router({
   push: procedure.input(array(any())).mutation(({ input }) => merge(input)),

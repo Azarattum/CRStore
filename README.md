@@ -21,27 +21,26 @@ npm install crstore superstruct
 
 To start using `CRStore` first you need to define a schema for your database. This is like a [Kysely schema](https://github.com/koskimas/kysely/blob/master/recipes/schemas.md), but defined with [superstruct](https://github.com/ianstormtaylor/superstruct), so we can have a runtime access to it. 
 ```ts
-// These helpers allow us to define primary keys on columns
-//  and enable conflict-free replicated relations on tables
 import { crr, primary } from "crstore";
 
-const Todos = object({
-  id: primary(string()),
+// Struct that represents the table
+const todos = object({
+  id: string(),
   title: string(),
   text: string(),
   completed: boolean(),
 });
+crr(todos); // Register table with conflict-free replicated relations
+primary(todos, "id"); // Define a primary key (can be multi-column)
 
-const Schema = object({ 
-  todos: crr(Todos) 
-});
+const schema = object({ todos });
 ```
 
 Now you can establish a database connection with your schema:
 ```ts
 import { database } from "crstore";
 
-const { store } = database(Schema);
+const { store } = database(schema);
 ```
 
 With the `store` function we can create arbitrary views to our database which are valid svelte stores. For example let's create a store that will have our entire `todos` table:
@@ -85,7 +84,7 @@ This we dynamically react to all the changes in our database even if we make the
 
 You can provide custom handlers for your network layer upon initialization. `push` method is called when you make changes locally that need to be synchronized. `pull` is called when `crstore` wants to subscribe to any changes coming from the network. Let's say you have a `push` [tRPC mutation](https://trpc.io/docs/quickstart) and a `pull` [tRPC subscription](https://trpc.io/docs/subscriptions) then you can use them like so when connection to a database:
 ```ts
-const { store } = database(Schema, {
+const { store } = database(schema, {
   push: (changes) => trpc.push.mutate(changes),
   pull: (version, client, onData) =>
     trpc.pull.subscribe({ version, client }, { onData }).unsubscribe,
@@ -96,7 +95,7 @@ Then your server implementation would look something like this:
 ```ts
 import { database } from "crstore";
 
-const { subscribe, merge } = database(Schema);
+const { subscribe, merge } = database(schema);
 const { router, procedure } = initTRPC.create();
 
 const app = router({
@@ -118,7 +117,7 @@ When creating a `crstore` you might want it to subscribe to some other stores. F
 import { writable } from "svelte/store";
 import { database } from "crstore";
 
-const { store } = database(Schema);
+const { store } = database(schema);
 
 const query = writable("hey");
 const search = store.with(query)((db, query) => 
@@ -132,7 +131,7 @@ If needed you can specify custom paths to `better-sqlite3` binding, `crsqlite` e
 ```ts
 import { database } from "crstore";
 
-const { store } = database(Schema, {
+const { store } = database(schema, {
   // These are the default values:
   paths: {
     wasm: "/sqlite.wasm",
@@ -148,7 +147,7 @@ If you need to manage multiple databases you can specify `name` database option.
 ```ts
 import { database } from "crstore";
 
-const { store } = database(Schema, {
+const { store } = database(schema, {
   name: "data/example.db"
 });
 ```
@@ -159,7 +158,7 @@ const { store } = database(Schema, {
 ```ts
 import { database } from "crstore";
 
-const { store } = database(Schema, {
+const { store } = database(schema, {
   online: () => true // Always online
 });
 ```
@@ -171,7 +170,7 @@ Use can apply any updates right after you have initialized your database connect
 ```ts
 import { database } from "crstore";
 
-const { update } = database(Schema);
+const { update } = database(schema);
 update((db) => db.insertInto("todos").values({ ... }));
 ```
 
@@ -182,7 +181,7 @@ Use can access the raw database connection. This can sometime be useful for debu
 ```ts
 import { database } from "crstore";
 
-const { connection } = database(Schema);
+const { connection } = database(schema);
 const db = await connection;
 
 const data = await db.selectFrom("todos").selectAll().execute()
@@ -225,4 +224,20 @@ $grouped[0] // ↓ The type is inferred from `json`
 //     album: string | null;
 //   }[]
 // }
+```
+
+### Specify indexes in the schema
+You can specify one or more indexes for your tables.
+
+```ts
+import { index } from "crstore";
+
+const todos = object({
+  id: string(),
+  title: string(),
+  text: string(),
+  completed: boolean(),
+});
+index(todos, "title");
+index(todos, "text", "completed"); // Multi-column index
 ```

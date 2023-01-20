@@ -1,11 +1,11 @@
 <script lang="ts">
   import { database } from "$lib/crstore";
   import { onDestroy } from "svelte";
-  import { Schema } from "./schema";
+  import { schema } from "./schema";
   import { trpc } from "../client";
   import { sql } from "kysely";
 
-  const { store, close } = database(Schema, {
+  const { store, close } = database(schema, {
     push: (changes) => trpc.todo.push.mutate(changes),
     pull: (version, client, onData) =>
       trpc.todo.pull.subscribe({ version, client }, { onData }).unsubscribe,
