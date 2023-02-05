@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { database, json, PREPEND, APPEND } from "$lib";
   import Sortable from "./components/Sortable.svelte";
   import Overlay from "./components/Overlay.svelte";
-  import { database, json } from "$lib";
   import { onDestroy } from "svelte";
   import { schema } from "./schema";
   import { trpc } from "../client";
@@ -55,7 +55,7 @@
             id: hash(item),
             data: item,
             list: hash(list),
-            order: (append ? 1 : -1) as any,
+            order: append ? APPEND : PREPEND,
           })
           .execute();
       },

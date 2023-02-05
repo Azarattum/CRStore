@@ -259,4 +259,28 @@ const todos = object({
 ordered(todos, "order", "collection");
 ```
 
-Then you can use them the same way you would do in `cr-sqlite`. Check out the [sortable example](src/demo/sortable) for more details.
+Then you can append or prepend items by putting the exported constants as your order value.
+```ts
+import { APPEND, PREPEND } from "crstore";
+
+db.insertInto("todos")
+  .values({
+    id: "4321",
+    text: "Hello",
+    completed: false,
+    collection: "1234",
+    order: APPEND,
+  })
+  .execute();
+```
+
+To move an item you should update the `{you_table}_fractindex` virtual table with the `after_id` value.
+```ts
+db
+  .updateTable("todos_fractindex" as any)
+  .set({ after_id: "2345" })
+  .where("id", "=", "4321")
+  .execute();
+```
+
+Check out the [sortable example](src/demo/sortable) for more details.
