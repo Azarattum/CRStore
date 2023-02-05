@@ -241,3 +241,22 @@ const todos = object({
 index(todos, "title");
 index(todos, "text", "completed"); // Multi-column index
 ```
+
+### Define a fractional index for a table
+`cr-sqlite` supports conflict free fractional indexing. To use them in `CRStore` first you should define table as ordered in your schema:
+
+```ts
+import { ordered } from "crstore";
+
+const todos = object({
+  id: string(),
+  text: string(),
+  completed: boolean(),
+  collection: string(),
+  order: string()
+});
+// Sort by 'order' column in each 'collection'
+ordered(todos, "order", "collection");
+```
+
+Then you can use them the same way you would do in `cr-sqlite`. Check out the [sortable example](src/demo/sortable) for more details.
