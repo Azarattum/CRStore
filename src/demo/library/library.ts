@@ -1,4 +1,4 @@
-import { database, json } from "../../lib";
+import { database, json, jsonGroup } from "../../lib";
 import { schema } from "./schema";
 import { trpc } from "../client";
 
@@ -76,7 +76,7 @@ const grouped = store((db) =>
     .select([
       "albums.title as album",
       (qb) =>
-        json(qb, {
+        jsonGroup(qb, {
           id: "tracks.id",
           title: "tracks.title",
           artist: "artists.title",
@@ -108,7 +108,7 @@ const organized = store((db) =>
     .select([
       "playlist",
       (qb) =>
-        json(qb, {
+        jsonGroup(qb, {
           id: "id",
           title: "title",
           artist: "artist",

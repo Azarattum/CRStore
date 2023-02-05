@@ -13,24 +13,48 @@ type JSON<DB, TB extends keyof DB, OBJ> = {
   [K in keyof OBJ]: ExtractTypeFromReferenceExpression<DB, TB, OBJ[K]>;
 };
 
-function json<
+function wrap<
   DB,
   TB extends keyof DB,
   OBJ extends Record<string, StringReference<DB, TB>>
->(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
+>(wrapper: [string, string], kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
   const entires = Object.entries(json).flatMap(([key, value]) => [
     sql.literal(key),
     kysely.ref(value),
   ]);
 
   type ObjectArray = JSON<DB, TB, OBJ>[];
-  return sql`json_group_array(json_object(${sql.join(entires)}))`
+  return sql`${sql.raw(wrapper[0])}${sql.join(entires)}${sql.raw(wrapper[1])}`
     .withPlugin({
       transformQuery({ node }: PluginTransformQueryArgs) {
         return { ...node, json: true };
       },
     } as any)
-    .castTo<ObjectArray>();
+    .$castTo<ObjectArray>();
+}
+
+function jsonGroup<
+  DB,
+  TB extends keyof DB,
+  OBJ extends Record<string, StringReference<DB, TB>>
+>(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
+  return wrap(["json_group_array(json_object(", "))"], kysely, json);
+}
+
+function json<
+  DB,
+  TB extends keyof DB,
+  OBJ extends Record<string, StringReference<DB, TB>>
+>(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
+  return wrap(["json_object(", ")"], kysely, json);
+}
+
+function group<
+  DB,
+  TB extends keyof DB,
+  OBJ extends Record<string, StringReference<DB, TB>>
+>(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
+  return wrap(["json_group_array(", ")"], kysely, json);
 }
 
 class JSONPlugin implements KyselyPlugin {
@@ -83,4 +107,4 @@ class JSONPlugin implements KyselyPlugin {
   }
 }
 
-export { json, JSONPlugin };
+export { json, group, jsonGroup, JSONPlugin };
