@@ -6,7 +6,7 @@
 /**
  * Load database runtime based on the environment
  * @param {string} file
- * @param {{ binding: string | undefined; extension: string; wasm: string; }} paths
+ * @param {{ binding: string | undefined; extension: string | undefined; wasm: string; }} paths
  */
 export async function load(file, paths) {
   if (globalThis.process) {
@@ -22,7 +22,9 @@ export async function load(file, paths) {
     if (bun) database.run("PRAGMA journal_mode = wal");
     else database.pragma("journal_mode = WAL");
 
-    database.loadExtension(paths.extension);
+    database.loadExtension(
+      paths.extension || (await import("@vlcn.io/crsqlite")).extensionPath
+    );
     return { database, browser: false };
   } else {
     await import("navigator.locks");

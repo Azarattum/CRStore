@@ -22,7 +22,10 @@ async function apply(db: Kysely<any>, { schema }: CRSchema) {
     let query = db.schema.createTable(table).ifNotExists();
     for (const column in current.schema) {
       const { type } = current.schema[column];
-      query = query.addColumn(column, covert(type));
+      query = query.addColumn(
+        column,
+        column === current.ordered?.[0] ? "blob" : covert(type)
+      );
     }
     // Add constrains
     if (current.primary) {
@@ -45,6 +48,12 @@ async function apply(db: Kysely<any>, { schema }: CRSchema) {
     if (current.crr) {
       await sql`SELECT crsql_as_crr(${table})`.execute(db);
     }
+    // Register fraction index
+    if (current.ordered) {
+      await sql`SELECT crsql_fract_as_ordered(${table},${sql.join(
+        current.ordered
+      )})`.execute(db);
+    }
   }
 }
 
@@ -58,6 +67,15 @@ function crr<T extends CRTable>(table: T) {
   return table;
 }
 
+function ordered<T extends CRTable>(
+  table: T,
+  by: Keys<T["schema"]>,
+  ...grouped: Keys<T["schema"]>[]
+) {
+  table.ordered = [by, ...grouped];
+  return table;
+}
+
 function index<T extends CRTable>(table: T, ...keys: Keys<T["schema"]>[]) {
   if (!table.indices) table.indices = [];
   table.indices.push(keys);
@@ -68,6 +86,8 @@ type Keys<T> = Exclude<keyof T, number | symbol>;
 type CRColumn = { type: string };
 type CRTable = {
   schema: Record<string, CRColumn>;
+
+  ordered?: string[];
   indices?: string[][];
   primary?: string[];
   crr?: boolean;
@@ -83,5 +103,5 @@ type CRChange = {
   site_id: Uint8Array;
 };
 
-export { apply, primary, crr, index };
+export { apply, primary, crr, index, ordered };
 export type { CRSchema, CRChange };

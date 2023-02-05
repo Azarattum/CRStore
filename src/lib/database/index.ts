@@ -19,8 +19,8 @@ import { load } from "./load";
 const connections = new Map();
 const defaultPaths = {
   wasm: "/sqlite.wasm",
-  extension: "node_modules/@vlcn.io/crsqlite/build/Release/crsqlite.node",
   binding: undefined as string | undefined,
+  extension: undefined as string | undefined,
 };
 
 async function init<T extends CRSchema>(

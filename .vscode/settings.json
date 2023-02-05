@@ -8,6 +8,7 @@
     "crsqlite",
     "crstore",
     "esbuild",
+    "fract",
     "froms",
     "IFNULL",
     "Introspector",

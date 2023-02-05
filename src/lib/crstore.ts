@@ -10,7 +10,6 @@ import type {
   Push,
   View,
 } from "./types";
-import { createQueryId, type QueryId } from "kysely/dist/esm/util/query-id";
 import { derived, writable, type Readable } from "svelte/store";
 import { affectedTables } from "./database/operations";
 import type { CRSchema } from "./database/schema";
@@ -169,7 +168,7 @@ function store<Schema, Type>(
   const dependency = derived(dependencies, (x) => x);
 
   let query = null as CompiledQuery | null;
-  let id = null as QueryId | null;
+  let id = null as { queryId: string } | null;
 
   const { subscribe, set } = writable<Type[]>([], () => {
     let unsubscribe: (() => void) | null = () => {};
@@ -181,7 +180,7 @@ function store<Schema, Type>(
         const tables = affectedTables(node);
         const executor = db.getExecutor();
 
-        id = createQueryId();
+        id = { queryId: Math.random().toString(36).slice(2) };
         query = executor.compileQuery(executor.transformQuery(node, id), id);
 
         forget();
