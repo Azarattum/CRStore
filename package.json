@@ -2,6 +2,7 @@
   "name": "crstore",
   "version": "0.5.0",
   "description": "Conflict-free replicated svelte store.",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Azarattum/CRStore"
