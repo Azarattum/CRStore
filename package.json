@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Conflict-free replicated svelte store.",
   "license": "MIT",
   "repository": {
@@ -23,7 +23,6 @@
     "trpc"
   ],
   "scripts": {
-    "postinstall": "ncp node_modules/@vlcn.io/wa-crsqlite/dist/wa-sqlite-async.wasm static/sqlite.wasm",
     "dev": "vite dev",
     "build": "svelte-kit sync && svelte-package",
     "test": "vitest",
@@ -34,14 +33,13 @@
     "format": "prettier --plugin-search-dir . --write ."
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^2.0.0",
+    "@sveltejs/adapter-static": "^2.0.1",
     "@sveltejs/kit": "1.5.6",
     "@sveltejs/package": "1.0.2",
     "@trpc/client": "^10.11.0",
     "@trpc/server": "^10.11.0",
     "@types/better-sqlite3": "^7.6.3",
     "@types/ws": "^8.5.4",
-    "ncp": "^2.0.0",
     "prettier": "^2.8.4",
     "prettier-plugin-svelte": "^2.9.0",
     "superstruct": "^1.0.3",

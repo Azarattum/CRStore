@@ -6,7 +6,7 @@
 /**
  * Load database runtime based on the environment
  * @param {string} file
- * @param {{ binding: string | undefined; extension: string | undefined; wasm: string; }} paths
+ * @param {{ binding: string | undefined; extension: string | undefined; wasm: string | undefined; }} paths
  */
 export async function load(file, paths) {
   if (globalThis.process) {
@@ -28,8 +28,11 @@ export async function load(file, paths) {
     return { database, browser: false };
   } else {
     await import("navigator.locks");
+    const url =
+      paths.wasm ||
+      (await import("@vlcn.io/wa-crsqlite/wa-sqlite-async.wasm?url")).default;
     const { default: load } = await import("@vlcn.io/wa-crsqlite");
-    const sqlite = await load(() => paths.wasm);
+    const sqlite = await load(() => url);
     const database = await sqlite.open(file);
     return { database, browser: true };
   }

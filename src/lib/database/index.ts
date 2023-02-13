@@ -18,7 +18,7 @@ import { load } from "./load";
 
 const connections = new Map();
 const defaultPaths = {
-  wasm: "/sqlite.wasm",
+  wasm: undefined as string | undefined,
   binding: undefined as string | undefined,
   extension: undefined as string | undefined,
 };

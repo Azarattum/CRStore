@@ -26,6 +26,7 @@ const config = {
   ],
   build: {
     target: "es2020",
+    rollupOptions: { external: ["path", "url"] },
   },
   optimizeDeps: {
     esbuildOptions: {
