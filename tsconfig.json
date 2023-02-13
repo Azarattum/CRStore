@@ -8,6 +8,12 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": true
+    "strict": true,
+    "plugins": [
+      {
+        "transform": "typescript-transform-extensions",
+        "extensions": { ".ts": ".js" }
+      }
+    ]
   }
 }

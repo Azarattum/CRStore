@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Conflict-free replicated svelte store.",
   "license": "MIT",
   "repository": {
@@ -30,7 +30,8 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "prettier --plugin-search-dir . --check .",
-    "format": "prettier --plugin-search-dir . --write ."
+    "format": "prettier --plugin-search-dir . --write .",
+    "prepare": "ts-patch install -s"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^2.0.1",
@@ -45,8 +46,10 @@
     "superstruct": "^1.0.3",
     "svelte-check": "^3.0.3",
     "svelte-preprocess": "^5.0.1",
+    "ts-patch": "^2.1.0",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5",
+    "typescript-transform-extensions": "^1.0.1",
     "vite": "^4.1.1",
     "vitest": "^0.28.5",
     "ws": "^8.12.0"
