@@ -58,7 +58,10 @@ type View<Schema, Type, Deps extends any[] = []> = (
 ) => Selectable<Type[]>;
 
 type Context<Schema> = {
-  update<T extends any[]>(operation: Operation<T>, ...args: T): Promise<void>;
+  update<T extends any[]>(
+    operation: Operation<T, Schema>,
+    ...args: T
+  ): Promise<void>;
   subscribe: (tables: string[], callback: () => any) => () => void;
   connection: Promise<Kysely<Schema>>;
 };
@@ -94,7 +97,7 @@ interface Connection<S> extends Kysely<S> {
   selectClient(): Executable<string>;
 
   applyOperation<T extends any[]>(
-    operation: Operation<T>,
+    operation: Operation<T, S>,
     ...args: T
   ): Executable<any[]>;
 }
@@ -105,7 +108,10 @@ interface Database<S> {
     with<D extends Readable<any>[]>(...stores: D): Store<S, D>;
   };
 
-  update<T extends any[]>(operation: Operation<T>, ...args: T): Promise<void>;
+  update<T extends any[]>(
+    operation: Operation<T, S>,
+    ...args: T
+  ): Promise<void>;
   merge(changes: any[]): Promise<void>;
   close(): Promise<void>;
   subscribe(

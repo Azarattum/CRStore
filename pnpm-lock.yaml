@@ -2,10 +2,10 @@ lockfileVersion: 5.4
 
 specifiers:
   '@sveltejs/adapter-static': ^2.0.1
-  '@sveltejs/kit': 1.5.6
+  '@sveltejs/kit': 1.6.0
   '@sveltejs/package': 1.0.2
-  '@trpc/client': ^10.11.0
-  '@trpc/server': ^10.11.0
+  '@trpc/client': ^10.11.1
+  '@trpc/server': ^10.11.1
   '@types/better-sqlite3': ^7.6.3
   '@types/ws': ^8.5.4
   '@vlcn.io/crsqlite': 0.7.2
@@ -25,7 +25,7 @@ specifiers:
   typescript-transform-extensions: ^1.0.1
   vite: ^4.1.1
   vitest: ^0.28.5
-  ws: ^8.12.0
+  ws: ^8.12.1
 
 dependencies:
   '@vlcn.io/crsqlite': 0.7.2
@@ -36,11 +36,11 @@ dependencies:
   svelte: 3.55.1
 
 devDependencies:
-  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.5.6
-  '@sveltejs/kit': 1.5.6_svelte@3.55.1+vite@4.1.1
+  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.6.0
+  '@sveltejs/kit': 1.6.0_svelte@3.55.1+vite@4.1.1
   '@sveltejs/package': 1.0.2_4x7phaipmicbaooxtnresslofa
-  '@trpc/client': 10.11.0_@trpc+server@10.11.0
-  '@trpc/server': 10.11.0
+  '@trpc/client': 10.11.1_@trpc+server@10.11.1
+  '@trpc/server': 10.11.1
   '@types/better-sqlite3': 7.6.3
   '@types/ws': 8.5.4
   prettier: 2.8.4
@@ -54,7 +54,7 @@ devDependencies:
   typescript-transform-extensions: 1.0.1
   vite: 4.1.1
   vitest: 0.28.5
-  ws: 8.12.0
+  ws: 8.12.1
 
 packages:
 
@@ -297,16 +297,16 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.5.6:
+  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.6.0:
     resolution: {integrity: sha512-o5/q3YwD/ErxYCFlK1v3ydvldyNKk1lh3oeyxn4mhz+Pkbx/uuxhzmbOpytTlp5aVqNHDVsb04xadUzOFCDDzw==}
     peerDependencies:
       '@sveltejs/kit': ^1.5.0
     dependencies:
-      '@sveltejs/kit': 1.5.6_svelte@3.55.1+vite@4.1.1
+      '@sveltejs/kit': 1.6.0_svelte@3.55.1+vite@4.1.1
     dev: true
 
-  /@sveltejs/kit/1.5.6_svelte@3.55.1+vite@4.1.1:
-    resolution: {integrity: sha512-CHVeQpbcwSIUekF6WwevmExKXyfHnzM5nlCEUv13lGgfJ0zKA0ny5YwIe40vccrm5w5Caec7jMTt9Ih3McJr5g==}
+  /@sveltejs/kit/1.6.0_svelte@3.55.1+vite@4.1.1:
+    resolution: {integrity: sha512-SiY+JVid3SABzksiw4TVOO7+c3z02qFd2aD6T3DO2VScLjrml+C0B9B+QAMLuAPKAuDwmRamPRHURKvFktLbfA==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
     requiresBuild: true
@@ -368,16 +368,16 @@ packages:
       - supports-color
     dev: true
 
-  /@trpc/client/10.11.0_@trpc+server@10.11.0:
-    resolution: {integrity: sha512-GdSfyJxYI3Z9zyz2fEdJBGWLzqrpaonRtG1BtYLR5/63/eaW3/weA3JcEl2H3/CvqSNZfptNMZqLmaZyChTxdg==}
+  /@trpc/client/10.11.1_@trpc+server@10.11.1:
+    resolution: {integrity: sha512-6aHY27YomzyUAlKhJE4jJulzDjc6vAKAKoWqAmoYbEEhApvyDrMo52bdYqqsukjxvA/L/uPhjOcPU5OsO+x+pA==}
     peerDependencies:
-      '@trpc/server': 10.11.0
+      '@trpc/server': 10.11.1
     dependencies:
-      '@trpc/server': 10.11.0
+      '@trpc/server': 10.11.1
     dev: true
 
-  /@trpc/server/10.11.0:
-    resolution: {integrity: sha512-alV96Bjpa3bPgF+LZkJeQtrUJP/BM5EVpsB8S755RA3xtbudMw/lvLJFep8L/xTRw1HFZ7r4uRD31dKLOrMpaA==}
+  /@trpc/server/10.11.1:
+    resolution: {integrity: sha512-7FnvuaNsSl6HLloh0a297McS4yjhbqg/bw1h/XOAKduNPUQwXNmJf48X1PAsD8ODtO1Rrjz9TeynJD7uCEn0xQ==}
     dev: true
 
   /@types/better-sqlite3/7.6.3:
@@ -1928,8 +1928,8 @@ packages:
   /wrappy/1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  /ws/8.12.0:
-    resolution: {integrity: sha512-kU62emKIdKVeEIOIKVegvqpXMSTAMLJozpHZaJNDYqBjzlSYXQGviYwN1osDLJ9av68qHd4a2oSjd7yD4pacig==}
+  /ws/8.12.1:
+    resolution: {integrity: sha512-1qo+M9Ba+xNhPB+YTWUlK6M17brTut5EXbcBaMRN5pH5dFrXz7lzz1ChFSUq3bOUl8yEvSenhHmYUNJxFzdJew==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
