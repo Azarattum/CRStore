@@ -131,6 +131,7 @@ export type {
   Actions,
   Context,
   Updater,
+  Kysely,
   Schema,
   Bound,
   View,
