@@ -41,22 +41,6 @@ function groupJSON<
   return wrap(["json_group_array(json_object(", "))"], kysely, json);
 }
 
-function groupObject<
-  DB,
-  TB extends keyof DB,
-  OBJ extends Record<string, StringReference<DB, TB>>
->(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  return wrap(["json_group_object(", ")"], kysely, json);
-}
-
-function groupArray<
-  DB,
-  TB extends keyof DB,
-  OBJ extends Record<string, StringReference<DB, TB>>
->(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  return wrap(["json_group_array(", ")"], kysely, json);
-}
-
 function json<
   DB,
   TB extends keyof DB,
@@ -115,4 +99,4 @@ class JSONPlugin implements KyselyPlugin {
   }
 }
 
-export { groupObject, groupArray, groupJSON, json, JSONPlugin };
+export { json, groupJSON, JSONPlugin };
