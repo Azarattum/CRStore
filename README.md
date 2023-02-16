@@ -192,7 +192,7 @@ console.log(data);
 
 `crstore` provides support for nested JSON queries via it's own [JSON Kysely plugin](src/lib/database/json.ts). You can see how it's used in practice be looking at the [library demo](src/demo/library/library.ts).
 ```ts
-import { jsonGroup } from "crstore";
+import { groupJSON } from "crstore";
 
 const grouped = store((db) =>
   db
@@ -202,8 +202,8 @@ const grouped = store((db) =>
     .select([
       "albums.title as album",
       (qb) =>
-        // Here we aggregate all the tracks for the album using the `jsonGroup` function
-        jsonGroup(qb, {
+        // Here we aggregate all the tracks for the album
+        groupJSON(qb, {
           id: "tracks.id",
           title: "tracks.title",
           artist: "artists.title",

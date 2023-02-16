@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { database, PREPEND, APPEND, jsonGroup } from "$lib";
+  import { database, PREPEND, APPEND, groupJSON } from "$lib";
   import Sortable from "./components/Sortable.svelte";
   import Overlay from "./components/Overlay.svelte";
   import { onDestroy } from "svelte";
@@ -34,7 +34,7 @@
         .select([
           "title",
           (qb) =>
-            jsonGroup(qb, {
+            groupJSON(qb, {
               id: "id",
               data: "data",
               order: "order",
