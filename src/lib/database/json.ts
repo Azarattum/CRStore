@@ -23,14 +23,13 @@ function wrap<
     kysely.ref(value),
   ]);
 
-  type ObjectArray = JSON<DB, TB, OBJ>[];
-  return sql`${sql.raw(wrapper[0])}${sql.join(entires)}${sql.raw(wrapper[1])}`
-    .withPlugin({
-      transformQuery({ node }: PluginTransformQueryArgs) {
-        return { ...node, json: true };
-      },
-    } as any)
-    .$castTo<ObjectArray>();
+  return sql`${sql.raw(wrapper[0])}${sql.join(entires)}${sql.raw(
+    wrapper[1]
+  )}`.withPlugin({
+    transformQuery({ node }: PluginTransformQueryArgs) {
+      return { ...node, json: true };
+    },
+  } as any);
 }
 
 function groupJSON<
@@ -38,7 +37,9 @@ function groupJSON<
   TB extends keyof DB,
   OBJ extends Record<string, StringReference<DB, TB>>
 >(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  return wrap(["json_group_array(json_object(", "))"], kysely, json);
+  return wrap(["json_group_array(json_object(", "))"], kysely, json).$castTo<
+    JSON<DB, TB, OBJ>[]
+  >();
 }
 
 function json<
@@ -46,7 +47,7 @@ function json<
   TB extends keyof DB,
   OBJ extends Record<string, StringReference<DB, TB>>
 >(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  return wrap(["json_object(", ")"], kysely, json);
+  return wrap(["json_object(", ")"], kysely, json).$castTo<JSON<DB, TB, OBJ>>();
 }
 
 class JSONPlugin implements KyselyPlugin {
