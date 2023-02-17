@@ -11,10 +11,12 @@ import {
 import type { Connection, Schema } from "../types";
 import { Kysely, SqliteDialect } from "kysely";
 import type { CRSchema } from "./schema";
-import { load } from "crstore/runtime";
 import { CRDialect } from "./dialect";
 import { JSONPlugin } from "./json";
 import { apply } from "./schema";
+
+// @ts-ignore
+import { load } from "crstore/runtime";
 
 const connections = new Map();
 const defaultPaths = {
