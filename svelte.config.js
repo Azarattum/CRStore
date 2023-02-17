@@ -1,15 +1,17 @@
+import { vitePreprocess } from "@sveltejs/kit/vite";
 import adapter from "@sveltejs/adapter-static";
-import preprocess from "svelte-preprocess";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  preprocess: preprocess(),
-
+  preprocess: vitePreprocess(),
   kit: {
     adapter: adapter(),
     files: {
       routes: "src/demo",
       appTemplate: "src/demo/app.html",
+    },
+    alias: {
+      "crstore/runtime": "./runtime/browser.js",
     },
   },
 };

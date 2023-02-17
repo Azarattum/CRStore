@@ -33,6 +33,9 @@ const config = {
       target: "es2020",
     },
   },
+  server: {
+    fs: { allow: ["runtime"] },
+  },
   test: { env: { SSR: "" } },
 };
 
