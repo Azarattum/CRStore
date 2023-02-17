@@ -1,4 +1,5 @@
 import * as nodeSqlite from "better-sqlite3";
+import { extensionPath } from "@vlcn.io/crsqlite";
 
 /**
  * @param {string} file
@@ -18,7 +19,6 @@ export async function load(file, paths) {
   if (bun) database.run("PRAGMA journal_mode = wal");
   else database.pragma("journal_mode = WAL");
 
-  const extensionPath = "node_modules/@vlcn.io/crsqlite/build/Release/crsqlite";
   database.loadExtension(paths.extension || extensionPath);
   return { database, browser: false };
 }
