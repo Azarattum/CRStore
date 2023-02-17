@@ -133,6 +133,7 @@ function database<T extends CRSchema>(
 
   async function close() {
     hold();
+    channel.close();
     listeners.clear();
     globalThis.removeEventListener?.("online", pull);
     globalThis.removeEventListener?.("offline", hold);
