@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "Conflict-free replicated svelte store.",
   "license": "MIT",
   "repository": {

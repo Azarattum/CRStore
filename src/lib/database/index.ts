@@ -19,10 +19,10 @@ import { apply } from "./schema";
 import { load } from "crstore/runtime";
 
 const connections = new Map();
-const defaultPaths = {
-  wasm: undefined as string | undefined,
-  binding: undefined as string | undefined,
-  extension: undefined as string | undefined,
+const defaultPaths = {} as {
+  wasm?: string;
+  binding?: string;
+  extension?: string;
 };
 
 async function init<T extends CRSchema>(
