@@ -15,7 +15,8 @@ export async function load(file, paths) {
       await import(/* @vite-ignore */ bunSqlite)
     : nodeSqlite;
 
-  const database = new SQLite(file, { nativeBinding: paths.binding });
+  const options = !bun ? { nativeBinding: paths.binding } : undefined;
+  const database = new SQLite(file, options);
   if (bun) database.run("PRAGMA journal_mode = wal");
   else database.pragma("journal_mode = WAL");
 
