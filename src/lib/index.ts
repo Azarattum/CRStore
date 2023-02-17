@@ -6,3 +6,5 @@ export const APPEND = 1 as any;
 export const PREPEND = -1 as any;
 
 export { sql } from "kysely";
+
+export * from "./types";
