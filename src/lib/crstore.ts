@@ -16,11 +16,6 @@ import type { CRSchema } from "./database/schema";
 import { defaultPaths, init } from "./database";
 import type { CompiledQuery } from "kysely";
 
-const noSSR = <T extends Promise<any>>(fn: () => T) =>
-  import.meta && import.meta.env && import.meta.env.SSR
-    ? (new Promise<unknown>(() => {}) as T)
-    : (new Promise((r) => setTimeout(() => r(fn()))) as T);
-
 function database<T extends CRSchema>(
   schema: T,
   {
@@ -31,16 +26,16 @@ function database<T extends CRSchema>(
     online = () => !!(globalThis as any).navigator?.onLine,
   } = {}
 ): Database<Schema<T>> {
-  const connection = noSSR(() => init(name, schema, paths));
+  const connection = init(name, schema, paths);
   const channel = new BroadcastChannel(`${name}-sync`);
   const tabUpdate = (event: MessageEvent) => trigger(event.data, event.data[0]);
 
   channel.addEventListener("message", tabUpdate);
   globalThis.addEventListener?.("online", pull);
-  noSSR(pull);
 
   const listeners = new Map<string, Set<Updater>>();
   let hold = () => {};
+  pull();
 
   function subscribe(
     tables: string[],
@@ -211,6 +206,13 @@ function store<Schema, Type>(
     update<T extends any[]>(operation?: Operation<T>, ...args: T) {
       if (!operation) return refresh();
       return update(operation, ...args);
+    },
+    then(resolve: (x: Type[]) => void) {
+      let data: Type[] = [];
+      const done = subscribe((x) => (data = x));
+      // It is hard to know whether the current store's state is dirty,
+      //   therefore we have to explicitly refresh it
+      refresh().then(() => (done(), resolve(data), null));
     },
   };
 }

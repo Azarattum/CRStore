@@ -75,6 +75,7 @@ type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
       operation?: Operation<A, S>,
       ...args: A
     ) => Promise<T>;
+    then: (resolve: (x: T[]) => void) => void;
   };
 
 // === DATABASE ===
