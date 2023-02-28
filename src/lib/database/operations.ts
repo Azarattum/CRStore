@@ -80,9 +80,9 @@ function changesSince(
     .select(["cid", "pk", "table", "val", "db_version", "col_version"])
     .where("db_version", ">", since)
     // Don't return tombstones when requesting the entire db
-    .if(!since, (qb) => qb.where("cid", "!=", "__crsql_del"))
-    .if(filter === null, (qb) => qb.where("site_id", "is", null))
-    .if(typeof filter === "string", (qb) =>
+    .$if(!since, (qb) => qb.where("cid", "!=", "__crsql_del"))
+    .$if(filter === null, (qb) => qb.where("site_id", "is", null))
+    .$if(typeof filter === "string", (qb) =>
       qb.where("site_id", "!=", toBytes(filter as any))
     );
 
