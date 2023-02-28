@@ -10,12 +10,6 @@ const config = {
       routes: "src/demo",
       appTemplate: "src/demo/app.html",
     },
-    alias:
-      process.env.NODE_ENV === "development"
-        ? {
-            "crstore/runtime": "./runtime/browser.js",
-          }
-        : {},
   },
 };
 

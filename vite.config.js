@@ -2,6 +2,7 @@ import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { router } from "./src/demo/server";
 import { WebSocketServer } from "ws";
+import { resolve } from "path";
 import { parse } from "url";
 
 /** @type {import('vite').UserConfig} */
@@ -24,6 +25,17 @@ const config = {
       },
     },
   ],
+  resolve: {
+    alias: [
+      {
+        find: "crstore/runtime",
+        customResolver: (_0, _1, { ssr }) =>
+          ssr
+            ? resolve("./runtime/native.js")
+            : resolve("./runtime/browser.js"),
+      },
+    ],
+  },
   build: {
     target: "es2020",
     rollupOptions: { external: ["path", "url"] },
