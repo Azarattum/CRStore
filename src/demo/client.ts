@@ -18,8 +18,9 @@ const proxy: any = new Proxy(() => {}, {
   set: () => proxy,
 });
 
-const trpc = import.meta.env.SSR
-  ? (proxy as ReturnType<typeof client>)
-  : client();
+const trpc =
+  !import.meta.env || import.meta.env.SSR
+    ? (proxy as ReturnType<typeof client>)
+    : client();
 
 export { trpc };
