@@ -69,7 +69,7 @@ type Context<Schema> = {
 type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
   view: View<S, T, D>,
   actions?: A
-) => Writable<T[]> &
+) => Omit<Writable<T[]>, "update"> &
   Bound<A> & {
     update<T, A extends any[]>(
       operation?: Operation<A, S>,
