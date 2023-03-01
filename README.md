@@ -85,9 +85,8 @@ This we dynamically react to all the changes in our database even if we make the
 You can provide custom handlers for your network layer upon initialization. `push` method is called when you make changes locally that need to be synchronized. `pull` is called when `crstore` wants to subscribe to any changes coming from the network. Let's say you have a `push` [tRPC mutation](https://trpc.io/docs/quickstart) and a `pull` [tRPC subscription](https://trpc.io/docs/subscriptions) then you can use them like so when connection to a database:
 ```ts
 const { store } = database(schema, {
-  push: (changes) => trpc.push.mutate(changes),
-  pull: (version, client, onData) =>
-    trpc.pull.subscribe({ version, client }, { onData }).unsubscribe,
+  push: trpc.push.mutate,
+  pull: trpc.pull.subscribe,
 });
 ```
 
