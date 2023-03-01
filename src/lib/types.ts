@@ -1,3 +1,4 @@
+import type { Readable, Writable } from "svelte/store";
 import type {
   AggregateFunctionNode,
   SelectQueryNode,
@@ -10,7 +11,6 @@ import type {
   RawNode,
   Kysely,
 } from "kysely";
-import type { Readable } from "svelte/store";
 
 // === UTILITIES ===
 
@@ -69,13 +69,13 @@ type Context<Schema> = {
 type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
   view: View<S, T, D>,
   actions?: A
-) => Readable<T[]> &
+) => Writable<T[]> &
   Bound<A> & {
-    update: <T, A extends any[]>(
+    update<T, A extends any[]>(
       operation?: Operation<A, S>,
       ...args: A
-    ) => Promise<T>;
-    then: (resolve: (x: T[]) => void) => void;
+    ): Promise<T>;
+    then(resolve: (x: T[]) => void): void;
   };
 
 // === DATABASE ===

@@ -3,6 +3,7 @@
   import { items } from "./stores";
 
   export let data: PageData;
+  $items = data.initial;
 
   function submit(this: HTMLFormElement) {
     const data = new FormData(this).get("data");
@@ -14,17 +15,8 @@
   <input type="text" name="data" /><button>+</button>
 </form>
 
-{#if $items.length}
-  <ul>
-    {#each $items as item}
-      <li>{item.data}</li>
-    {/each}
-  </ul>
-{:else}
-  <!-- Loading... -->
-  <ul>
-    {#each data.data as item}
-      <li>{item.data}</li>
-    {/each}
-  </ul>
-{/if}
+<ul>
+  {#each $items as item}
+    <li>{item.data}</li>
+  {/each}
+</ul>

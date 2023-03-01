@@ -211,6 +211,7 @@ function store<Schema, Type>(
 
   return {
     ...bound,
+    set,
     subscribe,
     update<T extends any[]>(operation?: Operation<T>, ...args: T) {
       if (!operation) return refresh();
