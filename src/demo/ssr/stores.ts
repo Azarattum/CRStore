@@ -7,13 +7,13 @@ const schema = object({
 });
 
 const client = trpc as any; // Fixes circular referencing
-const ssr = import.meta?.env?.SSR !== false;
+const browser = "window" in globalThis;
 
 export const { store, merge, subscribe } = database(schema, {
   ssr: true,
   name: "data/ssr.db",
-  push: ssr ? undefined : client.ssr.push.mutate,
-  pull: ssr ? undefined : client.ssr.pull.subscribe,
+  push: browser ? client.ssr.push.mutate : undefined,
+  pull: browser ? client.ssr.pull.subscribe : undefined,
 });
 
 export const items = store((db) => db.selectFrom("items").selectAll(), {

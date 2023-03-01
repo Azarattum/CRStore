@@ -7,8 +7,8 @@ const proxy = new Proxy(() => {}, {
   set: () => proxy,
 }) as never;
 
-const trpc =
-  import.meta?.env?.SSR === false
+export const trpc =
+  "window" in globalThis
     ? createTRPCProxyClient<App>({
         links: [
           wsLink({
@@ -19,5 +19,3 @@ const trpc =
         ],
       })
     : proxy;
-
-export { trpc };
