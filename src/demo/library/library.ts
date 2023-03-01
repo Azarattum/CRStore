@@ -4,9 +4,8 @@ import { trpc } from "../client";
 
 const { store } = database(schema, {
   name: "library.db",
-  push: (changes) => trpc.library.push.mutate(changes),
-  pull: (version, client, onData) =>
-    trpc.library.pull.subscribe({ version, client }, { onData }).unsubscribe,
+  push: trpc.library.push.mutate,
+  pull: trpc.library.pull.subscribe,
 });
 
 const all = store(

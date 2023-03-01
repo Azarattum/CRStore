@@ -6,9 +6,8 @@
   import { sql } from "kysely";
 
   const { store, close } = database(schema, {
-    push: (changes) => trpc.todo.push.mutate(changes),
-    pull: (version, client, onData) =>
-      trpc.todo.pull.subscribe({ version, client }, { onData }).unsubscribe,
+    push: trpc.todo.push.mutate,
+    pull: trpc.todo.pull.subscribe,
   });
   onDestroy(close);
 

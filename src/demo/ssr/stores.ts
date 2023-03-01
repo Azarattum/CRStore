@@ -6,19 +6,14 @@ const schema = object({
   items: crr(primary(object({ id: number(), data: string() }), "id")),
 });
 
-// Only define `pull` and `push` client-side
-const sync =
-  import.meta.env?.SSR !== false
-    ? {}
-    : {
-        push: (changes: any[]) => trpc.ssr.push.mutate(changes),
-        pull: (version: number, client: string, onData: any): any =>
-          trpc.ssr.pull.subscribe({ version, client }, { onData }).unsubscribe,
-      };
+const client = trpc as any; // Fixes circular referencing
+const ssr = import.meta?.env?.SSR !== false;
 
 export const { store, merge, subscribe } = database(schema, {
+  ssr: true,
   name: "data/ssr.db",
-  ...sync,
+  push: ssr ? undefined : client.ssr.push.mutate,
+  pull: ssr ? undefined : client.ssr.pull.subscribe,
 });
 
 export const items = store((db) => db.selectFrom("items").selectAll(), {

@@ -83,10 +83,9 @@ type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
 type Push = ((changes: any[]) => any) | undefined;
 type Pull =
   | ((
-      version: number,
-      client: string,
-      callback: (changes: any[]) => any
-    ) => () => any)
+      input: { version: number; client: string },
+      options: { onData: (changes: any[]) => any }
+    ) => { unsubscribe(): void })
   | undefined;
 
 interface Connection<S> extends Kysely<S> {

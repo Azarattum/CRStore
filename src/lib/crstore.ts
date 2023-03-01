@@ -19,6 +19,7 @@ import type { CompiledQuery } from "kysely";
 function database<T extends CRSchema>(
   schema: T,
   {
+    ssr = false,
     name = "crstore.db",
     paths = defaultPaths,
     push: remotePush = undefined as Push,
@@ -26,7 +27,10 @@ function database<T extends CRSchema>(
     online = () => !!(globalThis as any).navigator?.onLine,
   } = {}
 ): Database<Schema<T>> {
-  const connection = init(name, schema, paths);
+  const dummy = !ssr && !!import.meta?.env?.SSR;
+  const connection = dummy
+    ? new Promise<never>(() => {})
+    : init(name, schema, paths);
   const channel = new BroadcastChannel(`${name}-sync`);
   const tabUpdate = (event: MessageEvent) => trigger(event.data, event.data[0]);
 
@@ -83,15 +87,20 @@ function database<T extends CRSchema>(
 
     if (!remotePull || !online()) return;
     const db = await connection;
-    const { synced } = await db.selectVersion().execute();
+    const { synced: version } = await db.selectVersion().execute();
     const client = await db.selectClient().execute();
 
     await push();
-    hold = remotePull(synced, client, async (changes) => {
-      if (!changes.length) return;
-      await db.insertChanges(changes).execute();
-      await trigger(changes, changes[0]);
-    });
+    hold = remotePull(
+      { version, client },
+      {
+        async onData(changes) {
+          if (!changes.length) return;
+          await db.insertChanges(changes).execute();
+          await trigger(changes, changes[0]);
+        },
+      }
+    ).unsubscribe;
     globalThis.addEventListener?.("offline", hold);
   }
 

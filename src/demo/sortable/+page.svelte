@@ -7,9 +7,8 @@
   import { trpc } from "../client";
 
   const { store, close } = database(schema, {
-    push: (changes) => trpc.sortable.push.mutate(changes),
-    pull: (version, client, onData) =>
-      trpc.sortable.pull.subscribe({ version, client }, { onData }).unsubscribe,
+    push: trpc.sortable.push.mutate,
+    pull: trpc.sortable.pull.subscribe,
   });
   onDestroy(close);
 
