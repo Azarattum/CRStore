@@ -27,7 +27,7 @@ function database<T extends CRSchema>(
     online = () => !!(globalThis as any).navigator?.onLine,
   } = {}
 ): Database<Schema<T>> {
-  const dummy = !ssr && !!import.meta?.env?.SSR;
+  const dummy = !ssr && !!import.meta.env?.SSR;
   const connection = dummy
     ? new Promise<never>(() => {})
     : init(name, schema, paths);
