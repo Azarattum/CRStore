@@ -284,3 +284,30 @@ db
 ```
 
 Check out the [sortable example](src/demo/sortable) for more details.
+
+### Setup server side rendering
+When defining your database set `ssr` option to `true`:
+```ts
+const { store, merge, subscribe } = database(schema, {
+  ssr: true,
+});
+```
+
+Add `+page.server.ts` file to preload your data with SvelteKit. You can call `.then` on a store to get a promise with its latest state (the `await` keyword would achieve the same effect). Pass down the value of your store to your page like this:
+```ts
+import type { PageServerLoad } from "./$types";
+import { items } from "./stores";
+
+export const load: PageServerLoad = async () => ({ initial: await items });
+```
+
+In you `+page.ts` you can initialize your store with the `initial` value from the server.
+```ts
+import type { PageData } from "./$types";
+import { items } from "./stores";
+
+export let data: PageData;
+$items = data.initial;
+```
+
+Check out the [ssr example](src/demo/ssr/) for complete implementation.
