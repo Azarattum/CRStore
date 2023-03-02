@@ -2,13 +2,13 @@ lockfileVersion: 5.4
 
 specifiers:
   '@sveltejs/adapter-static': ^2.0.1
-  '@sveltejs/kit': 1.9.1
+  '@sveltejs/kit': 1.9.2
   '@sveltejs/package': 2.0.2
   '@trpc/client': ^10.13.2
   '@trpc/server': ^10.13.2
   '@types/better-sqlite3': ^7.6.3
   '@types/ws': ^8.5.4
-  '@vlcn.io/crsqlite': 0.7.2
+  '@vlcn.io/crsqlite': 0.8.0-next.2
   '@vlcn.io/wa-crsqlite': 0.7.4
   better-sqlite3: ^8.1.0
   kysely: ^0.23.4
@@ -27,7 +27,7 @@ specifiers:
   ws: ^8.12.1
 
 dependencies:
-  '@vlcn.io/crsqlite': 0.7.2
+  '@vlcn.io/crsqlite': 0.8.0-next.2
   '@vlcn.io/wa-crsqlite': 0.7.4
   better-sqlite3: 8.1.0
   kysely: 0.23.4
@@ -35,8 +35,8 @@ dependencies:
   svelte: 3.55.1
 
 devDependencies:
-  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.9.1
-  '@sveltejs/kit': 1.9.1_svelte@3.55.1+vite@4.1.4
+  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.9.2
+  '@sveltejs/kit': 1.9.2_svelte@3.55.1+vite@4.1.4
   '@sveltejs/package': 2.0.2_4x7phaipmicbaooxtnresslofa
   '@trpc/client': 10.13.2_@trpc+server@10.13.2
   '@trpc/server': 10.13.2
@@ -295,16 +295,16 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.9.1:
+  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.9.2:
     resolution: {integrity: sha512-o5/q3YwD/ErxYCFlK1v3ydvldyNKk1lh3oeyxn4mhz+Pkbx/uuxhzmbOpytTlp5aVqNHDVsb04xadUzOFCDDzw==}
     peerDependencies:
       '@sveltejs/kit': ^1.5.0
     dependencies:
-      '@sveltejs/kit': 1.9.1_svelte@3.55.1+vite@4.1.4
+      '@sveltejs/kit': 1.9.2_svelte@3.55.1+vite@4.1.4
     dev: true
 
-  /@sveltejs/kit/1.9.1_svelte@3.55.1+vite@4.1.4:
-    resolution: {integrity: sha512-SC2pTnaloAL+6744tWl1/b1zGAhZX2zmgmUmKV4Y6nx/y5gP6+MTzY6SC74PYUWSlOPumi8wZ40hQ2RExCFuhg==}
+  /@sveltejs/kit/1.9.2_svelte@3.55.1+vite@4.1.4:
+    resolution: {integrity: sha512-KYDrzs9bdoK+3typr5eBa+8q+RFwZdI80tuSL1yU99Rn5hZsEbcj4tlBGVvlL7SHxJdMUiDUYhTznbpb7CIs9A==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
     requiresBuild: true
@@ -454,12 +454,9 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@vlcn.io/crsqlite/0.7.2:
-    resolution: {integrity: sha512-DDtYIjSL+IQGVQ/ED76Z9w5Czko4BleIn1+f8b9lzmXwHgICc5lUOChvXI8SfSd6DwKkVSb9NI5YILWC6/eNzg==}
+  /@vlcn.io/crsqlite/0.8.0-next.2:
+    resolution: {integrity: sha512-pWsxaYRJEdtXLCi2hkbXdrtXxsJecpATNEUucUngt+gYsABwRRf4mY76AK1UMXeg7pVeV+Fc9PxDMnnjIgO/vQ==}
     requiresBuild: true
-    dependencies:
-      bindings: 1.5.0
-      prebuild-install: 7.1.1
     dev: false
 
   /@vlcn.io/wa-crsqlite/0.7.4:
