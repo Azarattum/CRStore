@@ -14,6 +14,7 @@ import type {
 
 // === UTILITIES ===
 
+type QueryId = { queryId: string };
 type Executable<T> = { execute(): Promise<T> };
 type Updater = (changes: any[], sender?: string) => any;
 type Schema<T> = T extends { TYPE: infer U } ? U : unknown;
@@ -62,7 +63,11 @@ type Context<Schema> = {
     operation: Operation<T, Schema>,
     ...args: T
   ): Promise<void>;
-  subscribe: (tables: string[], callback: () => any) => () => void;
+  refresh<T = unknown>(
+    query: CompiledQuery,
+    id: { queryId: string }
+  ): Promise<T[]>;
+  subscribe(tables: string[], callback: () => any): () => void;
   connection: Promise<Kysely<Schema>>;
 };
 
@@ -128,6 +133,7 @@ export type {
   Connection,
   Operation,
   Database,
+  QueryId,
   Actions,
   Context,
   Updater,

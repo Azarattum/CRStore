@@ -2,14 +2,14 @@ lockfileVersion: 5.4
 
 specifiers:
   '@sveltejs/adapter-static': ^2.0.1
-  '@sveltejs/kit': 1.9.2
+  '@sveltejs/kit': 1.9.3
   '@sveltejs/package': 2.0.2
   '@trpc/client': ^10.13.2
   '@trpc/server': ^10.13.2
   '@types/better-sqlite3': ^7.6.3
   '@types/ws': ^8.5.4
-  '@vlcn.io/crsqlite': 0.8.0-next.2
-  '@vlcn.io/wa-crsqlite': 0.7.4
+  '@vlcn.io/crsqlite': 0.8.0
+  '@vlcn.io/wa-crsqlite': 0.8.0
   better-sqlite3: ^8.1.0
   kysely: ^0.23.4
   navigator.locks: ^0.8.6
@@ -27,16 +27,16 @@ specifiers:
   ws: ^8.12.1
 
 dependencies:
-  '@vlcn.io/crsqlite': 0.8.0-next.2
-  '@vlcn.io/wa-crsqlite': 0.7.4
+  '@vlcn.io/crsqlite': 0.8.0
+  '@vlcn.io/wa-crsqlite': 0.8.0
   better-sqlite3: 8.1.0
   kysely: 0.23.4
   navigator.locks: 0.8.6
   svelte: 3.55.1
 
 devDependencies:
-  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.9.2
-  '@sveltejs/kit': 1.9.2_svelte@3.55.1+vite@4.1.4
+  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.9.3
+  '@sveltejs/kit': 1.9.3_svelte@3.55.1+vite@4.1.4
   '@sveltejs/package': 2.0.2_4x7phaipmicbaooxtnresslofa
   '@trpc/client': 10.13.2_@trpc+server@10.13.2
   '@trpc/server': 10.13.2
@@ -295,16 +295,16 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.9.2:
+  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.9.3:
     resolution: {integrity: sha512-o5/q3YwD/ErxYCFlK1v3ydvldyNKk1lh3oeyxn4mhz+Pkbx/uuxhzmbOpytTlp5aVqNHDVsb04xadUzOFCDDzw==}
     peerDependencies:
       '@sveltejs/kit': ^1.5.0
     dependencies:
-      '@sveltejs/kit': 1.9.2_svelte@3.55.1+vite@4.1.4
+      '@sveltejs/kit': 1.9.3_svelte@3.55.1+vite@4.1.4
     dev: true
 
-  /@sveltejs/kit/1.9.2_svelte@3.55.1+vite@4.1.4:
-    resolution: {integrity: sha512-KYDrzs9bdoK+3typr5eBa+8q+RFwZdI80tuSL1yU99Rn5hZsEbcj4tlBGVvlL7SHxJdMUiDUYhTznbpb7CIs9A==}
+  /@sveltejs/kit/1.9.3_svelte@3.55.1+vite@4.1.4:
+    resolution: {integrity: sha512-rh9FbGfS8w328JZSZmG/ahabBbE50TisHvfz4sVNU3IM3AOhgUAv3EhAJ2dij9R8uARbDHRTY8jOQbIPjcKBZQ==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
     requiresBuild: true
@@ -454,25 +454,25 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@vlcn.io/crsqlite/0.8.0-next.2:
-    resolution: {integrity: sha512-pWsxaYRJEdtXLCi2hkbXdrtXxsJecpATNEUucUngt+gYsABwRRf4mY76AK1UMXeg7pVeV+Fc9PxDMnnjIgO/vQ==}
+  /@vlcn.io/crsqlite/0.8.0:
+    resolution: {integrity: sha512-5VACWCCtW/nBhncr8FsZxMhq6/Wb93+Wv/4Ml6Sm9bEyxGErYvP4cMitubVnPJxPczNfmdhYbYyR9zuxcBTGBA==}
     requiresBuild: true
     dev: false
 
-  /@vlcn.io/wa-crsqlite/0.7.4:
-    resolution: {integrity: sha512-9W7/Cz8OrSXrPa6PHyArBAHZNN9iaWNd45V4LKh3mHZSez5vzghdRrqBu6Y6Aa5S8OjH0DZMxA6t4PbBRG7vHQ==}
+  /@vlcn.io/wa-crsqlite/0.8.0:
+    resolution: {integrity: sha512-fwm51W8/sPG/7EfmwD5CKAR+F3HbuFiwCUTpcwtxR/MaqGf5PzSES4W5jCgSd0FjQK81hXT8kOQQwTCOzLWncA==}
     dependencies:
-      '@vlcn.io/wa-sqlite': 0.14.3
-      '@vlcn.io/xplat-api': 0.6.2
+      '@vlcn.io/wa-sqlite': 0.15.0
+      '@vlcn.io/xplat-api': 0.7.0
       comlink: 4.4.1
     dev: false
 
-  /@vlcn.io/wa-sqlite/0.14.3:
-    resolution: {integrity: sha512-O16OHakgR7udJJ7HxlXQSDq0Ez52WG4/jP63T+I1ECkvWdE3wgPfRVGNFKb8jDh2GgWw9EI37NTOMBiE3wVCXA==}
+  /@vlcn.io/wa-sqlite/0.15.0:
+    resolution: {integrity: sha512-OjALG9fxFU+TCy397ZjxExVfmA0or5max7IIlWB5F3gjntyokEcruP77pttBaATRsuhtunyt9rKevi4bLvC9Gw==}
     dev: false
 
-  /@vlcn.io/xplat-api/0.6.2:
-    resolution: {integrity: sha512-/DiSmga9koqWrn/oyevbhEkkIXeWKAJ4QU/D7jSUQGICo710tAJ9nVc5vgti/X8QJ1G57VwQq3gyudHaITNfJQ==}
+  /@vlcn.io/xplat-api/0.7.0:
+    resolution: {integrity: sha512-X2C61+h1D/44/+7oC5oDyNpNWxBcTsCqiY91ng2wfZGIVji4lOmyNZtT1S1hqKx6aW2qHv9yXuxZfSl++V94ew==}
     dependencies:
       comlink: 4.4.1
     dev: false

@@ -4,6 +4,7 @@ import type {
   Actions,
   Context,
   Updater,
+  QueryId,
   Schema,
   Bound,
   Pull,
@@ -40,6 +41,33 @@ function database<T extends CRSchema>(
   const listeners = new Map<string, Set<Updater>>();
   let hold = () => {};
   pull();
+
+  const queue = new Map<QueryId, CompiledQuery>();
+  let queueing = null as Promise<Map<QueryId, unknown[]>> | null;
+  const raf = globalThis.requestAnimationFrame || globalThis.setTimeout;
+  async function dequeue() {
+    if (queueing) return queueing;
+    return (queueing = new Promise((resolve) =>
+      raf(async () => {
+        const db = await connection;
+        const result = new Map<QueryId, unknown[]>();
+        await db.transaction().execute(async (trx) => {
+          for (const [id, query] of queue.entries()) {
+            const { rows } = await trx.getExecutor().executeQuery(query, id);
+            result.set(id, rows);
+          }
+        });
+        queue.clear();
+        queueing = null;
+        resolve(result);
+      })
+    ));
+  }
+
+  async function refresh(query: CompiledQuery, id: QueryId) {
+    queue.set(id, query);
+    return dequeue().then((x) => x.get(id)!);
+  }
 
   function subscribe(
     tables: string[],
@@ -146,10 +174,10 @@ function database<T extends CRSchema>(
   }
 
   const bound: any = Object.assign(
-    store.bind({ connection, subscribe, update } as any, []),
+    store.bind({ connection, subscribe, update, refresh } as any, []),
     {
       with: (...args: any[]) =>
-        store.bind({ connection, subscribe, update } as any, args),
+        store.bind({ connection, subscribe, update, refresh } as any, args),
     }
   );
 
@@ -169,11 +197,11 @@ function store<Schema, Type>(
   view: View<Schema, Type>,
   actions: Actions<Schema> = {}
 ) {
-  const { connection, update } = this;
+  const { connection, update, refresh: read } = this;
   const dependency = derived(dependencies, (x) => x);
 
   let query = null as CompiledQuery | null;
-  let id = null as { queryId: string } | null;
+  let id = null as QueryId | null;
 
   const { subscribe, set } = writable<Type[]>([], () => {
     let unsubscribe: (() => void) | null = () => {};
@@ -198,10 +226,8 @@ function store<Schema, Type>(
   });
 
   async function refresh() {
-    const db = await connection;
     if (!query || !id) return;
-    const { rows } = await db.getExecutor().executeQuery(query, id);
-    set(rows as Type[]);
+    set(await read<Type>(query, id));
   }
 
   const bound: Bound<Actions<Schema>> = {};
