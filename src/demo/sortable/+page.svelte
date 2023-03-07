@@ -7,6 +7,7 @@
   import { trpc } from "../client";
 
   const { store, close } = database(schema, {
+    name: "sortable.db",
     push: trpc.sortable.push.mutate,
     pull: trpc.sortable.pull.subscribe,
   });

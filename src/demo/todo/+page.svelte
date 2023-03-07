@@ -6,6 +6,7 @@
   import { sql } from "kysely";
 
   const { store, close } = database(schema, {
+    name: "todo.db",
     push: trpc.todo.push.mutate,
     pull: trpc.todo.pull.subscribe,
   });
@@ -15,23 +16,31 @@
     create(db, title: string, text: string) {
       const id = Math.random().toString(36).slice(2);
       const todo = { id, title, text, completed: false };
-      return db.insertInto("todos").values(todo);
+      return db.insertInto("todos").values(todo).execute();
     },
     toggle(db, id: string) {
       return db
         .updateTable("todos")
         .set({ completed: sql`NOT(completed)` })
-        .where("id", "=", id);
+        .where("id", "=", id)
+        .execute();
     },
     remove(db, id: string) {
-      return db.deleteFrom("todos").where("id", "=", id);
+      return db.deleteFrom("todos").where("id", "=", id).execute();
+    },
+    top(db) {
+      return db.selectFrom("todos").selectAll().limit(1).executeTakeFirst();
     },
   });
 
   let title = "";
   let text = "";
+  let top = "None";
+
+  $: if ($todos) todos.top().then((x) => (top = x?.title || "None"));
 </script>
 
+<p>Top Item: {top}</p>
 {#if $todos}
   <div>
     <input placeholder="Title" type="text" bind:value={title} />

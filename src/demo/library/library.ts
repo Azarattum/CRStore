@@ -27,7 +27,8 @@ const all = store(
         .join("");
       return db
         .insertInto("tracks")
-        .values({ id, title, artist: artistId, album: albumId });
+        .values({ id, title, artist: artistId, album: albumId })
+        .execute();
     },
   }
 );
@@ -35,21 +36,21 @@ const all = store(
 const artists = store((db) => db.selectFrom("artists").selectAll(), {
   add(db, title: string) {
     const id = [...title].map((x) => x.charCodeAt(0)).join("");
-    return db.insertInto("artists").values({ id, title });
+    return db.insertInto("artists").values({ id, title }).execute();
   },
 });
 
 const albums = store((db) => db.selectFrom("albums").selectAll(), {
   add(db, title: string) {
     const id = [...title].map((x) => x.charCodeAt(0)).join("");
-    return db.insertInto("albums").values({ id, title });
+    return db.insertInto("albums").values({ id, title }).execute();
   },
 });
 
 const playlists = store((db) => db.selectFrom("playlists").selectAll(), {
   add(db, title: string) {
     const id = [...title].map((x) => x.charCodeAt(0)).join("");
-    return db.insertInto("playlists").values({ id, title });
+    return db.insertInto("playlists").values({ id, title }).execute();
   },
   async link(db, track: string, playlist: string) {
     const id = Math.random().toString(36).slice(2);
