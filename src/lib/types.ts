@@ -79,12 +79,12 @@ type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
   view: View<S, T, D>,
   actions?: A
 ) => Omit<Writable<T[]>, "update"> &
+  PromiseLike<T[]> &
   Bound<A> & {
     update<T extends any[], R>(
       operation?: Operation<T, R, S>,
       ...args: T
     ): Promise<R>;
-    then(resolve: (x: T[]) => void): void;
   };
 
 // === DATABASE ===

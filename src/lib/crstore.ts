@@ -249,12 +249,12 @@ function store<Schema, Type>(
       if (!operation) return refresh();
       return update(operation, ...args);
     },
-    then(resolve: (x: Type[]) => void) {
+    then(resolve: (x: Type[]) => any, reject: (e: any) => any) {
       let data: Type[] = [];
       const done = subscribe((x) => (data = x));
       // It is hard to know whether the current store's state is dirty,
       //   therefore we have to explicitly refresh it
-      refresh().then(() => (done(), resolve(data), null));
+      return refresh().then(() => (done(), resolve(data)), reject);
     },
   };
 }
