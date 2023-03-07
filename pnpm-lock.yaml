@@ -2,16 +2,16 @@ lockfileVersion: 5.4
 
 specifiers:
   '@sveltejs/adapter-static': ^2.0.1
-  '@sveltejs/kit': 1.9.3
+  '@sveltejs/kit': 1.10.0
   '@sveltejs/package': 2.0.2
-  '@trpc/client': ^10.13.2
-  '@trpc/server': ^10.13.2
+  '@trpc/client': ^10.14.0
+  '@trpc/server': ^10.14.0
   '@types/better-sqlite3': ^7.6.3
   '@types/ws': ^8.5.4
   '@vlcn.io/crsqlite': 0.8.0
   '@vlcn.io/wa-crsqlite': 0.8.0
   better-sqlite3: ^8.1.0
-  kysely: ^0.23.4
+  kysely: ^0.23.5
   navigator.locks: ^0.8.6
   prettier: ^2.8.4
   prettier-plugin-svelte: ^2.9.0
@@ -30,16 +30,16 @@ dependencies:
   '@vlcn.io/crsqlite': 0.8.0
   '@vlcn.io/wa-crsqlite': 0.8.0
   better-sqlite3: 8.1.0
-  kysely: 0.23.4
+  kysely: 0.23.5
   navigator.locks: 0.8.6
   svelte: 3.55.1
 
 devDependencies:
-  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.9.3
-  '@sveltejs/kit': 1.9.3_svelte@3.55.1+vite@4.1.4
+  '@sveltejs/adapter-static': 2.0.1_@sveltejs+kit@1.10.0
+  '@sveltejs/kit': 1.10.0_svelte@3.55.1+vite@4.1.4
   '@sveltejs/package': 2.0.2_4x7phaipmicbaooxtnresslofa
-  '@trpc/client': 10.13.2_@trpc+server@10.13.2
-  '@trpc/server': 10.13.2
+  '@trpc/client': 10.14.0_@trpc+server@10.14.0
+  '@trpc/server': 10.14.0
   '@types/better-sqlite3': 7.6.3
   '@types/ws': 8.5.4
   prettier: 2.8.4
@@ -295,16 +295,16 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.9.3:
+  /@sveltejs/adapter-static/2.0.1_@sveltejs+kit@1.10.0:
     resolution: {integrity: sha512-o5/q3YwD/ErxYCFlK1v3ydvldyNKk1lh3oeyxn4mhz+Pkbx/uuxhzmbOpytTlp5aVqNHDVsb04xadUzOFCDDzw==}
     peerDependencies:
       '@sveltejs/kit': ^1.5.0
     dependencies:
-      '@sveltejs/kit': 1.9.3_svelte@3.55.1+vite@4.1.4
+      '@sveltejs/kit': 1.10.0_svelte@3.55.1+vite@4.1.4
     dev: true
 
-  /@sveltejs/kit/1.9.3_svelte@3.55.1+vite@4.1.4:
-    resolution: {integrity: sha512-rh9FbGfS8w328JZSZmG/ahabBbE50TisHvfz4sVNU3IM3AOhgUAv3EhAJ2dij9R8uARbDHRTY8jOQbIPjcKBZQ==}
+  /@sveltejs/kit/1.10.0_svelte@3.55.1+vite@4.1.4:
+    resolution: {integrity: sha512-0P35zHrByfbF3Ym3RdQL+RvzgsCDSyO3imSwuZ67XAD5HoCQFF3a8Mhh0V3sObz3rc5aJd4Qn82UpAihJqZ6gQ==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
     requiresBuild: true
@@ -366,16 +366,16 @@ packages:
       - supports-color
     dev: true
 
-  /@trpc/client/10.13.2_@trpc+server@10.13.2:
-    resolution: {integrity: sha512-iEZOAYS/Ak5T6j2lrN2NCYYLb8YY9sbj4JJR9VgxDL8Cz1dRFpFZ2BA4VwNW6xoh0G+MRdSGvivTYdggbJ4BBg==}
+  /@trpc/client/10.14.0_@trpc+server@10.14.0:
+    resolution: {integrity: sha512-fi7i+Av3ARGyWwlbuGD+ZeqF5HxomGG8hBB89dWHAc4WlBnDV6g0GQQgDaMKZqXbGt0sYeJucym6WPI6kO7HCQ==}
     peerDependencies:
-      '@trpc/server': 10.13.2
+      '@trpc/server': 10.14.0
     dependencies:
-      '@trpc/server': 10.13.2
+      '@trpc/server': 10.14.0
     dev: true
 
-  /@trpc/server/10.13.2:
-    resolution: {integrity: sha512-/5L09a7EHxRy1D6RIFsIt5fMJ8bBspMp/eDPjAH7T033f9AMyYx0jWU7r5lswoBVSbdUDJgxKyLzwXIrVNVisg==}
+  /@trpc/server/10.14.0:
+    resolution: {integrity: sha512-hNnvwkSfqpIb89CH8pTV8VkldS9qjd3ZxaCgya7CeCk6QeDajT/bRX9bPmrkEe0UQtrbbPU5h47nuMrBsN2ghQ==}
     dev: true
 
   /@types/better-sqlite3/7.6.3:
@@ -1003,8 +1003,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /kysely/0.23.4:
-    resolution: {integrity: sha512-3icLnj1fahUtZsP9zzOvF4DcdhekGsLX4ZaoBaIz0ZeHegyRDdbwpJD7zezAJ+KwQZNDeKchel6MikFNLsSZIA==}
+  /kysely/0.23.5:
+    resolution: {integrity: sha512-TH+b56pVXQq0tsyooYLeNfV11j6ih7D50dyN8tkM0e7ndiUH28Nziojiog3qRFlmEj9XePYdZUrNJ2079Qjdow==}
     engines: {node: '>=14.0.0'}
     dev: false
 
