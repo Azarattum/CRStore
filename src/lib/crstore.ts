@@ -232,6 +232,7 @@ function store<Schema, Type>(
   });
 
   async function refresh() {
+    await connection;
     if (!query || !id) return;
     set(await read<Type>(query, id));
   }
