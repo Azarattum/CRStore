@@ -132,10 +132,16 @@ function database<T extends CRSchema>(
     globalThis.addEventListener?.("offline", hold);
   }
 
-  async function update<T extends any[]>(operation: Operation<T>, ...args: T) {
+  async function update<T extends any[], R>(
+    operation: Operation<T, R>,
+    ...args: T
+  ) {
     const db = await connection;
-    const changes = await db.applyOperation(operation, ...args).execute();
+    const { changes, result } = await db
+      .applyOperation(operation, ...args)
+      .execute();
     await trigger(changes);
+    return result;
   }
 
   async function merge(changes: any[]) {
@@ -239,7 +245,7 @@ function store<Schema, Type>(
     ...bound,
     set,
     subscribe,
-    update<T extends any[]>(operation?: Operation<T>, ...args: T) {
+    update<T extends any[], R>(operation?: Operation<T, R>, ...args: T) {
       if (!operation) return refresh();
       return update(operation, ...args);
     },

@@ -18,8 +18,12 @@ type QueryId = { queryId: string };
 type Executable<T> = { execute(): Promise<T> };
 type Updater = (changes: any[], sender?: string) => any;
 type Schema<T> = T extends { TYPE: infer U } ? U : unknown;
-type Operation<T extends any[], S = any> = (db: Kysely<S>, ...args: T) => any;
 type Values<T> = { [K in keyof T]: T[K] extends Readable<infer V> ? V : T[K] };
+
+type Operation<T extends any[], R = void, S = any> = (
+  db: Kysely<S>,
+  ...args: T
+) => Promise<R>;
 
 type Selectable<T> = {
   execute(): Promise<T>;
@@ -29,15 +33,15 @@ type Selectable<T> = {
 
 type Actions<Schema> = Record<
   string,
-  (db: Kysely<Schema>, ...args: any[]) => any
+  (db: Kysely<Schema>, ...args: any[]) => Promise<any>
 >;
 
 type Bound<Actions> = {
   [K in keyof Actions]: Actions[K] extends (
     db: Kysely<any>,
     ...args: infer A
-  ) => any
-    ? (...args: A) => Promise<void>
+  ) => infer R
+    ? (...args: A) => Promise<Awaited<R>>
     : never;
 };
 
@@ -59,10 +63,10 @@ type View<Schema, Type, Deps extends any[] = []> = (
 ) => Selectable<Type[]>;
 
 type Context<Schema> = {
-  update<T extends any[]>(
-    operation: Operation<T, Schema>,
+  update<T extends any[], R>(
+    operation: Operation<T, R, Schema>,
     ...args: T
-  ): Promise<void>;
+  ): Promise<R>;
   refresh<T = unknown>(
     query: CompiledQuery,
     id: { queryId: string }
@@ -76,10 +80,10 @@ type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
   actions?: A
 ) => Omit<Writable<T[]>, "update"> &
   Bound<A> & {
-    update<T, A extends any[]>(
-      operation?: Operation<A, S>,
-      ...args: A
-    ): Promise<T>;
+    update<T extends any[], R>(
+      operation?: Operation<T, R, S>,
+      ...args: T
+    ): Promise<R>;
     then(resolve: (x: T[]) => void): void;
   };
 
@@ -101,10 +105,10 @@ interface Connection<S> extends Kysely<S> {
   insertChanges(changes: any[]): Executable<void>;
   selectClient(): Executable<string>;
 
-  applyOperation<T extends any[]>(
-    operation: Operation<T, S>,
+  applyOperation<T extends any[], R>(
+    operation: Operation<T, R, S>,
     ...args: T
-  ): Executable<any[]>;
+  ): Executable<{ result: Awaited<R>; changes: any[] }>;
 }
 
 interface Database<S> {
@@ -113,10 +117,10 @@ interface Database<S> {
     with<D extends Readable<any>[]>(...stores: D): Store<S, D>;
   };
 
-  update<T extends any[]>(
-    operation: Operation<T, S>,
+  update<T extends any[], R>(
+    operation: Operation<T, R, S>,
     ...args: T
-  ): Promise<void>;
+  ): Promise<R>;
   merge(changes: any[]): Promise<void>;
   close(): Promise<void>;
   subscribe(
