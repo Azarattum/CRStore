@@ -10,7 +10,9 @@ import type { ExtractTypeFromReferenceExpression } from "kysely/dist/cjs/parser/
 import { sql } from "kysely";
 
 type JSON<DB, TB extends keyof DB, OBJ> = {
-  [K in keyof OBJ]: ExtractTypeFromReferenceExpression<DB, TB, OBJ[K]>;
+  [K in keyof OBJ]: NonNullable<
+    ExtractTypeFromReferenceExpression<DB, TB, OBJ[K]>
+  >;
 };
 
 function wrap<
@@ -37,9 +39,16 @@ function groupJSON<
   TB extends keyof DB,
   OBJ extends Record<string, StringReference<DB, TB>>
 >(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  return wrap(["json_group_array(json_object(", "))"], kysely, json).$castTo<
-    JSON<DB, TB, OBJ>[]
-  >();
+  return wrap(
+    [
+      `CASE WHEN COUNT(${
+        Object.values(json)[0]
+      }) = 0 THEN '[]' ELSE json_group_array(json_object(`,
+      ")) END",
+    ],
+    kysely,
+    json
+  ).$castTo<JSON<DB, TB, OBJ>[]>();
 }
 
 function json<
