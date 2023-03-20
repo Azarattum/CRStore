@@ -2,8 +2,10 @@ import { sql, type Kysely } from "kysely";
 
 function covert(type: string) {
   const types = {
+    any: "blob",
     string: "text",
     number: "real",
+    unknown: "blob",
     instance: "blob",
     bigint: "integer",
     integer: "integer",
