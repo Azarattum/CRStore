@@ -79,7 +79,7 @@ it("works with stores", async () => {
   await delay(50);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
   query.set("data");
-  await delay();
+  await delay(50);
   expect(spy).toHaveBeenCalledWith([]);
   expect(spy).toHaveBeenCalledTimes(3);
   unsubscribe();

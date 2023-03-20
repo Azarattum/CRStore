@@ -126,7 +126,7 @@ const search = store.with(query)((db, query) =>
 
 ### Specify custom paths
 
-If needed you can specify custom paths to `better-sqlite3` binding, `crsqlite` extension and `wa-crsqlite` wasm binary. To do so, provide `path` option upon `database` initialization:
+If needed you can specify custom paths to `better-sqlite3` binding, `crsqlite` extension and `crsqlite-wasm` binary. To do so, provide `path` option upon `database` initialization:
 ```ts
 import { database } from "crstore";
 

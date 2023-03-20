@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Conflict-free replicated svelte store.",
   "license": "MIT",
   "repository": {
@@ -34,32 +34,32 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^2.0.1",
-    "@sveltejs/kit": "1.10.0",
+    "@sveltejs/kit": "1.12.0",
     "@sveltejs/package": "2.0.2",
-    "@trpc/client": "^10.14.0",
-    "@trpc/server": "^10.14.0",
+    "@trpc/client": "^10.16.0",
+    "@trpc/server": "^10.16.0",
     "@types/better-sqlite3": "^7.6.3",
     "@types/ws": "^8.5.4",
-    "prettier": "^2.8.4",
+    "prettier": "^2.8.5",
     "prettier-plugin-svelte": "^2.9.0",
     "superstruct": "^1.0.3",
-    "svelte-check": "^3.0.4",
+    "svelte-check": "^3.1.4",
     "ts-patch": "^2.1.0",
     "tslib": "^2.5.0",
-    "typescript": "^4.9.5",
+    "typescript": "^5.0.2",
     "typescript-transform-extensions": "^1.0.1",
-    "vite": "^4.1.4",
-    "vitest": "^0.29.2",
-    "ws": "^8.12.1"
+    "vite": "^4.2.0",
+    "vitest": "^0.29.3",
+    "ws": "^8.13.0"
   },
   "type": "module",
   "dependencies": {
-    "@vlcn.io/crsqlite": "0.8.0",
-    "@vlcn.io/wa-crsqlite": "0.8.0",
-    "better-sqlite3": "^8.1.0",
+    "@vlcn.io/crsqlite": "0.9.0",
+    "@vlcn.io/crsqlite-wasm": "^0.9.0",
+    "better-sqlite3": "^8.2.0",
     "kysely": "^0.23.5",
     "navigator.locks": "^0.8.6",
-    "svelte": "^3.55.1"
+    "svelte": "^3.57.0"
   },
   "files": [
     "dist",
