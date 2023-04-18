@@ -31,7 +31,7 @@ it("stores data", async () => {
   await delay(10);
   expect(spy).toHaveBeenCalledWith([]);
   expect(spy).toHaveBeenCalledTimes(2);
-  await table.update((db) => db.insertInto("test").values(item));
+  await table.update((db) => db.insertInto("test").values(item).execute());
   expect(spy).toHaveBeenCalledWith([item]);
   expect(spy).toHaveBeenCalledTimes(3);
   await table.update();
@@ -56,7 +56,7 @@ it("merges changes", async () => {
   const unsubscribe = table.subscribe(spy);
 
   expect(spy).toHaveBeenCalledWith([]);
-  await delay();
+  await delay(50);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "data" }]);
   const changes = ["client", "data", "'1'", "test", "'updated'", 2, 2];
   await merge(changes);
@@ -76,10 +76,10 @@ it("works with stores", async () => {
   const unsubscribe = searched.subscribe(spy);
 
   expect(spy).toHaveBeenCalledWith([]);
-  await delay();
+  await delay(50);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
   query.set("data");
-  await delay();
+  await delay(50);
   expect(spy).toHaveBeenCalledWith([]);
   expect(spy).toHaveBeenCalledTimes(3);
   unsubscribe();

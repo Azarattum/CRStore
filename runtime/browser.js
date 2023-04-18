@@ -1,7 +1,7 @@
 import "navigator.locks";
 
-import wasmUrl from "@vlcn.io/wa-crsqlite/wa-sqlite-async.wasm?url";
-import wasmSqlite from "@vlcn.io/wa-crsqlite";
+import wasmUrl from "@vlcn.io/crsqlite-wasm/crsqlite.wasm?url";
+import wasmSqlite from "@vlcn.io/crsqlite-wasm";
 
 /**
  * @param {string} file

@@ -2,8 +2,10 @@ import { sql, type Kysely } from "kysely";
 
 function covert(type: string) {
   const types = {
+    any: "blob",
     string: "text",
     number: "real",
+    unknown: "blob",
     instance: "blob",
     bigint: "integer",
     integer: "integer",
@@ -24,7 +26,7 @@ async function apply(db: Kysely<any>, { schema }: CRSchema) {
       const { type } = current.schema[column];
       query = query.addColumn(
         column,
-        column === current.ordered?.[0] ? "blob" : covert(type)
+        current.ordered?.find(([x]) => x === column) ? "blob" : covert(type)
       );
     }
     // Add constrains
@@ -49,9 +51,9 @@ async function apply(db: Kysely<any>, { schema }: CRSchema) {
       await sql`SELECT crsql_as_crr(${table})`.execute(db);
     }
     // Register fraction index
-    if (current.ordered) {
+    for (const ordered of current.ordered || []) {
       await sql`SELECT crsql_fract_as_ordered(${table},${sql.join(
-        current.ordered
+        ordered
       )})`.execute(db);
     }
   }
@@ -72,7 +74,8 @@ function ordered<T extends CRTable>(
   by: Keys<T["schema"]>,
   ...grouped: Keys<T["schema"]>[]
 ) {
-  table.ordered = [by, ...grouped];
+  if (!table.ordered) table.ordered = [];
+  table.ordered.push([by, ...grouped]);
   return table;
 }
 
@@ -87,7 +90,7 @@ type CRColumn = { type: string };
 type CRTable = {
   schema: Record<string, CRColumn>;
 
-  ordered?: string[];
+  ordered?: string[][];
   indices?: string[][];
   primary?: string[];
   crr?: boolean;

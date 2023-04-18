@@ -132,10 +132,16 @@ function database<T extends CRSchema>(
     globalThis.addEventListener?.("offline", hold);
   }
 
-  async function update<T extends any[]>(operation: Operation<T>, ...args: T) {
+  async function update<T extends any[], R>(
+    operation: Operation<T, R>,
+    ...args: T
+  ) {
     const db = await connection;
-    const changes = await db.applyOperation(operation, ...args).execute();
+    const { changes, result } = await db
+      .applyOperation(operation, ...args)
+      .execute();
     await trigger(changes);
+    return result;
   }
 
   async function merge(changes: any[]) {
@@ -226,6 +232,7 @@ function store<Schema, Type>(
   });
 
   async function refresh() {
+    await connection;
     if (!query || !id) return;
     set(await read<Type>(query, id));
   }
@@ -239,16 +246,16 @@ function store<Schema, Type>(
     ...bound,
     set,
     subscribe,
-    update<T extends any[]>(operation?: Operation<T>, ...args: T) {
+    update<T extends any[], R>(operation?: Operation<T, R>, ...args: T) {
       if (!operation) return refresh();
       return update(operation, ...args);
     },
-    then(resolve: (x: Type[]) => void) {
+    then(resolve: (x: Type[]) => any, reject: (e: any) => any) {
       let data: Type[] = [];
       const done = subscribe((x) => (data = x));
       // It is hard to know whether the current store's state is dirty,
       //   therefore we have to explicitly refresh it
-      refresh().then(() => (done(), resolve(data), null));
+      return refresh().then(() => (done(), resolve(data)), reject);
     },
   };
 }

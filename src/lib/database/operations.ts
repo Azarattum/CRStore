@@ -84,7 +84,8 @@ function changesSince(
     .$if(filter === null, (qb) => qb.where("site_id", "is", null))
     .$if(typeof filter === "string", (qb) =>
       qb.where("site_id", "!=", toBytes(filter as any))
-    );
+    )
+    .$castTo<any>();
 
   return {
     execute: () => query.execute().then(encode as any),
@@ -103,22 +104,27 @@ function insertChanges(this: Kysely<any>, changes: any[]) {
 }
 
 function resolveChanges(this: Kysely<any>, changes: any[]) {
-  return applyOperation.bind(this)((db) => insertChanges.bind(db)(changes));
+  return {
+    execute: () =>
+      applyOperation
+        .bind(this)((db) => insertChanges.bind(db)(changes).execute())
+        .execute()
+        .then((x) => x.changes),
+  };
 }
 
-function applyOperation<T extends any[]>(
+function applyOperation<T extends any[], R>(
   this: Kysely<any>,
-  operation: Operation<T>,
+  operation: Operation<T, R>,
   ...args: T
 ) {
   return {
     execute: async () => {
       return this.transaction().execute(async (db) => {
         const { current } = await selectVersion.bind(db)().execute();
-        let result = operation(db, ...args);
-        if (!isExecutable(result)) result = await result;
-        if (isExecutable(result)) await result.execute();
-        return await changesSince.bind(db)(current).execute();
+        const result = await operation(db, ...args);
+        const changes = await changesSince.bind(db)(current).execute();
+        return { result, changes };
       });
     },
   };

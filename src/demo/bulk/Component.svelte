@@ -3,7 +3,7 @@
     bulk: primary(object({ id: number() }), "id"),
   });
 
-  const { store, update } = database(schema);
+  const { store, update } = database(schema, { name: "bulk.db" });
 
   update((db) =>
     db

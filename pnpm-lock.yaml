@@ -4,11 +4,11 @@ dependencies:
   '@vlcn.io/crsqlite':
     specifier: 0.9.1
     version: 0.9.1
-  '@vlcn.io/wa-crsqlite':
-    specifier: 0.8.0
-    version: 0.8.0
+  '@vlcn.io/crsqlite-wasm':
+    specifier: ^0.9.2
+    version: 0.9.2
   better-sqlite3:
-    specifier: ^8.3.0
+    specifier: ^8.2.0
     version: 8.3.0
   kysely:
     specifier: ^0.24.2
@@ -17,12 +17,12 @@ dependencies:
     specifier: ^0.8.6
     version: 0.8.6
   svelte:
-    specifier: ^3.58.0
+    specifier: ^3.57.0
     version: 3.58.0
 
 devDependencies:
   '@sveltejs/adapter-static':
-    specifier: ^2.0.2
+    specifier: ^2.0.1
     version: 2.0.2(@sveltejs/kit@1.15.7)
   '@sveltejs/kit':
     specifier: 1.15.7
@@ -31,28 +31,28 @@ devDependencies:
     specifier: 2.0.2
     version: 2.0.2(svelte@3.58.0)(typescript@4.9.5)
   '@trpc/client':
-    specifier: ^10.20.0
+    specifier: ^10.16.0
     version: 10.20.0(@trpc/server@10.20.0)
   '@trpc/server':
-    specifier: ^10.20.0
+    specifier: ^10.16.0
     version: 10.20.0
   '@types/better-sqlite3':
-    specifier: ^7.6.4
+    specifier: ^7.6.3
     version: 7.6.4
   '@types/ws':
     specifier: ^8.5.4
     version: 8.5.4
   prettier:
-    specifier: ^2.8.7
+    specifier: ^2.8.5
     version: 2.8.7
   prettier-plugin-svelte:
-    specifier: ^2.10.0
+    specifier: ^2.9.0
     version: 2.10.0(prettier@2.8.7)(svelte@3.58.0)
   superstruct:
     specifier: ^1.0.3
     version: 1.0.3
   svelte-check:
-    specifier: ^3.2.0
+    specifier: ^3.1.4
     version: 3.2.0(svelte@3.58.0)
   ts-patch:
     specifier: ^2.1.0
@@ -61,13 +61,13 @@ devDependencies:
     specifier: ^2.5.0
     version: 2.5.0
   typescript:
-    specifier: ^4.9.5
+    specifier: ^4.*
     version: 4.9.5
   typescript-transform-extensions:
     specifier: ^1.0.1
     version: 1.0.1
   vite:
-    specifier: ^4.2.1
+    specifier: ^4.2.0
     version: 4.2.1(@types/node@18.15.11)
   vitest:
     specifier: ^0.30.1
@@ -481,25 +481,25 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
+  /@vlcn.io/crsqlite-wasm@0.9.2:
+    resolution: {integrity: sha512-XeiW3n6O6zgBP0vaazZRW/9mv6SkHRpNx5BHSpuSXcXGYsXiLTCDMCgXHriHsozanNWBVlPH0IwJ8qQoHlsrlQ==}
+    dependencies:
+      '@vlcn.io/wa-sqlite': 0.15.2
+      '@vlcn.io/xplat-api': 0.8.1
+      async-mutex: 0.4.0
+    dev: false
+
   /@vlcn.io/crsqlite@0.9.1:
     resolution: {integrity: sha512-/XXFJMBwimqSqi8GswB9UapcMxuyp9bBaigVvKmu2foa2TZ+GbnVuyZycmpqgpRR2+r09ZUPg6Q+jw3rDx7SVQ==}
     requiresBuild: true
     dev: false
 
-  /@vlcn.io/wa-crsqlite@0.8.0:
-    resolution: {integrity: sha512-fwm51W8/sPG/7EfmwD5CKAR+F3HbuFiwCUTpcwtxR/MaqGf5PzSES4W5jCgSd0FjQK81hXT8kOQQwTCOzLWncA==}
-    dependencies:
-      '@vlcn.io/wa-sqlite': 0.15.0
-      '@vlcn.io/xplat-api': 0.7.0
-      comlink: 4.4.1
+  /@vlcn.io/wa-sqlite@0.15.2:
+    resolution: {integrity: sha512-ZkralOthSROAfvNJxhL1Tiy2aORZJnnO7qya973xJLBZFHU8CRPMJfYKyXIEeGjB7F70o1qRMEovwgldcN+hVw==}
     dev: false
 
-  /@vlcn.io/wa-sqlite@0.15.0:
-    resolution: {integrity: sha512-OjALG9fxFU+TCy397ZjxExVfmA0or5max7IIlWB5F3gjntyokEcruP77pttBaATRsuhtunyt9rKevi4bLvC9Gw==}
-    dev: false
-
-  /@vlcn.io/xplat-api@0.7.0:
-    resolution: {integrity: sha512-X2C61+h1D/44/+7oC5oDyNpNWxBcTsCqiY91ng2wfZGIVji4lOmyNZtT1S1hqKx6aW2qHv9yXuxZfSl++V94ew==}
+  /@vlcn.io/xplat-api@0.8.1:
+    resolution: {integrity: sha512-7OwWfsURgwgb5eJTr5uHLwRUmrwdzLSOuMInhdnWX62aWGwZlrMkMV+khldsbo0SzX8AAjIx3zDDpWVAIfv3Ig==}
     dependencies:
       comlink: 4.4.1
     dev: false
@@ -543,6 +543,12 @@ packages:
   /assertion-error@1.1.0:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
     dev: true
+
+  /async-mutex@0.4.0:
+    resolution: {integrity: sha512-eJFZ1YhRR8UN8eBLoNzcDPcy/jqjsg6I1AP+KvWQX80BqOSW1oJPJXDylPUEeMr2ZQvHgnQ//Lp6f3RQ1zI7HA==}
+    dependencies:
+      tslib: 2.5.0
+    dev: false
 
   /balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -1736,7 +1742,6 @@ packages:
 
   /tslib@2.5.0:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
-    dev: true
 
   /tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
