@@ -1,4 +1,5 @@
 import type {
+  EncodedChanges,
   Operation,
   Database,
   Actions,
@@ -74,7 +75,7 @@ function database<T extends CRSchema>(
     callback: Updater,
     options?: { client: string; version: number }
   ) {
-    const listener = (changes: any[], sender?: string) =>
+    const listener = (changes: EncodedChanges, sender?: string) =>
       options
         ? options.client !== sender && callback(changes, sender)
         : callback(changes, sender);
@@ -144,13 +145,13 @@ function database<T extends CRSchema>(
     return result;
   }
 
-  async function merge(changes: any[]) {
+  async function merge(changes: EncodedChanges) {
     if (!changes.length) return;
     const db = await connection;
     await trigger(await db.resolveChanges(changes).execute(), changes[0]);
   }
 
-  async function trigger(changes: any[], sender?: string) {
+  async function trigger(changes: EncodedChanges, sender?: string) {
     if (!changes.length) return;
     const callbacks = new Set<Updater>();
     const tables = affectedTables(changes);

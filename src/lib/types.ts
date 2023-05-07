@@ -14,9 +14,28 @@ import type {
 
 // === UTILITIES ===
 
+/** A set of changes that is encoded to be used over the wire */
+type EncodedChanges = [string, ...(string | number | null)[]] | [];
+type Change = {
+  /** Client's unique identifier */
+  site_id: Uint8Array;
+  /** Column name */
+  cid: string;
+  /** Primary key (encoded with `quote`, separated by `|`) */
+  pk: string;
+  /** Table name */
+  table: string;
+  /** Value (encoded with `quote`) */
+  val: string | null;
+  /** Lamport clock of the database for this change (used to track whether or not a client has seen changes from another database) */
+  db_version: number;
+  /** Lamport clock of the column for this change (used for merging) */
+  col_version: number;
+};
+
 type QueryId = { queryId: string };
 type Executable<T> = { execute(): Promise<T> };
-type Updater = (changes: any[], sender?: string) => any;
+type Updater = (changes: EncodedChanges, sender?: string) => any;
 type Schema<T> = T extends { TYPE: infer U } ? U : unknown;
 type Values<T> = { [K in keyof T]: T[K] extends Readable<infer V> ? V : T[K] };
 
@@ -89,26 +108,28 @@ type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
 
 // === DATABASE ===
 
-type Push = ((changes: any[]) => any) | undefined;
+type Push = ((changes: EncodedChanges) => any) | undefined;
 type Pull =
   | ((
       input: { version: number; client: string },
-      options: { onData: (changes: any[]) => any }
+      options: { onData: (changes: EncodedChanges) => any }
     ) => { unsubscribe(): void })
   | undefined;
 
 interface Connection<S> extends Kysely<S> {
-  changesSince(since: number, filter?: string | null): Executable<any[]>;
   selectVersion(): Executable<{ current: number; synced: number }>;
-  resolveChanges(changes: any[]): Executable<any[]>;
+  resolveChanges(changes: EncodedChanges): Executable<EncodedChanges>;
   updateVersion(version?: number): Executable<any>;
-  insertChanges(changes: any[]): Executable<void>;
+  insertChanges(changes: EncodedChanges): Executable<void>;
   selectClient(): Executable<string>;
-
+  changesSince(
+    since: number,
+    filter?: string | null
+  ): Executable<EncodedChanges>;
   applyOperation<T extends any[], R>(
     operation: Operation<T, R, S>,
     ...args: T
-  ): Executable<{ result: Awaited<R>; changes: any[] }>;
+  ): Executable<{ result: Awaited<R>; changes: EncodedChanges }>;
 }
 
 interface Database<S> {
@@ -121,7 +142,7 @@ interface Database<S> {
     operation: Operation<T, R, S>,
     ...args: T
   ): Promise<R>;
-  merge(changes: any[]): Promise<void>;
+  merge(changes: EncodedChanges): Promise<void>;
   close(): Promise<void>;
   subscribe(
     tables: string[],
@@ -134,6 +155,7 @@ interface Database<S> {
 }
 
 export type {
+  EncodedChanges,
   Connection,
   Operation,
   Database,
@@ -141,6 +163,7 @@ export type {
   Actions,
   Context,
   Updater,
+  Change,
   Kysely,
   Schema,
   Bound,

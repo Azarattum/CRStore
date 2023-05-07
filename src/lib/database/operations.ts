@@ -1,5 +1,4 @@
-import type { Operation, Node } from "../types";
-import type { CRChange } from "./schema";
+import type { Operation, Node, Change, EncodedChanges } from "../types";
 import type { Kysely } from "kysely";
 import { sql } from "kysely";
 
@@ -11,7 +10,7 @@ function fromBytes(data: Uint8Array) {
   return String.fromCharCode(...data);
 }
 
-function encode(changes: CRChange[]) {
+function encode(changes: Change[]): EncodedChanges {
   if (!changes.length) return [];
   return [
     fromBytes(changes[0].site_id),
@@ -26,18 +25,19 @@ function encode(changes: CRChange[]) {
   ];
 }
 
-function decode(encoded: any[]) {
+function decode(encoded: EncodedChanges) {
+  if (!encoded[0]) return [];
   const client = toBytes(encoded[0]);
-  const changes: CRChange[] = [];
+  const changes: Change[] = [];
   for (let i = 1; i < encoded.length; i += 6) {
     changes.push({
       site_id: client,
-      cid: encoded[i],
-      pk: encoded[i + 1],
-      table: encoded[i + 2],
-      val: encoded[i + 3],
-      db_version: encoded[i + 4],
-      col_version: encoded[i + 5],
+      cid: encoded[i] as string,
+      pk: encoded[i + 1] as string,
+      table: encoded[i + 2] as string,
+      val: encoded[i + 3] as string | null,
+      db_version: encoded[i + 4] as number,
+      col_version: encoded[i + 5] as number,
     });
   }
   return changes;
@@ -85,14 +85,14 @@ function changesSince(
     .$if(typeof filter === "string", (qb) =>
       qb.where("site_id", "!=", toBytes(filter as any))
     )
-    .$castTo<any>();
+    .$castTo<Change>();
 
   return {
-    execute: () => query.execute().then(encode as any),
+    execute: () => query.execute().then(encode),
   };
 }
 
-function insertChanges(this: Kysely<any>, changes: any[]) {
+function insertChanges(this: Kysely<any>, changes: EncodedChanges) {
   const run = async (db: typeof this) => {
     if (!changes.length) return;
     await db.insertInto("crsql_changes").values(decode(changes)).execute();
@@ -104,7 +104,7 @@ function insertChanges(this: Kysely<any>, changes: any[]) {
   };
 }
 
-function resolveChanges(this: Kysely<any>, changes: any[]) {
+function resolveChanges(this: Kysely<any>, changes: EncodedChanges) {
   return {
     execute: () =>
       applyOperation
@@ -137,10 +137,10 @@ function finalize(this: Kysely<any>) {
   };
 }
 
-function affectedTables(target: Node | any[]): string[] {
+function affectedTables(target: Node | EncodedChanges): string[] {
   if (Array.isArray(target)) {
     const tables = new Set<string>();
-    for (let i = 3; i < target.length; i += 6) tables.add(target[i]);
+    for (let i = 3; i < target.length; i += 6) tables.add(target[i] as string);
     return [...tables];
   }
   if (target.kind === "TableNode") {
@@ -166,6 +166,8 @@ function affectedTables(target: Node | any[]): string[] {
 }
 
 export {
+  encode,
+  decode,
   finalize,
   changesSince,
   selectClient,

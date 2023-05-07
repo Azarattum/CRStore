@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { sql, type Transaction } from "kysely";
 
 function covert(type: string) {
   const types = {
@@ -17,7 +17,7 @@ function covert(type: string) {
   throw new Error(`Type "${type}" is not allowed in the database schema!`);
 }
 
-async function apply(db: Kysely<any>, { schema }: CRSchema) {
+async function apply(db: Transaction<any>, { schema }: CRSchema) {
   for (const table in schema) {
     const current = schema[table];
     // Create tables
@@ -105,15 +105,6 @@ type CRTable = {
   crr?: boolean;
 };
 type CRSchema = { schema: Record<string, CRTable> };
-type CRChange = {
-  table: string;
-  pk: string;
-  cid: string;
-  val: string | null;
-  db_version: number;
-  col_version: number;
-  site_id: Uint8Array;
-};
 
 export { apply, primary, crr, index, ordered };
-export type { CRSchema, CRChange };
+export type { CRSchema };
