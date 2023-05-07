@@ -70,7 +70,7 @@ function group<DB, TB extends keyof DB, CL extends StringReference<DB, TB>>(
         return { ...node, json: true };
       },
     } as any)
-    .$castTo<ExtractTypeFromReferenceExpression<DB, TB, CL>[]>();
+    .$castTo<NonNullable<ExtractTypeFromReferenceExpression<DB, TB, CL>>[]>();
 }
 
 class JSONPlugin implements KyselyPlugin {
