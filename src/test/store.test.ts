@@ -27,6 +27,9 @@ it("stores data", async () => {
   const table = store((db) => db.selectFrom("test").selectAll());
   const unsubscribe = table.subscribe(spy);
 
+  const spy2 = vi.fn();
+  const unsubscribe2 = subscribe(["*"], spy2, { client: "", version: 0 });
+
   expect(spy).toHaveBeenCalledWith([]);
   await delay(10);
   expect(spy).toHaveBeenCalledWith([]);
@@ -38,16 +41,12 @@ it("stores data", async () => {
   expect(spy).toHaveBeenCalledTimes(4);
   expect(get(table)).toEqual([item]);
   unsubscribe();
-});
 
-it("gives back changes", async () => {
-  const spy = vi.fn();
-  const unsubscribe = subscribe(["*"], spy, { client: "", version: 0 });
-  await delay();
-  expect(spy).toHaveBeenCalledWith(
-    expect.arrayContaining(["data", "'1'", "test", "'data'"])
+  expect(spy2).toHaveBeenCalledWith(
+    expect.arrayContaining(["data", "'1'", "test", "'data'"]),
+    undefined
   );
-  unsubscribe();
+  unsubscribe2();
 });
 
 it("merges changes", async () => {
