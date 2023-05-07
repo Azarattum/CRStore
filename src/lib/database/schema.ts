@@ -56,6 +56,15 @@ async function apply(db: Kysely<any>, { schema }: CRSchema) {
         ordered
       )})`.execute(db);
     }
+    // Create a special table for version sync
+    await db.schema
+      .createTable("__crstore_sync")
+      .ifNotExists()
+      .addColumn("version", "integer")
+      .execute();
+    await sql`INSERT INTO __crstore_sync (version) SELECT 0
+      WHERE NOT EXISTS (SELECT * FROM __crstore_sync)
+    `.execute(db);
   }
 }
 

@@ -48,7 +48,7 @@ function selectVersion(this: Kysely<any>) {
   const query = sql<Version>`SELECT 
     crsql_dbversion() as current,
     IFNULL(MAX(version), 0) as synced
-  FROM "crsql_tracked_peers"`;
+  FROM "__crstore_sync"`;
 
   return {
     execute: () => query.execute(this).then((x) => x.rows[0]),
@@ -56,7 +56,7 @@ function selectVersion(this: Kysely<any>) {
 }
 
 function updateVersion(this: Kysely<any>, version?: number) {
-  return this.updateTable("crsql_tracked_peers").set({
+  return this.updateTable("__crstore_sync").set({
     version: version != null ? version : sql`crsql_dbversion()`,
   });
 }
@@ -93,13 +93,14 @@ function changesSince(
 }
 
 function insertChanges(this: Kysely<any>, changes: any[]) {
-  const query = this.insertInto("crsql_changes").values(decode(changes));
-
+  const run = async (db: typeof this) => {
+    if (!changes.length) return;
+    await db.insertInto("crsql_changes").values(decode(changes)).execute();
+    await updateVersion.bind(db)().execute();
+  };
   return {
-    async execute() {
-      if (!changes.length) return;
-      await query.execute();
-    },
+    execute: () =>
+      this.isTransaction ? run(this) : this.transaction().execute(run),
   };
 }
 
@@ -119,14 +120,13 @@ function applyOperation<T extends any[], R>(
   ...args: T
 ) {
   return {
-    execute: async () => {
-      return this.transaction().execute(async (db) => {
+    execute: () =>
+      this.transaction().execute(async (db) => {
         const { current } = await selectVersion.bind(db)().execute();
         const result = await operation(db, ...args);
         const changes = await changesSince.bind(db)(current).execute();
         return { result, changes };
-      });
-    },
+      }),
   };
 }
 
