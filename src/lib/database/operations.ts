@@ -165,15 +165,6 @@ function affectedTables(target: Node | any[]): string[] {
   return [];
 }
 
-function isExecutable(data: any): data is { execute: () => any } {
-  return (
-    data &&
-    typeof data === "object" &&
-    "execute" in data &&
-    typeof data["execute"] === "function"
-  );
-}
-
 export {
   finalize,
   changesSince,
