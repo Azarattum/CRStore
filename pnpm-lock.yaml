@@ -5,8 +5,8 @@ dependencies:
     specifier: 0.10.0
     version: 0.10.0
   '@vlcn.io/crsqlite-wasm':
-    specifier: ^0.10.0
-    version: 0.10.0
+    specifier: 0.10.1-next.0
+    version: 0.10.1-next.0
   better-sqlite3:
     specifier: ^8.2.0
     version: 8.3.0
@@ -485,10 +485,10 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@vlcn.io/crsqlite-wasm@0.10.0:
-    resolution: {integrity: sha512-zN2hA//BmGeRIQ16Y1kgrotudh1nuQqn5iuhzVQDF17CWwY8EXqKQu+XHklYtejCkmQUcRUgPrs/stDLeG+xnA==}
+  /@vlcn.io/crsqlite-wasm@0.10.1-next.0:
+    resolution: {integrity: sha512-dnMlv3qda9p5ReI7OCk8/N67/GqmRpdmgMArghDsmOk3iHXKDkVI1xdetU22Cai2H/z2PX6qUcy1OAxnLmI2Jg==}
     dependencies:
-      '@vlcn.io/wa-sqlite': 0.16.0
+      '@vlcn.io/wa-sqlite': 0.16.1-next.0
       '@vlcn.io/xplat-api': 0.9.0
       async-mutex: 0.4.0
     dev: false
@@ -498,8 +498,8 @@ packages:
     requiresBuild: true
     dev: false
 
-  /@vlcn.io/wa-sqlite@0.16.0:
-    resolution: {integrity: sha512-SNnBvzl6k60L1rbL1+3wcfJMJoXr+JTZuedFMh8+PuYjHhbTwWEelITaPf+PmPGKx5TpbBn9ZoWRXfMt0ka53g==}
+  /@vlcn.io/wa-sqlite@0.16.1-next.0:
+    resolution: {integrity: sha512-JK+XymW5X146u3oFR/4Ru6YcZen2bGtEJdUM9b3mPPsyWAA4HDgycnI/Wd814SgwIAanYcE2yHKRJnMViy36Tg==}
     dev: false
 
   /@vlcn.io/xplat-api@0.9.0:

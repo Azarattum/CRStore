@@ -21,7 +21,7 @@ function wrap<
   OBJ extends Record<string, StringReference<DB, TB>>
 >(wrapper: [string, string], kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
   const entires = Object.entries(json).flatMap(([key, value]) => [
-    sql.literal(key),
+    sql.lit(key),
     kysely.ref(value),
   ]);
 
@@ -57,6 +57,19 @@ function json<
   OBJ extends Record<string, StringReference<DB, TB>>
 >(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
   return wrap(["json_object(", ")"], kysely, json).$castTo<JSON<DB, TB, OBJ>>();
+}
+
+function group<DB, TB extends keyof DB, CL extends StringReference<DB, TB>>(
+  kysely: ExpressionBuilder<DB, TB>,
+  column: CL
+) {
+  return sql`json_group_array(${kysely.ref(column)})`
+    .withPlugin({
+      transformQuery({ node }: PluginTransformQueryArgs) {
+        return { ...node, json: true };
+      },
+    } as any)
+    .$castTo<ExtractTypeFromReferenceExpression<DB, TB, CL>[]>();
 }
 
 class JSONPlugin implements KyselyPlugin {
@@ -109,4 +122,4 @@ class JSONPlugin implements KyselyPlugin {
   }
 }
 
-export { json, groupJSON, JSONPlugin };
+export { json, group, groupJSON, JSONPlugin };

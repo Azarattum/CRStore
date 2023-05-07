@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "description": "Conflict-free replicated svelte store.",
   "license": "MIT",
   "repository": {
@@ -55,7 +55,7 @@
   "type": "module",
   "dependencies": {
     "@vlcn.io/crsqlite": "0.10.0",
-    "@vlcn.io/crsqlite-wasm": "^0.10.0",
+    "@vlcn.io/crsqlite-wasm": "0.10.1-next.0",
     "better-sqlite3": "^8.2.0",
     "kysely": "^0.24.2",
     "navigator.locks": "^0.8.6",

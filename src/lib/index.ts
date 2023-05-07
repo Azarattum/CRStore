@@ -1,6 +1,6 @@
 export * from "./crstore";
-export { groupJSON, json } from "./database/json";
 export { encode, decode } from "./database/operations";
+export { group, json, groupJSON } from "./database/json";
 export { primary, crr, index, ordered } from "./database/schema";
 
 export const APPEND = 1 as any;
