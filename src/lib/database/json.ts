@@ -63,7 +63,8 @@ function group<DB, TB extends keyof DB, CL extends StringReference<DB, TB>>(
   kysely: ExpressionBuilder<DB, TB>,
   column: CL
 ) {
-  return sql`json_group_array(${kysely.ref(column)})`
+  const cid = kysely.ref(column);
+  return sql`json_group_array(${cid})FILTER(WHERE ${cid} IS NOT NULL)`
     .withPlugin({
       transformQuery({ node }: PluginTransformQueryArgs) {
         return { ...node, json: true };
