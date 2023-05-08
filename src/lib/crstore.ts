@@ -18,6 +18,9 @@ import type { CRSchema } from "./database/schema";
 import { defaultPaths, init } from "./database";
 import type { CompiledQuery } from "kysely";
 
+const empty: [] = [];
+const ready = (data: unknown[]) => data !== empty;
+
 function database<T extends CRSchema>(
   schema: T,
   {
@@ -210,7 +213,7 @@ function store<Schema, Type>(
   let query = null as CompiledQuery | null;
   let id = null as QueryId | null;
 
-  const { subscribe, set } = writable<Type[]>([], () => {
+  const { subscribe, set } = writable<Type[]>(empty, () => {
     let unsubscribe: (() => void) | null = () => {};
     connection.then((db) => {
       if (!unsubscribe) return;
@@ -261,4 +264,4 @@ function store<Schema, Type>(
   };
 }
 
-export { database };
+export { database, ready };
