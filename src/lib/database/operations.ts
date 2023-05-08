@@ -158,6 +158,7 @@ function affectedTables(target: Node | EncodedChanges): string[] {
         ...target.from.froms,
         ...(target.joins?.map((x) => x.table) || []),
         ...(target.selections?.map((x) => x.selection) || []),
+        ...(target.with?.expressions.map((x) => x.expression) || []),
       ] as Node[]
     ).flatMap(affectedTables);
     return [...new Set(tables)];
