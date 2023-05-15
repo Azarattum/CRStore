@@ -36,10 +36,13 @@ function database<T extends CRSchema>(
   const connection = dummy
     ? new Promise<never>(() => {})
     : init(name, schema, paths);
-  const channel = new BroadcastChannel(`${name}-sync`);
+  const channel =
+    "BroadcastChannel" in globalThis
+      ? new globalThis.BroadcastChannel(`${name}-sync`)
+      : null;
   const tabUpdate = (event: MessageEvent) => trigger(event.data, event.data[0]);
 
-  channel.addEventListener("message", tabUpdate);
+  channel?.addEventListener("message", tabUpdate);
   globalThis.addEventListener?.("online", pull);
 
   const listeners = new Map<string, Set<Updater>>();
@@ -166,7 +169,7 @@ function database<T extends CRSchema>(
 
     const promises = [...callbacks].map((x) => x(changes, sender));
     if (!sender) {
-      channel.postMessage(changes);
+      channel?.postMessage(changes);
       await push();
     }
 
@@ -175,11 +178,11 @@ function database<T extends CRSchema>(
 
   async function close() {
     hold();
-    channel.close();
+    channel?.close();
     listeners.clear();
     globalThis.removeEventListener?.("online", pull);
     globalThis.removeEventListener?.("offline", hold);
-    channel.removeEventListener("message", tabUpdate);
+    channel?.removeEventListener("message", tabUpdate);
     await connection.then((x) => x.destroy());
   }
 
