@@ -4,11 +4,11 @@ import { router, procedure } from "../trpc";
 import { merge, subscribe } from "./stores";
 
 const routes = router({
-  push: procedure.input(array(any())).mutation(({ input }) => merge(input)),
+  push: procedure.input(any()).mutation(({ input }) => merge(input)),
   pull: procedure
     .input(object({ version: number(), client: string() }))
     .subscription(({ input }) =>
-      observable<any[]>(({ next }) => subscribe(["*"], next, input))
+      observable(({ next }) => subscribe(["*"], next, input))
     ),
 });
 
