@@ -1,76 +1,74 @@
 import type {
+  ExtractTypeFromReferenceExpression,
   PluginTransformResultArgs,
   PluginTransformQueryArgs,
   ExpressionBuilder,
   StringReference,
   SelectionNode,
   KyselyPlugin,
+  RawBuilder,
 } from "kysely";
-import type { ExtractTypeFromReferenceExpression } from "kysely/dist/cjs/parser/reference-parser";
-import { sql } from "kysely";
+import { sql, AggregateFunctionNode, AggregateFunctionBuilder } from "kysely";
+
+type Simplify<T> = T extends any[] | Date
+  ? T
+  : { [K in keyof T]: T[K] } & NonNullable<unknown>;
 
 type JSON<DB, TB extends keyof DB, OBJ> = {
   [K in keyof OBJ]: NonNullable<
     ExtractTypeFromReferenceExpression<DB, TB, OBJ[K]>
-  >;
+  > &
+    NonNullable<unknown>;
 };
 
-function wrap<
+function json<
   DB,
   TB extends keyof DB,
   OBJ extends Record<string, StringReference<DB, TB>>
->(wrapper: [string, string], kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  const entires = Object.entries(json).flatMap(([key, value]) => [
+>(kysely: ExpressionBuilder<DB, TB>, obj: OBJ) {
+  const entires = Object.entries(obj).flatMap(([key, value]) => [
     sql.lit(key),
     kysely.ref(value),
   ]);
 
-  return sql`${sql.raw(wrapper[0])}${sql.join(entires)}${sql.raw(
-    wrapper[1]
-  )}`.withPlugin({
-    transformQuery({ node }: PluginTransformQueryArgs) {
-      return { ...node, json: true };
-    },
-  } as any);
+  return sql`json_object(${sql.join(entires)})`
+    .withPlugin({
+      transformQuery({ node }: PluginTransformQueryArgs) {
+        return { ...node, json: true };
+      },
+    } as any)
+    .$castTo<Simplify<JSON<DB, TB, OBJ>>>();
+}
+
+function group<
+  DB,
+  TB extends keyof DB,
+  EXP extends StringReference<DB, TB> | RawBuilder<any>
+>(kysely: ExpressionBuilder<DB, TB>, expr: EXP) {
+  const reference =
+    typeof expr === "string"
+      ? kysely.ref(expr as any).toOperationNode()
+      : expr.toOperationNode();
+
+  const node = AggregateFunctionNode.create(
+    "json_group_array" as any,
+    reference as any
+  );
+
+  type O = Simplify<
+    NonNullable<ExtractTypeFromReferenceExpression<DB, TB, EXP>>[]
+  >;
+  return new AggregateFunctionBuilder<DB, TB, O>({
+    aggregateFunctionNode: { ...node, json: true } as any,
+  });
 }
 
 function groupJSON<
   DB,
   TB extends keyof DB,
   OBJ extends Record<string, StringReference<DB, TB>>
->(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  return wrap(
-    [
-      `CASE WHEN COUNT(${
-        Object.values(json)[0]
-      }) = 0 THEN '[]' ELSE json_group_array(json_object(`,
-      ")) END",
-    ],
-    kysely,
-    json
-  ).$castTo<JSON<DB, TB, OBJ>[]>();
-}
-
-function json<
-  DB,
-  TB extends keyof DB,
-  OBJ extends Record<string, StringReference<DB, TB>>
->(kysely: ExpressionBuilder<DB, TB>, json: OBJ) {
-  return wrap(["json_object(", ")"], kysely, json).$castTo<JSON<DB, TB, OBJ>>();
-}
-
-function group<DB, TB extends keyof DB, CL extends StringReference<DB, TB>>(
-  kysely: ExpressionBuilder<DB, TB>,
-  column: CL
-) {
-  const cid = kysely.ref(column);
-  return sql`json_group_array(${cid})FILTER(WHERE ${cid} IS NOT NULL)`
-    .withPlugin({
-      transformQuery({ node }: PluginTransformQueryArgs) {
-        return { ...node, json: true };
-      },
-    } as any)
-    .$castTo<NonNullable<ExtractTypeFromReferenceExpression<DB, TB, CL>>[]>();
+>(kysely: ExpressionBuilder<DB, TB>, obj: OBJ) {
+  return group(kysely, json(kysely, obj));
 }
 
 class JSONPlugin implements KyselyPlugin {
