@@ -34,22 +34,22 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^2.0.1",
-    "@sveltejs/kit": "1.16.2",
+    "@sveltejs/kit": "1.18.0",
     "@sveltejs/package": "2.0.2",
-    "@trpc/client": "^10.25.0",
-    "@trpc/server": "^10.25.0",
+    "@trpc/client": "^10.26.0",
+    "@trpc/server": "^10.26.0",
     "@types/better-sqlite3": "^7.6.3",
     "@types/ws": "^8.5.4",
     "prettier": "^2.8.8",
     "prettier-plugin-svelte": "^2.9.0",
     "superstruct": "^1.0.3",
-    "svelte-check": "^3.3.1",
+    "svelte-check": "^3.3.2",
     "ts-patch": "^2.1.0",
-    "tslib": "^2.5.0",
+    "tslib": "^2.5.1",
     "typescript": "^4.*",
     "typescript-transform-extensions": "^1.0.1",
-    "vite": "^4.3.5",
-    "vitest": "^0.31.0",
+    "vite": "^4.3.8",
+    "vitest": "^0.31.1",
     "ws": "^8.13.0"
   },
   "type": "module",
@@ -59,7 +59,7 @@
     "better-sqlite3": "^8.2.0",
     "kysely": "^0.24.2",
     "navigator.locks": "^0.8.6",
-    "svelte": "^3.59.0"
+    "svelte": "^3.59.1"
   },
   "files": [
     "dist",
