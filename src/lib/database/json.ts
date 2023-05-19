@@ -76,18 +76,7 @@ class JSONPlugin implements KyselyPlugin {
 
   transformQuery({ node, queryId }: PluginTransformQueryArgs) {
     if (node.kind !== "SelectQueryNode") return node;
-    for (const selection of this.getSelections(node)) {
-      const target = selection.selection;
-      if (target.kind !== "AliasNode") continue;
-      if (!("json" in target.node)) continue;
-      if (target.alias.kind !== "IdentifierNode") continue;
-      if (!("name" in target.alias)) continue;
-      if (typeof target.alias.name !== "string") continue;
-
-      const mapped = this.#jsonNodes.get(queryId) || new Set();
-      mapped.add(target.alias.name);
-      this.#jsonNodes.set(queryId, mapped);
-    }
+    this.#jsonNodes.set(queryId, new Set(this.getColumns(node)));
     return node;
   }
 
@@ -99,18 +88,17 @@ class JSONPlugin implements KyselyPlugin {
     return result;
   }
 
-  private getSelections(node: Record<string, any>) {
-    const selections: SelectionNode[] = [];
+  private getColumns(node: Record<string, any>) {
+    const columns: string[] = [];
     for (const key in node) {
-      if (key === "selections" && Array.isArray(node[key])) {
-        const nodes = node[key].filter((x: any) => x.kind === "SelectionNode");
-        selections.push(...nodes);
-      }
-      if (typeof node[key] === "object") {
-        selections.push(...this.getSelections(node[key]));
+      if (node[key] && typeof node[key] === "object") {
+        if (node[key]["json"] === true && typeof node.alias?.name == "string") {
+          columns.push(node.alias?.name);
+        }
+        columns.push(...this.getColumns(node[key]));
       }
     }
-    return selections;
+    return columns;
   }
 
   private parseObject(object: Record<string, any>, keys: Set<string>) {
