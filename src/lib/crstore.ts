@@ -17,6 +17,7 @@ import { affectedTables } from "./database/operations";
 import type { CRSchema } from "./database/schema";
 import { defaultPaths, init } from "./database";
 import type { CompiledQuery } from "kysely";
+import { queue } from "./database/queue";
 
 const empty: [] = [];
 const ready = (data: unknown[]) => data !== empty;
@@ -41,6 +42,8 @@ function database<T extends CRSchema>(
       ? new globalThis.BroadcastChannel(`${name}-sync`)
       : null;
   const tabUpdate = (event: MessageEvent) => trigger(event.data, event.data[0]);
+  const write = queue(connection, trigger);
+  const read = queue(connection);
 
   channel?.addEventListener("message", tabUpdate);
   globalThis.addEventListener?.("online", pull);
@@ -49,31 +52,10 @@ function database<T extends CRSchema>(
   let hold = () => {};
   pull();
 
-  const queue = new Map<QueryId, CompiledQuery>();
-  let queueing = null as Promise<Map<QueryId, unknown[]>> | null;
-  const raf = globalThis.requestAnimationFrame || globalThis.setTimeout;
-  async function dequeue() {
-    if (queueing) return queueing;
-    return (queueing = new Promise((resolve) =>
-      raf(async () => {
-        const db = await connection;
-        const result = new Map<QueryId, unknown[]>();
-        await db.transaction().execute(async (trx) => {
-          for (const [id, query] of queue.entries()) {
-            const { rows } = await trx.getExecutor().executeQuery(query, id);
-            result.set(id, rows);
-          }
-        });
-        queue.clear();
-        queueing = null;
-        resolve(result);
-      })
-    ));
-  }
-
   async function refresh(query: CompiledQuery, id: QueryId) {
-    queue.set(id, query);
-    return dequeue().then((x) => x.get(id)!);
+    return read
+      .enqueue(id, (db) => db.getExecutor().executeQuery(query, id))
+      .then((x) => x.rows);
   }
 
   function subscribe(
@@ -143,12 +125,7 @@ function database<T extends CRSchema>(
     operation: Operation<T, R>,
     ...args: T
   ) {
-    const db = await connection;
-    const { changes, result } = await db
-      .applyOperation(operation, ...args)
-      .execute();
-    await trigger(changes);
-    return result;
+    return write.enqueue({}, operation, ...args);
   }
 
   async function merge(changes: EncodedChanges) {

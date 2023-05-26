@@ -1,5 +1,5 @@
+import { crr, database, primary, type EncodedChanges } from "$lib";
 import { afterAll, expect, it, vi } from "vitest";
-import { crr, database, primary } from "$lib";
 import { object, string } from "superstruct";
 import { get, writable } from "svelte/store";
 import { rm } from "fs/promises";
@@ -35,6 +35,8 @@ it("stores data", async () => {
   expect(spy).toHaveBeenCalledWith([]);
   expect(spy).toHaveBeenCalledTimes(2);
   await table.update((db) => db.insertInto("test").values(item).execute());
+  expect(spy).toHaveBeenCalledTimes(2);
+  await delay(50);
   expect(spy).toHaveBeenCalledWith([item]);
   expect(spy).toHaveBeenCalledTimes(3);
   await table.update();
@@ -58,7 +60,7 @@ it("merges changes", async () => {
   await delay(50);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "data" }]);
   const changes = ["client", "data", "'1'", "test", "'updated'", 2, 2];
-  await merge(changes);
+  await merge(changes as EncodedChanges);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
   expect(spy).toHaveBeenCalledTimes(3);
   unsubscribe();
