@@ -108,6 +108,7 @@ type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
 
 // === DATABASE ===
 
+type Error = ((reason: unknown) => void) | undefined;
 type Push = ((changes: EncodedChanges) => any) | undefined;
 type Pull =
   | ((
@@ -167,6 +168,7 @@ export type {
   Kysely,
   Schema,
   Bound,
+  Error,
   View,
   Push,
   Pull,

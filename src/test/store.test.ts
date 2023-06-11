@@ -5,6 +5,7 @@ import { get, writable } from "svelte/store";
 import { rm } from "fs/promises";
 
 const delay = (ms = 1) => new Promise((r) => setTimeout(r, ms));
+const errored = vi.fn();
 const schema = object({
   test: crr(
     primary(
@@ -19,6 +20,7 @@ const schema = object({
 
 const { store, close, subscribe, merge } = database(schema, {
   name: "test.db",
+  error: errored,
 });
 
 it("stores data", async () => {
@@ -49,6 +51,15 @@ it("stores data", async () => {
     undefined
   );
   unsubscribe2();
+});
+
+it("handles errors", async () => {
+  const table2 = store((db) => db.selectFrom("test2" as any).selectAll());
+  const table = store((db) => db.selectFrom("test").selectAll());
+  expect(table2).rejects.toThrowError();
+  expect(table).resolves.toBeTruthy();
+  await delay(100);
+  expect(errored).toHaveBeenCalled();
 });
 
 it("merges changes", async () => {

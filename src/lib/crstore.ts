@@ -8,6 +8,7 @@ import type {
   QueryId,
   Schema,
   Bound,
+  Error,
   Pull,
   Push,
   View,
@@ -28,6 +29,7 @@ function database<T extends CRSchema>(
     ssr = false,
     name = "crstore.db",
     paths = defaultPaths,
+    error = undefined as Error,
     push: remotePush = undefined as Push,
     pull: remotePull = undefined as Pull,
     online = () => !!(globalThis as any).navigator?.onLine,
@@ -63,10 +65,14 @@ function database<T extends CRSchema>(
     callback: Updater,
     options?: { client: string; version: number }
   ) {
-    const listener = (changes: EncodedChanges, sender?: string) =>
-      options
-        ? options.client !== sender && callback(changes, sender)
-        : callback(changes, sender);
+    const listener = async (changes: EncodedChanges, sender?: string) => {
+      try {
+        if (options && options.client === sender) return;
+        await callback(changes, sender);
+      } catch (reason) {
+        error?.(reason);
+      }
+    };
 
     tables.forEach((x) => {
       if (!listeners.has(x)) listeners.set(x, new Set());
@@ -79,9 +85,9 @@ function database<T extends CRSchema>(
         const changes = await db
           .changesSince(options.version, options.client)
           .execute();
-        if (changes.length) callback(changes);
+        if (changes.length) listener(changes);
       });
-    } else callback([]);
+    } else listener([]);
 
     return () => tables.forEach((x) => listeners.get(x)?.delete(listener));
   }
