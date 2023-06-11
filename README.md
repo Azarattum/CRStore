@@ -107,6 +107,8 @@ const app = router({
 });
 ```
 
+> If you are using `vite-node` to run your server, you should add `define: { "import.meta.env.SSR": false }` to your vite config file.
+
 ## Advanced Usage
 
 ### Depend on other stores
@@ -310,3 +312,13 @@ $items = data.initial;
 ```
 
 Check out the [ssr example](src/demo/ssr/) for complete implementation.
+
+### Error handling
+You can add an error handler to your database connection.
+```ts
+const { store } = database(schema, {
+  error: (reason) => console.log(reason),
+});
+```
+
+It will handle all the errors that happen during subscriber callbacks.
