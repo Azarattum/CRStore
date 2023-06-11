@@ -4,7 +4,6 @@ import type {
   PluginTransformQueryArgs,
   ExpressionBuilder,
   StringReference,
-  SelectionNode,
   KyselyPlugin,
   Expression,
 } from "kysely";
@@ -47,19 +46,17 @@ function group<
 >(kysely: ExpressionBuilder<DB, TB>, expr: EXP) {
   const reference =
     typeof expr === "string"
-      ? kysely.ref(expr as any).toOperationNode()
+      ? kysely.ref(expr as StringReference<DB, TB>).toOperationNode()
       : expr.toOperationNode();
-
-  const node = AggregateFunctionNode.create(
-    "json_group_array" as any,
-    reference as any
-  );
 
   type O = Simplify<
     NonNullable<ExtractTypeFromReferenceExpression<DB, TB, EXP>>[]
   >;
   return new AggregateFunctionBuilder<DB, TB, O>({
-    aggregateFunctionNode: { ...node, json: true } as any,
+    aggregateFunctionNode: {
+      ...AggregateFunctionNode.create("json_group_array", [reference]),
+      json: true,
+    } as any,
   });
 }
 

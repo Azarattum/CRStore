@@ -1,9 +1,9 @@
-import { number, object, string } from "superstruct";
+import { object, string } from "superstruct";
 import { crr, database, primary } from "../../lib";
 import { trpc } from "../client";
 
 const schema = object({
-  items: crr(primary(object({ id: number(), data: string() }), "id")),
+  items: crr(primary(object({ id: string(), data: string() }), "id")),
 });
 
 const client = trpc as any; // Fixes circular referencing
@@ -18,7 +18,7 @@ export const { store, merge, subscribe } = database(schema, {
 
 export const items = store((db) => db.selectFrom("items").selectAll(), {
   add(db, data: string) {
-    const id = Math.random();
+    const id = Math.random().toString(36).slice(2);
     return db.insertInto("items").values({ id, data }).execute();
   },
 });
