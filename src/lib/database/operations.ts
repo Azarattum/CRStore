@@ -83,7 +83,7 @@ function changesSince(
     .$if(!since, (qb) => qb.where("cid", "!=", "__crsql_del"))
     .$if(filter === null, (qb) => qb.where("site_id", "is", null))
     .$if(typeof filter === "string", (qb) =>
-      qb.where("site_id", "!=", toBytes(filter as any))
+      qb.where("site_id", "is not", toBytes(filter as any))
     )
     .$castTo<Change>();
 
