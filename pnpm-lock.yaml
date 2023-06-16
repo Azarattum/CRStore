@@ -2,11 +2,11 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@vlcn.io/crsqlite':
-    specifier: 0.12.0
-    version: 0.12.0
+    specifier: 0.13.0
+    version: 0.13.0
   '@vlcn.io/crsqlite-wasm':
-    specifier: 0.12.0
-    version: 0.12.0
+    specifier: 0.13.0
+    version: 0.13.0
   better-sqlite3:
     specifier: ^8.4.0
     version: 8.4.0
@@ -29,13 +29,13 @@ devDependencies:
     version: 1.20.2(svelte@3.59.1)(vite@4.3.9)
   '@sveltejs/package':
     specifier: 2.0.2
-    version: 2.0.2(svelte@3.59.1)(typescript@4.9.5)
+    version: 2.0.2(svelte@3.59.1)(typescript@4.0.2)
   '@trpc/client':
-    specifier: ^10.29.1
-    version: 10.29.1(@trpc/server@10.29.1)
+    specifier: ^10.30.0
+    version: 10.30.0(@trpc/server@10.30.0)
   '@trpc/server':
-    specifier: ^10.29.1
-    version: 10.29.1
+    specifier: ^10.30.0
+    version: 10.30.0
   '@types/better-sqlite3':
     specifier: ^7.6.3
     version: 7.6.4
@@ -56,13 +56,13 @@ devDependencies:
     version: 3.4.3(svelte@3.59.1)
   ts-patch:
     specifier: ^2.1.0
-    version: 2.1.0(typescript@4.9.5)
+    version: 2.1.0(typescript@4.0.2)
   tslib:
     specifier: ^2.5.3
     version: 2.5.3
   typescript:
     specifier: ^4.*
-    version: 4.9.5
+    version: 4.0.2
   typescript-transform-extensions:
     specifier: ^1.0.1
     version: 1.0.1
@@ -357,7 +357,7 @@ packages:
       - supports-color
     dev: true
 
-  /@sveltejs/package@2.0.2(svelte@3.59.1)(typescript@4.9.5):
+  /@sveltejs/package@2.0.2(svelte@3.59.1)(typescript@4.0.2):
     resolution: {integrity: sha512-cCOCcO8yMHnhHyaR51nQtvKZ3o/vSU9UYI1EXLT1j2CKNPMuH1/g6JNwKcNNrtQGwwquudc69ZeYy8D/TDNwEw==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
@@ -368,7 +368,7 @@ packages:
       kleur: 4.1.5
       sade: 1.8.1
       svelte: 3.59.1
-      svelte2tsx: 0.6.2(svelte@3.59.1)(typescript@4.9.5)
+      svelte2tsx: 0.6.2(svelte@3.59.1)(typescript@4.0.2)
     transitivePeerDependencies:
       - typescript
     dev: true
@@ -409,16 +409,16 @@ packages:
       - supports-color
     dev: true
 
-  /@trpc/client@10.29.1(@trpc/server@10.29.1):
-    resolution: {integrity: sha512-+9Tifg6dtKsYLsqOW0wizqc3iILAkXxn16pyYAeMDPlulPEqNvnI85GDJ0zJOJLIkQnQefkRbtCmtDxLNtV9Eg==}
+  /@trpc/client@10.30.0(@trpc/server@10.30.0):
+    resolution: {integrity: sha512-utz0qRI4eU3QcHvBwcSONEnt5pWR3Dyk4VFJnySHysBT6GQRRpJifWX5+RxDhFK93LxcAmiirFbYXjZ40gbobw==}
     peerDependencies:
-      '@trpc/server': 10.29.1
+      '@trpc/server': 10.30.0
     dependencies:
-      '@trpc/server': 10.29.1
+      '@trpc/server': 10.30.0
     dev: true
 
-  /@trpc/server@10.29.1:
-    resolution: {integrity: sha512-kNXgMh5ya+awuz2tB4eIyVrRs7nVtqGXwSGabzH3l5ZLWz7rbKJquOJ7h6bjvIfWUpaFG62HJNWxxGUtXCRgRw==}
+  /@trpc/server@10.30.0:
+    resolution: {integrity: sha512-pRsrHCuar3fbyOdJvO4b80OMP1Tx/wOSy5Ozy6cFDFWVUmfAyIX3En5Hoysy4cmMUuCsQsfTEYQwo+OcpjzBkg==}
     dev: true
 
   /@types/better-sqlite3@7.6.4:
@@ -498,25 +498,25 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@vlcn.io/crsqlite-wasm@0.12.0:
-    resolution: {integrity: sha512-biY5vnw01O4h712UsOsFgwALl1qxTT1BpwzO+Tw+UzILrCpmiRtgQ/DmkrjWYEy0iBLeA44nfAtgXFjDzTIBiA==}
+  /@vlcn.io/crsqlite-wasm@0.13.0:
+    resolution: {integrity: sha512-Hnm6bewwAP4gcm4nCYZFLvqb+I2FjljpiNZAlDoBFLpV32MTLk5v67Vwf13YD0HsvzqLJswAs1JPg3WuSxTofg==}
     dependencies:
-      '@vlcn.io/wa-sqlite': 0.18.0
-      '@vlcn.io/xplat-api': 0.11.0
+      '@vlcn.io/wa-sqlite': 0.19.0
+      '@vlcn.io/xplat-api': 0.12.0
       async-mutex: 0.4.0
     dev: false
 
-  /@vlcn.io/crsqlite@0.12.0:
-    resolution: {integrity: sha512-8uOtHeNAwg0sr6K/RKpJ2Iph1fsD8JxcyeYDvnzrCmay39XXZy9wKZ/b9fso9ksOMl32UvT0REjPv8plTR4NJA==}
+  /@vlcn.io/crsqlite@0.13.0:
+    resolution: {integrity: sha512-PfR9sP923W8rMhckrf/8WDccsbJg3vmI363xhW2AlbVvRMzH6PfiXBQz4sAmUmYLokHwzQnOr5nKOLYS0SHIYQ==}
     requiresBuild: true
     dev: false
 
-  /@vlcn.io/wa-sqlite@0.18.0:
-    resolution: {integrity: sha512-0BkblUrb67FbSR21vuluoe1oM4Va/xViwB1HebHlbAXp8sTjejIezXWKSsiEssRYeJgt90aWuyw4xEzddqu/Yw==}
+  /@vlcn.io/wa-sqlite@0.19.0:
+    resolution: {integrity: sha512-Rzu4d1zdnfjVkMMXV0YE7aiMRz2ro6eJ1SM94Fpt7NLDGOt69U7t50lBxaEogSDwMvGG1PpPcd4wapGnA6zKIA==}
     dev: false
 
-  /@vlcn.io/xplat-api@0.11.0:
-    resolution: {integrity: sha512-ZcJZcu8Z8KdORAbqM6rfc8OGMF+9nTNYysXrzd36FsWFNNuN7+mwWyK2zmDcilxaqqm+FyK9+B1O8q3oRGXm9w==}
+  /@vlcn.io/xplat-api@0.12.0:
+    resolution: {integrity: sha512-6MKe6RWSDXeql2iZ2fskske/dVHiqFmBciNv4s8czcGSmyvVNfP4Fz1r5lzCxHjCslP0lVSu3DAtWfD+2YKuoA==}
     dependencies:
       comlink: 4.4.1
     dev: false
@@ -1010,8 +1010,8 @@ packages:
       binary-extensions: 2.2.0
     dev: true
 
-  /is-core-module@2.11.0:
-    resolution: {integrity: sha512-RRjxlvLDkD1YJwDbroBHMb+cukurkDWNyHx7D3oNB5x9rb5ogcksMC5wHCadcXoo67gVr/+3GFySh3134zi6rw==}
+  /is-core-module@2.12.1:
+    resolution: {integrity: sha512-Q4ZuBAe2FUsKtyQJoQHlvP8OvBERxO3jEmy1I7hcRXcJBGGHFh/aJBswbXuS9sgrDH2QUO8ilkwNPHvHMd8clg==}
     dependencies:
       has: 1.0.3
     dev: true
@@ -1379,7 +1379,7 @@ packages:
     resolution: {integrity: sha512-HFM8rkZ+i3zrV+4LQjwQ0W+ez98pApMGM3HUrN04j3CqzPOzl9nmP15Y8YXNm8QHGv/eacOVEjqhmWpkRV0NAw==}
     engines: {node: '>= 0.10'}
     dependencies:
-      resolve: 1.22.1
+      resolve: 1.22.2
     dev: true
 
   /resolve-from@4.0.0:
@@ -1387,11 +1387,11 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /resolve@1.22.1:
-    resolution: {integrity: sha512-nBpuuYuY5jFsli/JIs1oldw6fOQCBioohqWZg/2hiaOybXOft4lonv85uDOKXdf8rhyK159cxU5cDcK/NKk8zw==}
+  /resolve@1.22.2:
+    resolution: {integrity: sha512-Sb+mjNHOULsBv818T40qSPeRiuWLyaGMa5ewydRLFimneixmVy2zdivRl+AF6jaYPC8ERxGDmFSiqui6SfPd+g==}
     hasBin: true
     dependencies:
-      is-core-module: 2.11.0
+      is-core-module: 2.12.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
     dev: true
@@ -1647,7 +1647,7 @@ packages:
       typescript: 5.1.3
     dev: true
 
-  /svelte2tsx@0.6.2(svelte@3.59.1)(typescript@4.9.5):
+  /svelte2tsx@0.6.2(svelte@3.59.1)(typescript@4.0.2):
     resolution: {integrity: sha512-0ircYY2/jMOfistf+iq8fVHERnu1i90nku56c78+btC8svyafsc3OjOV37LDEOV7buqYY1Rv/uy03eMxhopH2Q==}
     peerDependencies:
       svelte: ^3.55
@@ -1656,7 +1656,7 @@ packages:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
       svelte: 3.59.1
-      typescript: 4.9.5
+      typescript: 4.0.2
     dev: true
 
   /svelte@3.59.1:
@@ -1721,7 +1721,7 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /ts-patch@2.1.0(typescript@4.9.5):
+  /ts-patch@2.1.0(typescript@4.0.2):
     resolution: {integrity: sha512-+6LbQSGgHUnK+grgk9nvKhesc0/dDNxms0IL1XPZeTfmPFCx/QSuwz9k+9yFe0xYDD7xBlHYK0Zp0qrTCaJcAw==}
     hasBin: true
     peerDependencies:
@@ -1731,10 +1731,10 @@ packages:
       glob: 8.1.0
       global-prefix: 3.0.0
       minimist: 1.2.8
-      resolve: 1.22.1
+      resolve: 1.22.2
       shelljs: 0.8.5
       strip-ansi: 6.0.1
-      typescript: 4.9.5
+      typescript: 4.0.2
     dev: true
 
   /tslib@2.5.3:
@@ -1755,8 +1755,8 @@ packages:
     resolution: {integrity: sha512-kV+h7R2Uenc6Jb/JDkKh8owJuW/LcaUg0cJQMTeJzvFdSiPOpfJhFkjEKAnTcRKYnHWSW+QOUcu5RnBFR8W5lQ==}
     dev: true
 
-  /typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
+  /typescript@4.0.2:
+    resolution: {integrity: sha512-e4ERvRV2wb+rRZ/IQeb3jm2VxBsirQLpQhdxplZ2MEzGvDkkMmPglecnNDfSUBivMjP93vRbngYYDQqQ/78bcQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true

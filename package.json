@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.17.2",
+  "version": "0.17.3",
   "description": "Conflict-free replicated svelte store.",
   "license": "MIT",
   "repository": {
@@ -36,8 +36,8 @@
     "@sveltejs/adapter-static": "^2.0.1",
     "@sveltejs/kit": "1.20.2",
     "@sveltejs/package": "2.0.2",
-    "@trpc/client": "^10.29.1",
-    "@trpc/server": "^10.29.1",
+    "@trpc/client": "^10.30.0",
+    "@trpc/server": "^10.30.0",
     "@types/better-sqlite3": "^7.6.3",
     "@types/ws": "^8.5.5",
     "prettier": "^2.8.8",
@@ -54,8 +54,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@vlcn.io/crsqlite": "0.12.0",
-    "@vlcn.io/crsqlite-wasm": "0.12.0",
+    "@vlcn.io/crsqlite": "0.13.0",
+    "@vlcn.io/crsqlite-wasm": "0.13.0",
     "better-sqlite3": "^8.4.0",
     "kysely": "^0.25.0",
     "navigator.locks": "^0.8.6",
