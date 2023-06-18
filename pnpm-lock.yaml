@@ -13,9 +13,6 @@ dependencies:
   kysely:
     specifier: ^0.25.0
     version: 0.25.0
-  navigator.locks:
-    specifier: ^0.8.6
-    version: 0.8.6
   svelte:
     specifier: ^3.59.1
     version: 3.59.1
@@ -1196,10 +1193,6 @@ packages:
 
   /napi-build-utils@1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
-    dev: false
-
-  /navigator.locks@0.8.6:
-    resolution: {integrity: sha512-3ykNHTGTGS2xgFlSUqc7fPGnrwpBiuNbYBdW3i3aSwu05nvYdk3D6qEidLxMqufxpLJ3VRnt4TBzNigNL6hcYA==}
     dev: false
 
   /no-case@3.0.4:

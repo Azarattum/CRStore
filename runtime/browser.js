@@ -1,5 +1,3 @@
-import "navigator.locks";
-
 import wasmUrl from "@vlcn.io/crsqlite-wasm/crsqlite.wasm?url";
 import wasmSqlite from "@vlcn.io/crsqlite-wasm";
 

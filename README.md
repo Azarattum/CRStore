@@ -3,6 +3,8 @@
 Conflict-free replicated svelte store. 
 
 > WARNING: Still in development! Expect breaking changes!
+> 
+> BREAKING (v0.18.0): If you want to support [older browsers](https://caniuse.com/mdn-api_navigator_locks) consider adding [navigator.locks polyfill](https://www.npmjs.com/package/navigator.locks) to your project. CRStore does **not** ship it since `0.18.0`!
 
 - ✨ Elegance of [Svelte](https://svelte.dev/)
 - 💪 Power of [SQLite](https://www.sqlite.org/index.html)
