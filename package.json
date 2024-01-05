@@ -54,10 +54,10 @@
   },
   "type": "module",
   "dependencies": {
-    "@vlcn.io/crsqlite": "0.13.0",
-    "@vlcn.io/crsqlite-wasm": "0.13.0",
-    "better-sqlite3": "^8.4.0",
-    "kysely": "^0.25.0",
+    "@vlcn.io/crsqlite": "0.16.1",
+    "@vlcn.io/crsqlite-wasm": "0.16.0",
+    "better-sqlite3": "^9.2.2",
+    "kysely": "^0.27.1",
     "svelte": "^3.59.1"
   },
   "files": [

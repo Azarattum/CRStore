@@ -16,11 +16,13 @@ function encode(changes: Change[]): EncodedChanges {
     fromBytes(changes[0].site_id),
     ...changes.flatMap((x) => [
       x.cid,
-      x.pk,
+      fromBytes(x.pk),
       x.table,
       x.val,
       x.db_version,
       x.col_version,
+      x.cl,
+      x.seq,
     ]),
   ];
 }
@@ -29,15 +31,17 @@ function decode(encoded: EncodedChanges) {
   if (!encoded[0]) return [];
   const client = toBytes(encoded[0]);
   const changes: Change[] = [];
-  for (let i = 1; i < encoded.length; i += 6) {
+  for (let i = 1; i < encoded.length; i += 8) {
     changes.push({
       site_id: client,
       cid: encoded[i] as string,
-      pk: encoded[i + 1] as string,
+      pk: toBytes(encoded[i + 1] as string) as Uint8Array,
       table: encoded[i + 2] as string,
       val: encoded[i + 3] as string | null,
       db_version: encoded[i + 4] as number,
       col_version: encoded[i + 5] as number,
+      cl: encoded[i + 6] as number,
+      seq: encoded[i + 7] as number,
     });
   }
   return changes;
@@ -46,7 +50,7 @@ function decode(encoded: EncodedChanges) {
 function selectVersion(this: Kysely<any>) {
   type Version = { current: number; synced: number };
   const query = sql<Version>`SELECT 
-    crsql_dbversion() as current,
+    crsql_db_version() as current,
     IFNULL(MAX(version), 0) as synced
   FROM "__crstore_sync"`;
 
@@ -57,13 +61,13 @@ function selectVersion(this: Kysely<any>) {
 
 function updateVersion(this: Kysely<any>, version?: number) {
   return this.updateTable("__crstore_sync").set({
-    version: version != null ? version : sql`crsql_dbversion()`,
+    version: version != null ? version : sql`crsql_db_version()`,
   });
 }
 
 function selectClient(this: Kysely<any>) {
   type Client = { client: Uint8Array };
-  const query = sql<Client>`SELECT crsql_siteid() as client`;
+  const query = sql<Client>`SELECT crsql_site_id() as client`;
   return {
     execute: () => query.execute(this).then((x) => fromBytes(x.rows[0].client)),
   };
@@ -76,12 +80,23 @@ function changesSince(
 ) {
   let query = this.selectFrom("crsql_changes")
     // Overwrite `site_id` with the local one
-    .select(sql`crsql_siteid()`.as("site_id"))
-    .select(["cid", "pk", "table", "val", "db_version", "col_version"])
+    .select(sql`crsql_site_id()`.as("site_id"))
+    .select([
+      "cid",
+      "pk",
+      "table",
+      "val",
+      "db_version",
+      "col_version",
+      "cl",
+      "seq",
+    ])
     .where("db_version", ">", since)
     // Don't return tombstones when requesting the entire db
     .$if(!since, (qb) => qb.where("cid", "!=", "__crsql_del"))
-    .$if(filter === null, (qb) => qb.where("site_id", "is", null))
+    .$if(filter === null, (qb) =>
+      qb.where("site_id", "is", sql`crsql_site_id()`)
+    )
     .$if(typeof filter === "string", (qb) =>
       qb.where("site_id", "is not", toBytes(filter as any))
     )
@@ -140,13 +155,13 @@ function finalize(this: Kysely<any>) {
 function affectedTables(target: Node | EncodedChanges): string[] {
   if (Array.isArray(target)) {
     const tables = new Set<string>();
-    for (let i = 3; i < target.length; i += 6) tables.add(target[i] as string);
+    for (let i = 3; i < target.length; i += 8) tables.add(target[i] as string);
     return [...tables];
   }
   if (target.kind === "TableNode") {
     return [target.table.identifier.name];
   }
-  if (target.kind === "ReferenceNode") {
+  if (target.kind === "ReferenceNode" && target.table) {
     return [target.table.table.identifier.name];
   }
   if (target.kind === "AliasNode") {
@@ -155,7 +170,7 @@ function affectedTables(target: Node | EncodedChanges): string[] {
   if (target.kind === "SelectQueryNode") {
     const tables = (
       [
-        ...target.from.froms,
+        ...(target.from?.froms || []),
         ...(target.joins?.map((x) => x.table) || []),
         ...(target.selections?.map((x) => x.selection) || []),
         ...(target.with?.expressions.map((x) => x.expression) || []),

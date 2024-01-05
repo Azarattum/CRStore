@@ -1,4 +1,4 @@
-import { crr, database, primary, type EncodedChanges } from "$lib";
+import { crr, database, primary, encode } from "$lib";
 import { afterAll, expect, it, vi } from "vitest";
 import { object, string } from "superstruct";
 import { get, writable } from "svelte/store";
@@ -47,7 +47,7 @@ it("stores data", async () => {
   unsubscribe();
 
   expect(spy2).toHaveBeenCalledWith(
-    expect.arrayContaining(["data", "'1'", "test", "'data'"]),
+    expect.arrayContaining(["data", 1, "test", "data"]),
     undefined
   );
   unsubscribe2();
@@ -70,8 +70,22 @@ it("merges changes", async () => {
   expect(spy).toHaveBeenCalledWith([]);
   await delay(50);
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "data" }]);
-  const changes = ["client", "data", "'1'", "test", "'updated'", 2, 2];
-  await merge(changes as EncodedChanges);
+
+  await merge(
+    encode([
+      {
+        site_id: new Uint8Array([1, 2]),
+        cid: "data",
+        pk: new Uint8Array([1, 11, 1, 49]),
+        table: "test",
+        val: "updated",
+        db_version: 2,
+        col_version: 2,
+        cl: 1,
+        seq: 0,
+      },
+    ])
+  );
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
   expect(spy).toHaveBeenCalledTimes(3);
   unsubscribe();

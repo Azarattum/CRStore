@@ -14,7 +14,7 @@
 
   const todos = store((db) => db.selectFrom("todos").selectAll(), {
     create(db, title: string, text: string) {
-      const id = Math.random().toString(36).slice(2);
+      const id = [...title].map((x) => x.charCodeAt(0)).join("");
       const todo = { id, title, text, completed: false };
       return db.insertInto("todos").values(todo).execute();
     },

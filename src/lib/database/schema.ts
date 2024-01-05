@@ -26,14 +26,9 @@ async function apply(db: Transaction<any>, { schema }: CRSchema) {
       const { type } = current.schema[column];
       query = query.addColumn(
         column,
-        current.ordered?.find(([x]) => x === column) ? "blob" : covert(type)
-      );
-    }
-    // Add constrains
-    if (current.primary) {
-      query = query.addPrimaryKeyConstraint(
-        "primary_key",
-        current.primary as any
+        current.ordered?.find(([x]) => x === column) ? "blob" : covert(type),
+        (col) =>
+          current.primary?.includes(column) ? col.primaryKey().notNull() : col
       );
     }
     await query.execute();

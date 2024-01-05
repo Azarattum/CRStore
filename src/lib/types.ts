@@ -21,8 +21,8 @@ type Change = {
   site_id: Uint8Array;
   /** Column name */
   cid: string;
-  /** Primary key (encoded with `quote`, separated by `|`) */
-  pk: string;
+  /** Primary key */
+  pk: Uint8Array;
   /** Table name */
   table: string;
   /** Value (encoded with `quote`) */
@@ -31,6 +31,10 @@ type Change = {
   db_version: number;
   /** Lamport clock of the column for this change (used for merging) */
   col_version: number;
+  /** Causal length (used for delete/insert tracking) */
+  cl: number;
+  /** Operation number in the current transaction */
+  seq: number;
 };
 
 type QueryId = { queryId: string };
