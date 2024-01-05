@@ -25,8 +25,8 @@ type Change = {
   pk: Uint8Array;
   /** Table name */
   table: string;
-  /** Value (encoded with `quote`) */
-  val: string | null;
+  /** Value */
+  val: string | number | Uint8Array | null;
   /** Lamport clock of the database for this change (used to track whether or not a client has seen changes from another database) */
   db_version: number;
   /** Lamport clock of the column for this change (used for merging) */

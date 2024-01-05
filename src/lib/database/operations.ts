@@ -18,7 +18,7 @@ function encode(changes: Change[]): EncodedChanges {
       x.cid,
       fromBytes(x.pk),
       x.table,
-      x.val,
+      JSON.stringify(x.val),
       x.db_version,
       x.col_version,
       x.cl,
@@ -32,12 +32,14 @@ function decode(encoded: EncodedChanges) {
   const client = toBytes(encoded[0]);
   const changes: Change[] = [];
   for (let i = 1; i < encoded.length; i += 8) {
+    let data = JSON.parse(encoded[i + 3] as string);
+    if (typeof data === "object") data = new Uint8Array(Object.values(data));
     changes.push({
       site_id: client,
       cid: encoded[i] as string,
       pk: toBytes(encoded[i + 1] as string) as Uint8Array,
       table: encoded[i + 2] as string,
-      val: encoded[i + 3] as string | null,
+      val: data,
       db_version: encoded[i + 4] as number,
       col_version: encoded[i + 5] as number,
       cl: encoded[i + 6] as number,
