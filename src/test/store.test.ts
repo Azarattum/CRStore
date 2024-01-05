@@ -13,14 +13,15 @@ const schema = object({
         id: string(),
         data: string(),
       }),
-      "id"
-    )
+      "id",
+    ),
   ),
 });
 
 const { store, close, subscribe, merge } = database(schema, {
   name: "test.db",
   error: errored,
+  ssr: true,
 });
 
 it("stores data", async () => {
@@ -48,7 +49,7 @@ it("stores data", async () => {
 
   expect(spy2).toHaveBeenCalledWith(
     expect.arrayContaining(["data", 1, "test", "data"]),
-    undefined
+    undefined,
   );
   unsubscribe2();
 });
@@ -84,7 +85,7 @@ it("merges changes", async () => {
         cl: 1,
         seq: 0,
       },
-    ])
+    ]),
   );
   expect(spy).toHaveBeenCalledWith([{ id: "1", data: "updated" }]);
   expect(spy).toHaveBeenCalledTimes(3);
@@ -93,7 +94,7 @@ it("merges changes", async () => {
 
 it("works with stores", async () => {
   const select = vi.fn((db, query) =>
-    db.selectFrom("test").where("data", "=", query).selectAll()
+    db.selectFrom("test").where("data", "=", query).selectAll(),
   );
   const spy = vi.fn();
 

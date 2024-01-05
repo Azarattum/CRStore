@@ -11,12 +11,10 @@ import {
 import type { Connection, Schema } from "../types";
 import { Kysely, SqliteDialect } from "kysely";
 import type { CRSchema } from "./schema";
+import { load } from "crstore/runtime";
 import { CRDialect } from "./dialect";
 import { JSONPlugin } from "./json";
 import { apply } from "./schema";
-
-// @ts-ignore
-import { load } from "crstore/runtime";
 
 const connections = new Map();
 const defaultPaths = {} as {
@@ -28,7 +26,7 @@ const defaultPaths = {} as {
 async function init<T extends CRSchema>(
   file: string,
   schema: T,
-  paths = defaultPaths
+  paths = defaultPaths,
 ) {
   type DB = Schema<T>;
   if (connections.has(file)) return connections.get(file) as Connection<DB>;

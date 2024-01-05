@@ -29,7 +29,7 @@
             .selectAll()
             .orderBy("order")
             .orderBy("id")
-            .as("data")
+            .as("data"),
         )
         .select([
           "title",
@@ -68,7 +68,7 @@
           .where("id", "=", source.id)
           .execute();
       },
-    }
+    },
   );
 
   let list = "";

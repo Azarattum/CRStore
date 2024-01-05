@@ -23,7 +23,7 @@ type JSON<DB, TB extends keyof DB, OBJ> = {
 function json<
   DB,
   TB extends keyof DB,
-  OBJ extends Record<string, StringReference<DB, TB> | Expression<any>>
+  OBJ extends Record<string, StringReference<DB, TB> | Expression<any>>,
 >(kysely: ExpressionBuilder<DB, TB>, obj: OBJ) {
   const entires = Object.entries(obj).flatMap(([key, value]) => [
     sql.lit(key),
@@ -42,7 +42,7 @@ function json<
 function group<
   DB,
   TB extends keyof DB,
-  EXP extends StringReference<DB, TB> | Expression<any>
+  EXP extends StringReference<DB, TB> | Expression<any>,
 >(kysely: ExpressionBuilder<DB, TB>, expr: EXP) {
   const reference =
     typeof expr === "string"
@@ -63,7 +63,7 @@ function group<
 function groupJSON<
   DB,
   TB extends keyof DB,
-  OBJ extends Record<string, StringReference<DB, TB> | Expression<any>>
+  OBJ extends Record<string, StringReference<DB, TB> | Expression<any>>,
 >(kysely: ExpressionBuilder<DB, TB>, obj: OBJ) {
   return group(kysely, json(kysely, obj));
 }

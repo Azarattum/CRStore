@@ -1,11 +1,11 @@
 import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { router } from "./src/demo/server";
+import type { UserConfig } from "vite";
 import { WebSocketServer } from "ws";
 import { resolve } from "path";
 import { parse } from "url";
 
-/** @type {import('vite').UserConfig} */
 const config = {
   plugins: [
     sveltekit(),
@@ -13,7 +13,7 @@ const config = {
       name: "vite-trpc-ws",
       configureServer(server) {
         const wss = new WebSocketServer({ noServer: true });
-        server.httpServer.on("upgrade", (request, socket, head) => {
+        server.httpServer?.on("upgrade", (request, socket, head) => {
           const { pathname } = parse(request.url);
           if (pathname === "/trpc") {
             wss.handleUpgrade(request, socket, head, (ws) => {
@@ -29,11 +29,11 @@ const config = {
     alias: [
       {
         find: "crstore/runtime",
-        customResolver: (_0, _1, { ssr }) =>
+        customResolver: (_0: any, _1: any, { ssr }: { ssr?: boolean }) =>
           ssr
             ? resolve("./runtime/native.js")
             : resolve("./runtime/browser.js"),
-      },
+      } as any,
     ],
   },
   build: {
@@ -49,6 +49,6 @@ const config = {
     fs: { allow: ["runtime"] },
   },
   test: { env: { SSR: "" } },
-};
+} satisfies UserConfig;
 
 export default config;

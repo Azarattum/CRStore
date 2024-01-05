@@ -33,7 +33,7 @@ function database<T extends CRSchema>(
     push: remotePush = undefined as Push,
     pull: remotePull = undefined as Pull,
     online = () => !!(globalThis as any).navigator?.onLine,
-  } = {}
+  } = {},
 ): Database<Schema<T>> {
   const dummy = !ssr && !!import.meta.env?.SSR;
   const connection = dummy
@@ -63,7 +63,7 @@ function database<T extends CRSchema>(
   function subscribe(
     tables: string[],
     callback: Updater,
-    options?: { client: string; version: number }
+    options?: { client: string; version: number },
   ) {
     const listener = async (changes: EncodedChanges, sender?: string) => {
       try {
@@ -122,7 +122,7 @@ function database<T extends CRSchema>(
           await db.insertChanges(changes).execute();
           await trigger(changes, changes[0]);
         },
-      }
+      },
     ).unsubscribe;
     globalThis.addEventListener?.("offline", hold);
   }
@@ -146,8 +146,8 @@ function database<T extends CRSchema>(
     const tables = affectedTables(changes);
 
     listeners.get("*")?.forEach((x) => callbacks.add(x));
-    tables.forEach((table) =>
-      listeners.get(table)?.forEach((x) => callbacks.add(x))
+    tables.forEach(
+      (table) => listeners.get(table)?.forEach((x) => callbacks.add(x)),
     );
 
     const promises = [...callbacks].map((x) => x(changes, sender));
@@ -174,7 +174,7 @@ function database<T extends CRSchema>(
     {
       with: (...args: any[]) =>
         store.bind({ connection, subscribe, update, refresh } as any, args),
-    }
+    },
   );
 
   return {
@@ -191,7 +191,7 @@ function store<Schema, Type>(
   this: Context<Schema>,
   dependencies: Readable<unknown>[],
   view: View<Schema, Type>,
-  actions: Actions<Schema> = {}
+  actions: Actions<Schema> = {},
 ) {
   const { connection, update, refresh: read } = this;
   const dependency = derived(dependencies, (x) => x);

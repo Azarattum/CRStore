@@ -1,4 +1,4 @@
-import { any, array, number, object, string } from "superstruct";
+import { any, number, object, string } from "superstruct";
 import { observable } from "@trpc/server/observable";
 import { router, procedure } from "../trpc";
 import { database } from "../../lib";
@@ -11,7 +11,7 @@ const routes = router({
   pull: procedure
     .input(object({ version: number(), client: string() }))
     .subscription(({ input }) =>
-      observable(({ next }) => subscribe(["*"], next, input))
+      observable<any>(({ next }) => subscribe(["*"], next, input)),
     ),
 });
 

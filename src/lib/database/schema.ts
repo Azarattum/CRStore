@@ -28,7 +28,7 @@ async function apply(db: Transaction<any>, { schema }: CRSchema) {
         column,
         current.ordered?.find(([x]) => x === column) ? "blob" : covert(type),
         (col) =>
-          current.primary?.includes(column) ? col.primaryKey().notNull() : col
+          current.primary?.includes(column) ? col.primaryKey().notNull() : col,
       );
     }
     await query.execute();
@@ -48,7 +48,7 @@ async function apply(db: Transaction<any>, { schema }: CRSchema) {
     // Register fraction index
     for (const ordered of current.ordered || []) {
       await sql`SELECT crsql_fract_as_ordered(${table},${sql.join(
-        ordered
+        ordered,
       )})`.execute(db);
     }
     // Create a special table for version sync

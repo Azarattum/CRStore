@@ -76,7 +76,7 @@ function selectClient(this: Kysely<any>) {
 function changesSince(
   this: Kysely<any>,
   since: number,
-  filter?: string | null
+  filter?: string | null,
 ) {
   let query = this.selectFrom("crsql_changes")
     // Overwrite `site_id` with the local one
@@ -95,10 +95,10 @@ function changesSince(
     // Don't return tombstones when requesting the entire db
     .$if(!since, (qb) => qb.where("cid", "!=", "__crsql_del"))
     .$if(filter === null, (qb) =>
-      qb.where("site_id", "is", sql`crsql_site_id()`)
+      qb.where("site_id", "is", sql`crsql_site_id()`),
     )
     .$if(typeof filter === "string", (qb) =>
-      qb.where("site_id", "is not", toBytes(filter as any))
+      qb.where("site_id", "is not", toBytes(filter as any)),
     )
     .$castTo<Change>();
 

@@ -7,7 +7,7 @@ export default function autoscroll(
     threshold = 64,
     enabled = false,
     trigger = "auto",
-  }: AutoScrollOptions = {}
+  }: AutoScrollOptions = {},
 ) {
   let bounds: DOMRect;
   const direction = { x: 0, y: 0 };

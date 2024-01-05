@@ -92,7 +92,7 @@ type Context<Schema> = {
   ): Promise<R>;
   refresh<T = unknown>(
     query: CompiledQuery,
-    id: { queryId: string }
+    id: { queryId: string },
   ): Promise<T[]>;
   subscribe(tables: string[], callback: () => any): () => void;
   connection: Promise<Kysely<Schema>>;
@@ -100,7 +100,7 @@ type Context<Schema> = {
 
 type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
   view: View<S, T, D>,
-  actions?: A
+  actions?: A,
 ) => Omit<Writable<T[]>, "update"> &
   PromiseLike<T[]> &
   Bound<A> & {
@@ -117,7 +117,7 @@ type Push = ((changes: EncodedChanges) => any) | undefined;
 type Pull =
   | ((
       input: { version: number; client: string },
-      options: { onData: (changes: EncodedChanges) => any }
+      options: { onData: (changes: EncodedChanges) => any },
     ) => { unsubscribe(): void })
   | undefined;
 
@@ -129,7 +129,7 @@ interface Connection<S> extends Kysely<S> {
   selectClient(): Executable<string>;
   changesSince(
     since: number,
-    filter?: string | null
+    filter?: string | null,
   ): Executable<EncodedChanges>;
   applyOperation<T extends any[], R>(
     operation: Operation<T, R, S>,
@@ -155,7 +155,7 @@ interface Database<S> {
     options?: {
       client: string;
       version: number;
-    }
+    },
   ): () => void;
 }
 

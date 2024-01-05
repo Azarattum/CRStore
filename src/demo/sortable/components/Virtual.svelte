@@ -85,7 +85,7 @@
         easing: "ease",
         duration: animation,
         composite: "accumulate",
-      }
+      },
     );
     // Fix Safari animation (recompute styles)
     if (/apple/i.test(navigator.vendor)) element.style;

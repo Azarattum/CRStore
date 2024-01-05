@@ -30,7 +30,7 @@ const all = store(
         .values({ id, title, artist: artistId, album: albumId })
         .execute();
     },
-  }
+  },
 );
 
 const artists = store((db) => db.selectFrom("artists").selectAll(), {
@@ -83,7 +83,7 @@ const grouped = store((db) =>
           album: "albums.title",
         }).as("tracks"),
     ])
-    .groupBy("album")
+    .groupBy("album"),
 );
 
 const organized = store((db) =>
@@ -103,7 +103,7 @@ const organized = store((db) =>
           "albums.title as album",
         ])
         .orderBy("order")
-        .as("data")
+        .as("data"),
     )
     .select([
       "playlist",
@@ -115,7 +115,7 @@ const organized = store((db) =>
           album: "album",
         }).as("tracks"),
     ])
-    .groupBy("playlist")
+    .groupBy("playlist"),
 );
 
 export { all, artists, albums, playlists, grouped, organized };

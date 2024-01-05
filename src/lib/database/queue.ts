@@ -7,7 +7,7 @@ const error = Symbol("error");
 
 function queue<S>(
   connection: Promise<Kysely<S>>,
-  trigger?: (changes: EncodedChanges) => void
+  trigger?: (changes: EncodedChanges) => void,
 ) {
   const queue = new Map<object, Operation<[], unknown, S>>();
   let queueing: Promise<Map<object, unknown>> | undefined;
@@ -30,7 +30,7 @@ function queue<S>(
         queue.clear();
         queueing = undefined;
         resolve(result);
-      })
+      }),
     ));
   }
 

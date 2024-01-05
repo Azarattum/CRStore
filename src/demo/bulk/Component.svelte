@@ -10,7 +10,7 @@
       .insertInto("bulk")
       .onConflict((qb) => qb.doNothing())
       .values({ id: 42 })
-      .execute()
+      .execute(),
   );
 </script>
 

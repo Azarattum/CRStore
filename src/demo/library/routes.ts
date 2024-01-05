@@ -11,7 +11,7 @@ const routes = router({
   pull: procedure
     .input(object({ version: number(), client: string() }))
     .subscription(({ input }) =>
-      observable(({ next }) => subscribe(["*"], next, input))
+      observable<any>(({ next }) => subscribe(["*"], next, input)),
     ),
 });
 

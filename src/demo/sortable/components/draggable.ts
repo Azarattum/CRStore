@@ -10,7 +10,7 @@ export default function draggable(
     duration = 300,
     mode = "self",
     axis = "both",
-  }: DraggableOptions = {}
+  }: DraggableOptions = {},
 ) {
   const element = (event: Event) => {
     let target = (
@@ -33,7 +33,7 @@ export default function draggable(
         clientX,
         clientY,
         bubbles: true,
-      })
+      }),
     );
   };
 
@@ -94,7 +94,7 @@ export default function draggable(
   function retract(
     target: HTMLElement | null,
     effect: HTMLElement,
-    initial: Point
+    initial: Point,
   ) {
     return () => {
       unlock();

@@ -54,7 +54,7 @@
           Number.isNaN(to) ||
           from === to ||
           dispatch("sort", { from, to }),
-        animation
+        animation,
       );
     target.addEventListener("dragend", disable);
     target.addEventListener("dragstart", enable);

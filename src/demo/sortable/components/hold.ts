@@ -1,6 +1,6 @@
 export default function hold(
   node: HTMLElement,
-  { touch = true, mouse = false, duration = 300 }: HoldOptions = {}
+  { touch = true, mouse = false, duration = 300 }: HoldOptions = {},
 ) {
   function detectHold(event: TouchEvent | MouseEvent) {
     const timeout = setTimeout(() => {

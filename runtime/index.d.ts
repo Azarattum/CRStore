@@ -4,7 +4,7 @@ export function load(
     binding?: string;
     extension?: string;
     wasm?: string;
-  }
+  },
 ): Promise<{
   database: any;
   browser: boolean;
