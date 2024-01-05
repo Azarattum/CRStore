@@ -32,14 +32,16 @@ function decode(encoded: EncodedChanges) {
   const client = toBytes(encoded[0]);
   const changes: Change[] = [];
   for (let i = 1; i < encoded.length; i += 8) {
-    let data = JSON.parse(encoded[i + 3] as string);
-    if (typeof data === "object") data = new Uint8Array(Object.values(data));
+    const data = JSON.parse(encoded[i + 3] as string);
     changes.push({
       site_id: client,
       cid: encoded[i] as string,
       pk: toBytes(encoded[i + 1] as string) as Uint8Array,
       table: encoded[i + 2] as string,
-      val: data,
+      val:
+        data && typeof data === "object"
+          ? new Uint8Array(Object.values(data))
+          : data,
       db_version: encoded[i + 4] as number,
       col_version: encoded[i + 5] as number,
       cl: encoded[i + 6] as number,
