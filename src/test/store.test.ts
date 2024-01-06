@@ -1,7 +1,8 @@
-import { crr, database, primary, encode } from "$lib";
 import { afterAll, expect, it, vi } from "vitest";
 import { object, string } from "superstruct";
 import { get, writable } from "svelte/store";
+import { crr, primary, encode } from "$lib";
+import { database } from "$lib/svelte";
 import { rm } from "fs/promises";
 
 const delay = (ms = 1) => new Promise((r) => setTimeout(r, ms));
@@ -110,6 +111,34 @@ it("works with stores", async () => {
   expect(spy).toHaveBeenCalledWith([]);
   expect(spy).toHaveBeenCalledTimes(3);
   unsubscribe();
+});
+
+it("unsubscribes from stores", async () => {
+  const [subbed, unsubbed, executed] = [vi.fn(), vi.fn(), vi.fn()];
+  const dependency = writable(1, () => (subbed(), unsubbed));
+  const target = store.with(dependency)((db, dep) => {
+    executed(dep);
+    return db.selectFrom("test").selectAll();
+  });
+
+  expect(executed).toHaveBeenCalledTimes(0);
+  expect(unsubbed).toHaveBeenCalledTimes(1);
+  expect(subbed).toHaveBeenCalledTimes(1);
+
+  const stop = target.subscribe(() => {});
+  await delay(50);
+
+  expect(executed).toHaveBeenCalledTimes(1);
+  expect(unsubbed).toHaveBeenCalledTimes(1);
+  expect(subbed).toHaveBeenCalledTimes(2);
+
+  stop();
+
+  expect(executed).toHaveBeenCalledTimes(1);
+  expect(unsubbed).toHaveBeenCalledTimes(2);
+  expect(subbed).toHaveBeenCalledTimes(2);
+
+  expect(executed).toHaveBeenCalledWith(1);
 });
 
 afterAll(async () => {

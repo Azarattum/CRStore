@@ -1,7 +1,7 @@
 import type {
   EncodedChanges,
   Operation,
-  Database,
+  CoreDatabase,
   Actions,
   Context,
   Updater,
@@ -13,12 +13,12 @@ import type {
   Push,
   View,
 } from "./types";
-import { derived, writable, type Readable } from "svelte/store";
-import { affectedTables } from "./database/operations";
-import type { CRSchema } from "./database/schema";
-import { defaultPaths, init } from "./database";
+import { affectedTables } from "../database/operations";
+import type { CRSchema } from "../database/schema";
+import { defaultPaths, init } from "../database";
 import type { CompiledQuery } from "kysely";
-import { queue } from "./database/queue";
+import { queue } from "../database/queue";
+import { reactive } from "./reactive";
 
 const empty: [] = [];
 const ready = (data: unknown[]) => data !== empty;
@@ -34,7 +34,7 @@ function database<T extends CRSchema>(
     pull: remotePull = undefined as Pull,
     online = () => !!(globalThis as any).navigator?.onLine,
   } = {},
-): Database<Schema<T>> {
+): CoreDatabase<Schema<T>> {
   const dummy = !ssr && !!import.meta.env?.SSR;
   const connection = dummy
     ? new Promise<never>(() => {})
@@ -169,57 +169,41 @@ function database<T extends CRSchema>(
     await connection.then((x) => x.destroy());
   }
 
-  const bound: any = Object.assign(
-    store.bind({ connection, subscribe, update, refresh } as any, []),
-    {
-      with: (...args: any[]) =>
-        store.bind({ connection, subscribe, update, refresh } as any, args),
-    },
-  );
-
   return {
     close,
     merge,
     update,
     subscribe,
     connection,
-    store: bound,
+    store: store.bind({ connection, subscribe, update, refresh } as any) as any,
   };
 }
 
 function store<Schema, Type>(
   this: Context<Schema>,
-  dependencies: Readable<unknown>[],
+  dependencies: unknown[],
   view: View<Schema, Type>,
   actions: Actions<Schema> = {},
 ) {
   const { connection, update, refresh: read } = this;
-  const dependency = derived(dependencies, (x) => x);
 
   let query = null as CompiledQuery | null;
   let id = null as QueryId | null;
 
-  const { subscribe, set } = writable<Type[]>(empty, () => {
-    let unsubscribe: (() => void) | null = () => {};
-    connection.then((db) => {
-      if (!unsubscribe) return;
-      let forget = () => {};
-      const stop = dependency.subscribe((values) => {
-        const node = view(db, ...(values as [])).toOperationNode();
-        const tables = affectedTables(node);
-        const executor = db.getExecutor();
+  const { subscribe, set, bind } = reactive<Type[], typeof dependencies>(
+    async (...values) => {
+      const db = await connection;
+      const node = view(db, ...(values as [])).toOperationNode();
+      const tables = affectedTables(node);
+      const executor = db.getExecutor();
 
-        id = { queryId: Math.random().toString(36).slice(2) };
-        query = executor.compileQuery(executor.transformQuery(node, id), id);
+      id = { queryId: Math.random().toString(36).slice(2) };
+      query = executor.compileQuery(executor.transformQuery(node, id), id);
 
-        forget();
-        forget = this.subscribe(tables, refresh);
-      });
-      unsubscribe = () => (stop(), forget());
-    });
-
-    return () => (unsubscribe?.(), (unsubscribe = null));
-  });
+      return this.subscribe(tables, refresh);
+    },
+    dependencies,
+  );
 
   async function refresh() {
     await connection;
@@ -234,8 +218,8 @@ function store<Schema, Type>(
 
   return {
     ...bound,
-    set,
     subscribe,
+    bind,
     update<T extends any[], R>(operation?: Operation<T, R>, ...args: T) {
       if (!operation) return refresh();
       return update(operation, ...args);

@@ -1,4 +1,3 @@
-import type { Readable, Writable } from "svelte/store";
 import type {
   AggregateFunctionNode,
   SelectQueryNode,
@@ -41,7 +40,6 @@ type QueryId = { queryId: string };
 type Executable<T> = { execute(): Promise<T> };
 type Updater = (changes: EncodedChanges, sender?: string) => any;
 type Schema<T> = T extends { TYPE: infer U } ? U : unknown;
-type Values<T> = { [K in keyof T]: T[K] extends Readable<infer V> ? V : T[K] };
 
 type Operation<T extends any[], R = void, S = any> = (
   db: Kysely<S>,
@@ -82,7 +80,7 @@ type Node =
 
 type View<Schema, Type, Deps extends any[] = []> = (
   db: Kysely<Schema>,
-  ..._: Values<Deps>
+  ..._: Deps
 ) => Selectable<Type[]>;
 
 type Context<Schema> = {
@@ -98,12 +96,16 @@ type Context<Schema> = {
   connection: Promise<Kysely<Schema>>;
 };
 
-type Store<S, D extends Readable<any>[] = []> = <T, A extends Actions<S>>(
+type CoreStore<S> = <T, A extends Actions<S>, D extends any[]>(
+  dependencies: D,
   view: View<S, T, D>,
   actions?: A,
-) => Omit<Writable<T[]>, "update"> &
-  PromiseLike<T[]> &
+) => PromiseLike<T[]> &
   Bound<A> & {
+    subscribe: (fn: (value: T[]) => void) => () => void;
+    bind: (
+      parameters: D | ((set: (updated: D) => void) => (() => void) | undefined),
+    ) => void;
     update<T extends any[], R>(
       operation?: Operation<T, R, S>,
       ...args: T
@@ -137,11 +139,9 @@ interface Connection<S> extends Kysely<S> {
   ): Executable<{ result: Awaited<R>; changes: EncodedChanges }>;
 }
 
-interface Database<S> {
+interface CoreDatabase<S> {
   connection: Promise<Connection<S>>;
-  store: Store<S> & {
-    with<D extends Readable<any>[]>(...stores: D): Store<S, D>;
-  };
+  store: CoreStore<S>;
 
   update<T extends any[], R>(
     operation: Operation<T, R, S>,
@@ -161,9 +161,10 @@ interface Database<S> {
 
 export type {
   EncodedChanges,
+  CoreDatabase,
   Connection,
+  CoreStore,
   Operation,
-  Database,
   QueryId,
   Actions,
   Context,

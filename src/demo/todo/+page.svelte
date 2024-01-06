@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { database } from "$lib/crstore";
+  import { database } from "$lib/svelte";
   import { onDestroy } from "svelte";
   import { schema } from "./schema";
   import { trpc } from "../client";

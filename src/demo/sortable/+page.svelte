@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { database, PREPEND, APPEND, groupJSON } from "$lib";
+  import { PREPEND, APPEND, groupJSON } from "$lib";
   import Sortable from "./components/Sortable.svelte";
   import Overlay from "./components/Overlay.svelte";
+  import { database } from "$lib/svelte";
   import { onDestroy } from "svelte";
   import { schema } from "./schema";
   import { trpc } from "../client";

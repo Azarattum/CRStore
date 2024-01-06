@@ -16,7 +16,7 @@
 
 <script lang="ts">
   import { number, object } from "superstruct";
-  import { database } from "$lib/crstore";
+  import { database } from "$lib/svelte";
   import { primary } from "$lib";
 
   export let i: number;

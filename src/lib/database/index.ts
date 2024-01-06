@@ -8,7 +8,7 @@ import {
   selectClient,
   finalize,
 } from "./operations";
-import type { Connection, Schema } from "../types";
+import type { Connection, Schema } from "../core/types";
 import { Kysely, SqliteDialect } from "kysely";
 import type { CRSchema } from "./schema";
 import { load } from "crstore/runtime";

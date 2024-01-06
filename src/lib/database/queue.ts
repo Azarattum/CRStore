@@ -1,5 +1,5 @@
+import type { EncodedChanges, Operation } from "../core/types";
 import { changesSince, selectVersion } from "./operations";
-import type { EncodedChanges, Operation } from "../types";
 import type { Kysely } from "kysely";
 
 const raf = globalThis.requestAnimationFrame || globalThis.setTimeout;

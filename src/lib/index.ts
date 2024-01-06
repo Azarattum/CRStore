@@ -1,4 +1,4 @@
-export * from "./crstore";
+export * from "./core/crstore";
 export { encode, decode } from "./database/operations";
 export { group, json, groupJSON } from "./database/json";
 export { primary, crr, index, ordered } from "./database/schema";
@@ -8,4 +8,4 @@ export const PREPEND = -1 as any;
 
 export * from "kysely";
 
-export * from "./types";
+export * from "./core/types";

@@ -22,6 +22,7 @@
     "sveltekit",
     "todos",
     "trpc",
+    "unsubbed",
     "vlcn"
   ]
 }

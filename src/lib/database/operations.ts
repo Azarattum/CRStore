@@ -1,4 +1,4 @@
-import type { Operation, Node, Change, EncodedChanges } from "../types";
+import type { Operation, Node, Change, EncodedChanges } from "../core/types";
 import type { Kysely } from "kysely";
 import { sql } from "kysely";
 
