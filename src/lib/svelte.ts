@@ -23,7 +23,7 @@ function database<S extends CRSchema>(
     ) {
       const dependency = deps.length ? derived(deps, (x) => x) : null;
       const initial = dependency ? get(dependency) : ([] as StoresValues<D>);
-      const { invalidate, bind, ...rest } = coreStore(initial, view, actions);
+      const { bind, ...rest } = coreStore(initial, view, actions);
       bind((update) => dependency?.subscribe(update));
       return rest;
     } as any as SvelteStore<Schema<S>, StoresValues<D>>;
@@ -52,5 +52,4 @@ type SvelteDatabase<S> = Omit<CoreDatabase<S>, "store"> & {
   };
 };
 
-export { ready } from "./core/crstore";
 export { database };
