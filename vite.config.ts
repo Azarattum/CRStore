@@ -1,6 +1,5 @@
 import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import { sveltekit } from "@sveltejs/kit/vite";
-import { router } from "./src/demo/server";
 import type { UserConfig } from "vite";
 import { WebSocketServer } from "ws";
 import { resolve } from "path";
@@ -11,7 +10,8 @@ const config = {
     sveltekit(),
     {
       name: "vite-trpc-ws",
-      configureServer(server) {
+      async configureServer(server) {
+        const { router } = await import("./src/demo/server");
         const wss = new WebSocketServer({ noServer: true });
         server.httpServer?.on("upgrade", (request, socket, head) => {
           const { pathname } = parse(request.url);
