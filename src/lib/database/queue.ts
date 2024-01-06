@@ -18,15 +18,23 @@ function queue<S>(
       raf(async () => {
         const db = await connection;
         const result = new Map<object, unknown>();
-        await db.transaction().execute(async (trx: any) => {
-          const current: any =
-            trigger && (await selectVersion.bind(trx)().execute()).current;
-          for (const [id, query] of queue.entries()) {
-            const rows = await query(trx).catch((x) => ({ [error]: x }));
-            result.set(id, rows);
-          }
-          trigger?.(await changesSince.bind(trx)(current).execute());
-        });
+        await db
+          .transaction()
+          .execute(async (trx: any) => {
+            const current: any =
+              trigger && (await selectVersion.bind(trx)().execute()).current;
+            for (const [id, query] of queue.entries()) {
+              const rows = await query(trx).catch((x) => ({ [error]: x }));
+              result.set(id, rows);
+            }
+            trigger?.(await changesSince.bind(trx)(current).execute());
+          })
+          .catch((reason) => {
+            if (String(reason).includes("driver has already been destroyed")) {
+              return;
+            }
+            throw reason;
+          });
         queue.clear();
         queueing = undefined;
         resolve(result);
