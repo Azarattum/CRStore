@@ -77,6 +77,10 @@
       "types": "./dist/svelte.d.ts",
       "default": "./dist/svelte.js"
     },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "default": "./dist/react.js"
+    },
     "./runtime": {
       "types": "./runtime/index.d.ts",
       "node": "./runtime/native.js",
