@@ -39,9 +39,13 @@
     "@trpc/client": "^10.45.0",
     "@trpc/server": "^10.45.0",
     "@types/better-sqlite3": "^7.6.8",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
     "@types/ws": "^8.5.10",
     "prettier": "^3.1.1",
     "prettier-plugin-svelte": "^3.1.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "superstruct": "^1.0.3",
     "svelte": "^4.2.8",
     "svelte-check": "^3.6.2",
@@ -69,13 +73,18 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./svelte": {
+      "types": "./dist/svelte.d.ts",
+      "default": "./dist/svelte.js"
+    },
     "./runtime": {
       "types": "./runtime/index.d.ts",
       "node": "./runtime/native.js",
       "default": "./runtime/browser.js"
     }
   },
-  "peerDependencies": {
+  "optionalDependencies": {
+    "react": "^18.2.0",
     "svelte": "^4.2.8"
   }
 }
