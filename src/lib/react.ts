@@ -48,3 +48,4 @@ type ReactDatabase<S> = Omit<CoreDatabase<S>, "replica"> & {
 };
 
 export { database };
+export type { ReactStore, ReactDatabase };

@@ -60,3 +60,4 @@ type SignalValues<T> = {
 };
 
 export { database };
+export type { SolidStore, SolidDatabase };

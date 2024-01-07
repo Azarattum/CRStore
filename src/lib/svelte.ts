@@ -49,3 +49,4 @@ type SvelteDatabase<S> = Omit<CoreDatabase<S>, "replica"> & {
 };
 
 export { database };
+export type { SvelteStore, SvelteDatabase };
