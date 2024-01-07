@@ -1,3 +1,5 @@
+// @ts-nocheck
+import { narrowSolidPlugin } from "@merged/react-solid/plugin";
 import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import { sveltekit } from "@sveltejs/kit/vite";
 import type { UserConfig } from "vite";
@@ -8,6 +10,7 @@ import { parse } from "url";
 const config = {
   plugins: [
     sveltekit(),
+    narrowSolidPlugin({ include: /\/src\/demo\/solid/, hot: false }),
     {
       name: "vite-trpc-ws",
       async configureServer(server) {
