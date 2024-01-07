@@ -1,7 +1,7 @@
 {
   "name": "crstore",
-  "version": "0.20.2",
-  "description": "Conflict-free replicated svelte store.",
+  "version": "0.20.3",
+  "description": "Conflict-free replicated store.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,14 +13,17 @@
   },
   "keywords": [
     "store",
-    "svelte",
+    "replicated",
     "sync",
     "conflict free",
     "CRDT",
     "sqlite",
     "crsqlite",
     "kysely",
-    "trpc"
+    "trpc",
+    "svelte",
+    "solid",
+    "react"
   ],
   "scripts": {
     "dev": "vite dev",

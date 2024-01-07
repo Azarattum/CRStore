@@ -1,6 +1,6 @@
 # CRStore
 
-Conflict-free replicated svelte store. 
+Conflict-free replicated store. 
 
 > WARNING: Still in development! Expect breaking changes!
 >
@@ -10,7 +10,7 @@ Conflict-free replicated svelte store.
 > 
 > BREAKING (v0.18.0): If you want to support [older browsers](https://caniuse.com/mdn-api_navigator_locks) consider adding [navigator.locks polyfill](https://www.npmjs.com/package/navigator.locks) to your project. CRStore does **not** ship it since `0.18.0`!
 
-- ✨ Elegance of [Svelte](https://svelte.dev/)
+- ✨ Elegance of [Svelte](https://svelte.dev/) / [SolidJS](https://www.solidjs.com/) / [React](https://react.dev/)
 - 💪 Power of [SQLite](https://www.sqlite.org/index.html)
 - 🛡️ Safety with [Kysely](https://github.com/koskimas/kysely)
 - ⚡ CRDTs powered by [cr-sqlite](https://github.com/vlcn-io/cr-sqlite)
@@ -48,6 +48,7 @@ import { database } from "crstore/svelte";
 
 const { replicated } = database(schema);
 ```
+> Note, that this example uses Svelte version (`replicated`). For React `database` function will return `useReplica` and `createReplica` for SolidJS. Learn more how to use `CRStore` with these frameworks [here](./src/demo/frameworks/).
 
 With the `replicated` function we can create arbitrary views to our database which are valid svelte stores. For example let's create a store that will have our entire `todos` table:
 ```ts
