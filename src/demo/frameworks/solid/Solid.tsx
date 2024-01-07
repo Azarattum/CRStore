@@ -1,17 +1,8 @@
 import { createSignal, Index } from "solid-js";
-import { object, string } from "superstruct";
 import { database } from "$lib/solid";
-import { crr, primary } from "$lib";
+import { schema } from "../schema";
 
-// ================ Define Schema ================
-const items = object({ text: string() });
-primary(items, "text");
-crr(items);
-
-const schema = object({ items });
-
-// ================ Connect to DB ================
-const { createReplica } = database(schema, { name: "react.db" });
+const { createReplica } = database(schema, { name: "frameworks.db" });
 
 export const Component = () => {
   const [filter, setFilter] = createSignal("");

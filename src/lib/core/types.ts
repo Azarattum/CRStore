@@ -104,9 +104,9 @@ type Context<Schema> = {
 };
 
 type CoreStore<S> = <T, A extends Actions<S>, D extends any[]>(
-  dependencies: D,
   view: View<S, T, D>,
   actions?: A,
+  dependencies?: D,
 ) => PromiseLike<T[]> &
   Bound<A> &
   Update<S> & {
@@ -145,7 +145,7 @@ interface Connection<S> extends Kysely<S> {
 
 interface CoreDatabase<S> {
   connection: Promise<Connection<S>>;
-  store: CoreStore<S>;
+  replica: CoreStore<S>;
 
   update<T extends any[], R>(
     operation: Operation<T, R, S>,

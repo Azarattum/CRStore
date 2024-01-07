@@ -172,15 +172,20 @@ function database<T extends CRSchema>(
     update,
     subscribe,
     connection,
-    store: store.bind({ connection, subscribe, update, refresh } as any) as any,
+    replica: store.bind({
+      connection,
+      subscribe,
+      update,
+      refresh,
+    } as any) as any,
   };
 }
 
 function store<Schema, Type>(
   this: Context<Schema>,
-  dependencies: unknown[],
   view: View<Schema, Type>,
   actions: Actions<Schema> = {},
+  dependencies: unknown[] = [],
 ) {
   const { connection, update, refresh: read } = this;
 

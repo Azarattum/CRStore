@@ -49,7 +49,7 @@ function reactive<T extends any[], U extends any[] = []>(
 
   function invalidate(updated: U) {
     if (JSON.stringify(updated) === JSON.stringify(parameters)) return;
-    parameters = updated;
+    parameters = updated.slice() as U;
     if (!stop) return;
     Promise.resolve(stop).then((x) => x());
     stop = start(...parameters);

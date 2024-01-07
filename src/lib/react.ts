@@ -14,7 +14,7 @@ function database<S extends CRSchema>(
   schema: S,
   params: Parameters<typeof coreDatabase>[1] = {},
 ): ReactDatabase<Schema<S>> {
-  const { store: coreStore, ...rest } = coreDatabase(schema, params);
+  const { replica, ...rest } = coreDatabase(schema, params);
 
   function useReplica<T, A extends Actions<Schema<S>>, D extends any[]>(
     view: View<Schema<S>, T, D>,
@@ -23,7 +23,7 @@ function database<S extends CRSchema>(
   ) {
     const [data, setData] = useState<T[]>([]);
     const { bind, subscribe, ...rest } = useMemo(
-      () => coreStore(deps, view, actions),
+      () => replica(view, actions, deps),
       [],
     );
 
@@ -43,7 +43,7 @@ type ReactStore<S> = <T, A extends Actions<S>, D extends any[] = []>(
   deps?: D,
 ) => T[] & Bound<A> & Update<S>;
 
-type ReactDatabase<S> = Omit<CoreDatabase<S>, "store"> & {
+type ReactDatabase<S> = Omit<CoreDatabase<S>, "replica"> & {
   useReplica: ReactStore<S>;
 };
 

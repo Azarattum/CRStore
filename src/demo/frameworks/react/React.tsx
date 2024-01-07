@@ -1,17 +1,8 @@
 import React, { useCallback, useState } from "react";
-import { object, string } from "superstruct";
 import { database } from "$lib/react";
-import { crr, primary } from "$lib";
+import { schema } from "../schema";
 
-// ================ Define Schema ================
-const items = object({ text: string() });
-primary(items, "text");
-crr(items);
-
-const schema = object({ items });
-
-// ================ Connect to DB ================
-const { useReplica } = database(schema, { name: "react.db" });
+const { useReplica } = database(schema, { name: "frameworks.db" });
 
 export const Component: React.FC = () => {
   const [filter, setFilter] = useState("");

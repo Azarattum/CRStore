@@ -10,7 +10,10 @@ import { parse } from "url";
 const config = {
   plugins: [
     sveltekit(),
-    narrowSolidPlugin({ include: /\/src\/demo\/solid/, hot: false }),
+    narrowSolidPlugin({
+      include: /\/src\/demo\/frameworks\/solid/,
+      hot: false,
+    }),
     {
       name: "vite-trpc-ws",
       async configureServer(server) {

@@ -15,7 +15,7 @@ function database<S extends CRSchema>(
   schema: S,
   params: Parameters<typeof coreDatabase>[1] = {},
 ): SolidDatabase<Schema<S>> {
-  const { store: coreStore, ...rest } = coreDatabase(schema, params);
+  const { replica, ...rest } = coreDatabase(schema, params);
 
   function createReplica<
     T,
@@ -27,10 +27,10 @@ function database<S extends CRSchema>(
     deps: D = [] as unknown as D,
   ) {
     const [data, setData] = createSignal<T[]>([]);
-    const { bind, subscribe, ...rest } = coreStore(
-      deps.map((x) => x()) as SignalValues<D>,
+    const { bind, subscribe, ...rest } = replica(
       view,
       actions,
+      deps.map((x) => x()) as SignalValues<D>,
     );
 
     createEffect(() => onCleanup(subscribe(setData)));
@@ -51,7 +51,7 @@ type SolidStore<S> = <T, A extends Actions<S>, D extends Accessor<any>[] = []>(
   deps?: D,
 ) => Accessor<T[]> & Bound<A> & Update<S>;
 
-type SolidDatabase<S> = Omit<CoreDatabase<S>, "store"> & {
+type SolidDatabase<S> = Omit<CoreDatabase<S>, "replica"> & {
   createReplica: SolidStore<S>;
 };
 
