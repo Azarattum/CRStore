@@ -1,4 +1,7 @@
-export function reactive<T extends any[], U extends any[] = []>(
+const empty: [] = [];
+const ready = (data: unknown[]) => data !== empty;
+
+function reactive<T extends any[], U extends any[] = []>(
   start: (...args: U) => (() => void) | Promise<() => void>,
   parameters: U = [] as unknown as U,
 ) {
@@ -12,7 +15,7 @@ export function reactive<T extends any[], U extends any[] = []>(
   };
 
   let stop: (() => void) | Promise<() => void> | undefined;
-  let value = [] as unknown as T;
+  let value = empty as unknown as T;
 
   function set(updated: T) {
     value = updated;
@@ -54,3 +57,5 @@ export function reactive<T extends any[], U extends any[] = []>(
 
   return { set, subscribe, bind };
 }
+
+export { reactive, ready };

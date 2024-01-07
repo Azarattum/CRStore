@@ -1,4 +1,5 @@
-import { database, groupJSON } from "../../lib";
+import { database } from "../../lib/svelte";
+import { groupJSON } from "../../lib";
 import { schema } from "./schema";
 import { trpc } from "../client";
 

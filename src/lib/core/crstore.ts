@@ -16,12 +16,9 @@ import type {
 import { affectedTables } from "../database/operations";
 import type { CRSchema } from "../database/schema";
 import { defaultPaths, init } from "../database";
+import { reactive, ready } from "./reactive";
 import type { CompiledQuery } from "kysely";
 import { queue } from "../database/queue";
-import { reactive } from "./reactive";
-
-const empty: [] = [];
-const ready = (data: unknown[]) => data !== empty;
 
 function database<T extends CRSchema>(
   schema: T,
@@ -224,12 +221,12 @@ function store<Schema, Type>(
       if (!operation) return refresh();
       return update(operation, ...args);
     },
-    then(resolve: (x: Type[]) => any, reject: (e: any) => any) {
+    then(resolve?: (x: Type[]) => any, reject?: (e: any) => any) {
       let data: Type[] = [];
       const done = subscribe((x) => (data = x));
       // It is hard to know whether the current store's state is dirty,
       //   therefore we have to explicitly refresh it
-      return refresh().then(() => (done(), resolve(data)), reject);
+      return refresh().then(() => (done(), resolve?.(data)), reject);
     },
   };
 }

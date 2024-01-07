@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { items } from "./stores";
+  import { ready } from "$lib";
 
   export let data: PageData;
-  $items = data.initial;
 
   function submit(this: HTMLFormElement) {
     const data = new FormData(this).get("data");
@@ -16,7 +16,7 @@
 </form>
 
 <ul>
-  {#each $items as item}
+  {#each ready($items) ? $items : data.ssr as item}
     <li>{item.data}</li>
   {/each}
 </ul>

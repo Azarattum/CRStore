@@ -1,5 +1,6 @@
 import { object, string } from "superstruct";
-import { crr, database, primary } from "../../lib";
+import { database } from "../../lib/svelte";
+import { crr, primary } from "../../lib";
 import { trpc } from "../client";
 
 const schema = object({
