@@ -3,6 +3,7 @@
 Conflict-free replicated svelte store. 
 
 > WARNING: Still in development! Expect breaking changes!
+> BREAKING (v0.20.0): Added support for React & Solid. For Svelte import `database` from `crstore/svelte`. Renamed `store` to `replicated`.
 >
 > BREAKING (v0.19.0): Updated `cr-sqlite` from v13 to v16. See [changelog](https://github.com/vlcn-io/cr-sqlite/releases)
 > 
@@ -42,19 +43,19 @@ const schema = object({ todos });
 
 Now you can establish a database connection with your schema:
 ```ts
-import { database } from "crstore";
+import { database } from "crstore/svelte";
 
-const { store } = database(schema);
+const { replicated } = database(schema);
 ```
 
-With the `store` function we can create arbitrary views to our database which are valid svelte stores. For example let's create a store that will have our entire `todos` table:
+With the `replicated` function we can create arbitrary views to our database which are valid svelte stores. For example let's create a store that will have our entire `todos` table:
 ```ts
-const todos = store((db) => db.selectFrom("todos").selectAll());
+const todos = replicated((db) => db.selectFrom("todos").selectAll());
 ```
 
 To mutate the data we can either call `.update` on the store or add built-in actions upon creation:
 ```ts
-const todos = store((db) => db.selectFrom("todos").selectAll(), {
+const todos = replicated((db) => db.selectFrom("todos").selectAll(), {
   // Define actions for your store
   toggle(db, id: string) {
     return db
@@ -88,7 +89,7 @@ This we dynamically react to all the changes in our database even if we make the
 
 You can provide custom handlers for your network layer upon initialization. `push` method is called when you make changes locally that need to be synchronized. `pull` is called when `crstore` wants to subscribe to any changes coming from the network. Let's say you have a `push` [tRPC mutation](https://trpc.io/docs/quickstart) and a `pull` [tRPC subscription](https://trpc.io/docs/subscriptions) then you can use them like so when connection to a database:
 ```ts
-const { store } = database(schema, {
+const { replicated } = database(schema, {
   push: trpc.push.mutate,
   pull: trpc.pull.subscribe,
 });
@@ -119,13 +120,13 @@ const app = router({
 
 When creating a `crstore` you might want it to subscribe to some other stores. For example you can have a writable `query` store and a `search` crstore. Where `search` updates every time `query` updates. To do so you can use `.with(...stores)` syntax when creating a store. All the resolved dependencies will be passed to your SELECT callback.
 ```ts
+import { database } from "crstore/svelte";
 import { writable } from "svelte/store";
-import { database } from "crstore";
 
-const { store } = database(schema);
+const { replicated } = database(schema);
 
 const query = writable("hey");
-const search = store.with(query)((db, query) => 
+const search = replicated.with(query)((db, query) => 
   db.selectFrom("todos").where("text", "=", query).selectAll()
 );
 ```
@@ -134,9 +135,9 @@ const search = store.with(query)((db, query) =>
 
 If needed you can specify custom paths to `better-sqlite3` binding, `crsqlite` extension and `crsqlite-wasm` binary. To do so, provide `path` option upon `database` initialization:
 ```ts
-import { database } from "crstore";
+import { database } from "crstore/svelte";
 
-const { store } = database(schema, {
+const { replicated } = database(schema, {
   // These are the default values:
   paths: {
     wasm: "/sqlite.wasm",
@@ -150,9 +151,9 @@ const { store } = database(schema, {
 
 If you need to manage multiple databases you can specify `name` database option. This will be used as a filename on a server or a VFS path on a client.
 ```ts
-import { database } from "crstore";
+import { database } from "crstore/svelte";
 
-const { store } = database(schema, {
+const { replicated } = database(schema, {
   name: "data/example.db"
 });
 ```
@@ -161,9 +162,9 @@ const { store } = database(schema, {
 
 `push` and `pull` capabilities rely on checking current online status. When available `navigator.onLine` is used by default. You have an option to override it by providing a custom online function.
 ```ts
-import { database } from "crstore";
+import { database } from "crstore/svelte";
 
-const { store } = database(schema, {
+const { replicated } = database(schema, {
   online: () => true // Always online
 });
 ```
@@ -199,7 +200,7 @@ console.log(data);
 ```ts
 import { groupJSON } from "crstore";
 
-const grouped = store((db) =>
+const grouped = replicated((db) =>
   db
     .selectFrom("tracks")
     .leftJoin("artists", "tracks.artist", "artists.id")
@@ -293,7 +294,7 @@ Check out the [sortable example](src/demo/sortable) for more details.
 ### Setup server side rendering
 When defining your database set `ssr` option to `true`:
 ```ts
-const { store, merge, subscribe } = database(schema, {
+const { replicated, merge, subscribe } = database(schema, {
   ssr: true,
 });
 ```
@@ -303,16 +304,22 @@ Add `+page.server.ts` file to preload your data with SvelteKit. You can call `.t
 import type { PageServerLoad } from "./$types";
 import { items } from "./stores";
 
-export const load: PageServerLoad = async () => ({ initial: await items });
+export const load: PageServerLoad = async () => ({ ssr: await items });
 ```
 
-In you `+page.ts` you can initialize your store with the `initial` value from the server.
-```ts
-import type { PageData } from "./$types";
-import { items } from "./stores";
+In your `+page.svelte` you render the server-side data until client database is ready.
+```svelte
+<script lang="ts">
+  import type { PageData } from "./$types";
+  import { items } from "./stores";
+  import { ready } from "$lib";
 
-export let data: PageData;
-$items = data.initial;
+  export let data: PageData;
+</script>
+
+{#each ready($items) ? $items : data.ssr as item}
+  <li>{item.data}</li>
+{/each}
 ```
 
 Check out the [ssr example](src/demo/ssr/) for complete implementation.
@@ -320,7 +327,7 @@ Check out the [ssr example](src/demo/ssr/) for complete implementation.
 ### Error handling
 You can add an error handler to your database connection.
 ```ts
-const { store } = database(schema, {
+const { replicated } = database(schema, {
   error: (reason) => console.log(reason),
 });
 ```

@@ -10,14 +10,14 @@ const schema = object({
 const client = trpc as any; // Fixes circular referencing
 const browser = "window" in globalThis;
 
-export const { store, merge, subscribe } = database(schema, {
+export const { replicated, merge, subscribe } = database(schema, {
   ssr: true,
   name: "data/ssr.db",
   push: browser ? client.ssr.push.mutate : undefined,
   pull: browser ? client.ssr.pull.subscribe : undefined,
 });
 
-export const items = store((db) => db.selectFrom("items").selectAll(), {
+export const items = replicated((db) => db.selectFrom("items").selectAll(), {
   add(db, data: string) {
     const id = Math.random().toString(36).slice(2);
     return db.insertInto("items").values({ id, data }).execute();

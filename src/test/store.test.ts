@@ -19,7 +19,7 @@ const schema = object({
   ),
 });
 
-const { store, close, subscribe, merge } = database(schema, {
+const { replicated, close, subscribe, merge } = database(schema, {
   name: "test.db",
   error: errored,
   ssr: true,
@@ -28,7 +28,7 @@ const { store, close, subscribe, merge } = database(schema, {
 it("stores data", async () => {
   const item = { id: "1", data: "data" };
   const spy = vi.fn();
-  const table = store((db) => db.selectFrom("test").selectAll());
+  const table = replicated((db) => db.selectFrom("test").selectAll());
   const unsubscribe = table.subscribe(spy);
 
   const spy2 = vi.fn();
@@ -56,8 +56,8 @@ it("stores data", async () => {
 });
 
 it("handles errors", async () => {
-  const table2 = store((db) => db.selectFrom("test2" as any).selectAll());
-  const table = store((db) => db.selectFrom("test").selectAll());
+  const table2 = replicated((db) => db.selectFrom("test2" as any).selectAll());
+  const table = replicated((db) => db.selectFrom("test").selectAll());
   expect(table2).rejects.toThrowError();
   expect(table).resolves.toBeTruthy();
   await delay(100);
@@ -66,7 +66,7 @@ it("handles errors", async () => {
 
 it("merges changes", async () => {
   const spy = vi.fn();
-  const table = store((db) => db.selectFrom("test").selectAll());
+  const table = replicated((db) => db.selectFrom("test").selectAll());
   const unsubscribe = table.subscribe(spy);
 
   expect(spy).toHaveBeenCalledWith([]);
@@ -100,7 +100,7 @@ it("works with stores", async () => {
   const spy = vi.fn();
 
   const query = writable("updated");
-  const searched = store.with(query)(select);
+  const searched = replicated.with(query)(select);
   const unsubscribe = searched.subscribe(spy);
 
   expect(spy).toHaveBeenCalledWith([]);
@@ -116,7 +116,7 @@ it("works with stores", async () => {
 it("unsubscribes from stores", async () => {
   const [subbed, unsubbed, executed] = [vi.fn(), vi.fn(), vi.fn()];
   const dependency = writable(1, () => (subbed(), unsubbed));
-  const target = store.with(dependency)((db, dep) => {
+  const target = replicated.with(dependency)((db, dep) => {
     executed(dep);
     return db.selectFrom("test").selectAll();
   });

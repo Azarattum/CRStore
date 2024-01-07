@@ -5,14 +5,14 @@
   import { trpc } from "../client";
   import { sql } from "kysely";
 
-  const { store, close } = database(schema, {
+  const { replicated, close } = database(schema, {
     name: "todo.db",
     push: trpc.todo.push.mutate,
     pull: trpc.todo.pull.subscribe,
   });
   onDestroy(close);
 
-  const todos = store((db) => db.selectFrom("todos").selectAll(), {
+  const todos = replicated((db) => db.selectFrom("todos").selectAll(), {
     create(db, title: string, text: string) {
       const id = [...title].map((x) => x.charCodeAt(0)).join("");
       const todo = { id, title, text, completed: false };

@@ -17,7 +17,7 @@ function database<S extends CRSchema>(
 ): SolidDatabase<Schema<S>> {
   const { store: coreStore, ...rest } = coreDatabase(schema, params);
 
-  function createStore<
+  function createReplica<
     T,
     A extends Actions<Schema<S>>,
     D extends Accessor<any>[],
@@ -39,7 +39,10 @@ function database<S extends CRSchema>(
     return Object.assign(data, rest);
   }
 
-  return { createStore: createStore as any as SolidStore<Schema<S>>, ...rest };
+  return {
+    createReplica: createReplica as any as SolidStore<Schema<S>>,
+    ...rest,
+  };
 }
 
 type SolidStore<S> = <T, A extends Actions<S>, D extends Accessor<any>[] = []>(
@@ -49,7 +52,7 @@ type SolidStore<S> = <T, A extends Actions<S>, D extends Accessor<any>[] = []>(
 ) => Accessor<T[]> & Bound<A> & Update<S>;
 
 type SolidDatabase<S> = Omit<CoreDatabase<S>, "store"> & {
-  createStore: SolidStore<S>;
+  createReplica: SolidStore<S>;
 };
 
 type SignalValues<T> = {

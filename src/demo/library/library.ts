@@ -3,13 +3,13 @@ import { groupJSON } from "../../lib";
 import { schema } from "./schema";
 import { trpc } from "../client";
 
-const { store } = database(schema, {
+const { replicated } = database(schema, {
   name: "library.db",
   push: trpc.library.push.mutate,
   pull: trpc.library.pull.subscribe,
 });
 
-const all = store(
+const all = replicated(
   (db) =>
     db
       .selectFrom("tracks")
@@ -34,21 +34,21 @@ const all = store(
   },
 );
 
-const artists = store((db) => db.selectFrom("artists").selectAll(), {
+const artists = replicated((db) => db.selectFrom("artists").selectAll(), {
   add(db, title: string) {
     const id = [...title].map((x) => x.charCodeAt(0)).join("");
     return db.insertInto("artists").values({ id, title }).execute();
   },
 });
 
-const albums = store((db) => db.selectFrom("albums").selectAll(), {
+const albums = replicated((db) => db.selectFrom("albums").selectAll(), {
   add(db, title: string) {
     const id = [...title].map((x) => x.charCodeAt(0)).join("");
     return db.insertInto("albums").values({ id, title }).execute();
   },
 });
 
-const playlists = store((db) => db.selectFrom("playlists").selectAll(), {
+const playlists = replicated((db) => db.selectFrom("playlists").selectAll(), {
   add(db, title: string) {
     const id = [...title].map((x) => x.charCodeAt(0)).join("");
     return db.insertInto("playlists").values({ id, title }).execute();
@@ -69,7 +69,7 @@ const playlists = store((db) => db.selectFrom("playlists").selectAll(), {
   },
 });
 
-const grouped = store((db) =>
+const grouped = replicated((db) =>
   db
     .selectFrom("tracks")
     .leftJoin("artists", "tracks.artist", "artists.id")
@@ -87,7 +87,7 @@ const grouped = store((db) =>
     .groupBy("album"),
 );
 
-const organized = store((db) =>
+const organized = replicated((db) =>
   db
     .selectFrom((db) =>
       db

@@ -17,7 +17,7 @@ function database<S extends CRSchema>(
   const { store: coreStore, ...rest } = coreDatabase(schema, params);
 
   function storeWith<D extends Readable<any>[]>(...deps: D) {
-    return function store<T, A extends Actions<Schema<S>>>(
+    return function <T, A extends Actions<Schema<S>>>(
       view: View<Schema<S>, T, StoresValues<D>>,
       actions?: A,
     ) {
@@ -29,7 +29,10 @@ function database<S extends CRSchema>(
     } as any as SvelteStore<Schema<S>, StoresValues<D>>;
   }
 
-  return { store: Object.assign(storeWith(), { with: storeWith }), ...rest };
+  return {
+    replicated: Object.assign(storeWith(), { with: storeWith }),
+    ...rest,
+  };
 }
 
 type SvelteStore<S, D extends any[] = []> = <T, A extends Actions<S>>(
@@ -38,7 +41,7 @@ type SvelteStore<S, D extends any[] = []> = <T, A extends Actions<S>>(
 ) => Readable<T[]> & PromiseLike<T[]> & Bound<A> & Update<S>;
 
 type SvelteDatabase<S> = Omit<CoreDatabase<S>, "store"> & {
-  store: SvelteStore<S> & {
+  replicated: SvelteStore<S> & {
     with<D extends Readable<any>[]>(
       ...stores: D
     ): SvelteStore<S, StoresValues<D>>;

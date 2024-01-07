@@ -11,11 +11,11 @@ crr(items);
 const schema = object({ items });
 
 // ================ Connect to DB ================
-const { createStore } = database(schema, { name: "react.db" });
+const { createReplica } = database(schema, { name: "react.db" });
 
 export const Component = () => {
   const [filter, setFilter] = createSignal("");
-  const items = createStore(
+  const items = createReplica(
     (db, filter) =>
       db
         .selectFrom("items")

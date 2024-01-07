@@ -7,7 +7,7 @@
   import { schema } from "./schema";
   import { trpc } from "../client";
 
-  const { store, close } = database(schema, {
+  const { replicated, close } = database(schema, {
     name: "sortable.db",
     push: trpc.sortable.push.mutate,
     pull: trpc.sortable.pull.subscribe,
@@ -20,7 +20,7 @@
       return a & a;
     }, 0);
 
-  const lists = store(
+  const lists = replicated(
     (db) =>
       db
         .selectFrom((qb) =>

@@ -11,11 +11,11 @@ crr(items);
 const schema = object({ items });
 
 // ================ Connect to DB ================
-const { useStore } = database(schema, { name: "react.db" });
+const { useReplica } = database(schema, { name: "react.db" });
 
 export const Component: React.FC = () => {
   const [filter, setFilter] = useState("");
-  const items = useStore(
+  const items = useReplica(
     (db, filter) =>
       db
         .selectFrom("items")

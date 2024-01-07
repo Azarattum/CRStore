@@ -3,7 +3,9 @@
     bulk: primary(object({ id: number() }), "id"),
   });
 
-  const { store, update } = database(schema, { name: "bulk.db" });
+  const { replicated, update } = database(schema, {
+    name: "bulk.db",
+  });
 
   update((db) =>
     db
@@ -21,7 +23,7 @@
 
   export let i: number;
 
-  const data = store((db) => db.selectFrom("bulk").selectAll());
+  const data = replicated((db) => db.selectFrom("bulk").selectAll());
 </script>
 
 <span>
