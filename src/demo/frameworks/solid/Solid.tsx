@@ -1,8 +1,13 @@
 import { createSignal, Index } from "solid-js";
 import { database } from "$lib/solid";
+import { trpc } from "../../client";
 import { schema } from "../schema";
 
-const { createReplica } = database(schema, { name: "frameworks.db" });
+const { createReplica } = database(schema, {
+  name: "frameworks.db",
+  push: trpc.frameworks.push.mutate,
+  pull: trpc.frameworks.pull.subscribe,
+});
 
 export const Component = () => {
   const [filter, setFilter] = createSignal("");

@@ -1,3 +1,4 @@
+import { routes as frameworksRoutes } from "./frameworks/routes";
 import { routes as sortableRoutes } from "./sortable/routes";
 import { routes as libraryRoutes } from "./library/routes";
 import { routes as todoRoutes } from "./todo/routes";
@@ -9,6 +10,7 @@ const app = router({
   todo: todoRoutes,
   library: libraryRoutes,
   sortable: sortableRoutes,
+  frameworks: frameworksRoutes,
 });
 
 export { app as router };

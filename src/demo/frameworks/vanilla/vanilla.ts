@@ -1,8 +1,13 @@
+import { trpc } from "../../client";
 import { schema } from "../schema";
 import { database } from "$lib";
 
 export function load() {
-  const { replica } = database(schema, { name: "frameworks.db" });
+  const { replica } = database(schema, {
+    name: "frameworks.db",
+    push: trpc.frameworks.push.mutate,
+    pull: trpc.frameworks.pull.subscribe,
+  });
 
   const items = replica(
     (db, filter) =>

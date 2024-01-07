@@ -1,9 +1,14 @@
 <script lang="ts">
   import { writable } from "svelte/store";
   import { database } from "$lib/svelte";
+  import { trpc } from "../../client";
   import { schema } from "../schema";
 
-  const { replicated } = database(schema, { name: "frameworks.db" });
+  const { replicated } = database(schema, {
+    name: "frameworks.db",
+    push: trpc.frameworks.push.mutate,
+    pull: trpc.frameworks.pull.subscribe,
+  });
 
   const filter = writable("");
   const items = replicated.with(filter)(

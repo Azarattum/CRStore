@@ -1,8 +1,13 @@
 import React, { useCallback, useState } from "react";
 import { database } from "$lib/react";
+import { trpc } from "../../client";
 import { schema } from "../schema";
 
-const { useReplica } = database(schema, { name: "frameworks.db" });
+const { useReplica } = database(schema, {
+  name: "frameworks.db",
+  push: trpc.frameworks.push.mutate,
+  pull: trpc.frameworks.pull.subscribe,
+});
 
 export const Component: React.FC = () => {
   const [filter, setFilter] = useState("");

@@ -1,5 +1,5 @@
-import { crr, primary } from "$lib";
 import { object, string } from "superstruct";
+import { crr, primary } from "../../lib";
 
 const items = object({ text: string() });
 primary(items, "text");
