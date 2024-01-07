@@ -1,9 +1,9 @@
 import type {
-  Actions,
-  Bound,
   CoreDatabase,
-  Operation,
+  Actions,
   Schema,
+  Update,
+  Bound,
   View,
 } from "./core/types";
 import { database as coreDatabase } from "./core/crstore";
@@ -26,6 +26,7 @@ function database<S extends CRSchema>(
       () => coreStore(deps, view, actions),
       [],
     );
+
     useEffect(() => subscribe(setData), []);
     useEffect(() => bind(deps), deps);
 
@@ -40,13 +41,7 @@ type ReactStore<S> = <T, A extends Actions<S>, D extends any[] = []>(
   view: View<S, T, D>,
   actions?: A,
   deps?: D,
-) => T[] &
-  Bound<A> & {
-    update<T extends any[], R>(
-      operation?: Operation<T, R, S>,
-      ...args: T
-    ): Promise<R>;
-  };
+) => T[] & Bound<A> & Update<S>;
 
 type ReactDatabase<S> = Omit<CoreDatabase<S>, "store"> & {
   useStore: ReactStore<S>;

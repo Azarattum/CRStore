@@ -83,6 +83,13 @@ type View<Schema, Type, Deps extends any[] = []> = (
   ..._: Deps
 ) => Selectable<Type[]>;
 
+type Update<S> = {
+  update<T extends any[], R>(
+    operation?: Operation<T, R, S>,
+    ...args: T
+  ): Promise<R>;
+};
+
 type Context<Schema> = {
   update<T extends any[], R>(
     operation: Operation<T, R, Schema>,
@@ -101,15 +108,12 @@ type CoreStore<S> = <T, A extends Actions<S>, D extends any[]>(
   view: View<S, T, D>,
   actions?: A,
 ) => PromiseLike<T[]> &
-  Bound<A> & {
+  Bound<A> &
+  Update<S> & {
     subscribe: (fn: (value: T[]) => void) => () => void;
     bind: (
-      parameters: D | ((set: (updated: D) => void) => (() => void) | undefined),
+      parameters: D | ((set: (updated: D) => void) => (() => void) | void),
     ) => void;
-    update<T extends any[], R>(
-      operation?: Operation<T, R, S>,
-      ...args: T
-    ): Promise<R>;
   };
 
 // === DATABASE ===
@@ -169,6 +173,7 @@ export type {
   Actions,
   Context,
   Updater,
+  Update,
   Change,
   Kysely,
   Schema,

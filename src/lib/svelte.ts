@@ -1,9 +1,9 @@
 import type {
-  Actions,
-  Bound,
   CoreDatabase,
-  Operation,
+  Actions,
   Schema,
+  Update,
+  Bound,
   View,
 } from "./core/types";
 import { derived, get, type Readable, type StoresValues } from "svelte/store";
@@ -35,14 +35,7 @@ function database<S extends CRSchema>(
 type SvelteStore<S, D extends any[] = []> = <T, A extends Actions<S>>(
   view: View<S, T, D>,
   actions?: A,
-) => Readable<T[]> &
-  PromiseLike<T[]> &
-  Bound<A> & {
-    update<T extends any[], R>(
-      operation?: Operation<T, R, S>,
-      ...args: T
-    ): Promise<R>;
-  };
+) => Readable<T[]> & PromiseLike<T[]> & Bound<A> & Update<S>;
 
 type SvelteDatabase<S> = Omit<CoreDatabase<S>, "store"> & {
   store: SvelteStore<S> & {
