@@ -33,6 +33,7 @@ export const Component = () => {
 
   return (
     <>
+      <h1>Solid</h1>
       <ol>
         <Index each={items()}>{(x) => <li>{x().text}</li>}</Index>
       </ol>

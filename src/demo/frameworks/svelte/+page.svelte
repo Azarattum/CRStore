@@ -31,6 +31,7 @@
   }
 </script>
 
+<h1>Svelte</h1>
 <ol>
   {#each $items as x}
     <li>{x.text}</li>

@@ -3,6 +3,7 @@
 Conflict-free replicated svelte store. 
 
 > WARNING: Still in development! Expect breaking changes!
+>
 > BREAKING (v0.20.0): Added support for React & Solid. For Svelte import `database` from `crstore/svelte`. Renamed `store` to `replicated`.
 >
 > BREAKING (v0.19.0): Updated `cr-sqlite` from v13 to v16. See [changelog](https://github.com/vlcn-io/cr-sqlite/releases)

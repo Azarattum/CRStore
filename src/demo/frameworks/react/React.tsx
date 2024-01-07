@@ -34,6 +34,7 @@ export const Component: React.FC = () => {
 
   return (
     <React.StrictMode>
+      <h1>React</h1>
       <ol>
         {items.map((x) => (
           <li key={x.text}>{x.text}</li>
