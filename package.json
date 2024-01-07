@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "description": "Conflict-free replicated svelte store.",
   "license": "MIT",
   "repository": {
@@ -84,6 +84,10 @@
     "./react": {
       "types": "./dist/react.d.ts",
       "default": "./dist/react.js"
+    },
+    "./solid": {
+      "types": "./dist/solid.d.ts",
+      "default": "./dist/solid.js"
     },
     "./runtime": {
       "types": "./runtime/index.d.ts",
