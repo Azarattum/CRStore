@@ -49,7 +49,7 @@ it("stores data", async () => {
   unsubscribe();
 
   expect(spy2).toHaveBeenCalledWith(
-    expect.arrayContaining(["data", 1, "test", "data"]),
+    expect.stringContaining(",data,AQsBMQ==,test,'data,1,1,1,0"),
     undefined,
   );
   unsubscribe2();

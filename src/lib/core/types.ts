@@ -14,7 +14,7 @@ import type {
 // === UTILITIES ===
 
 /** A set of changes that is encoded to be used over the wire */
-type EncodedChanges = [string, ...(string | number | null)[]] | [];
+type EncodedChanges = string;
 type Change = {
   /** Client's unique identifier */
   site_id: Uint8Array;
@@ -25,7 +25,7 @@ type Change = {
   /** Table name */
   table: string;
   /** Value */
-  val: string | number | Uint8Array | null;
+  val: string | number | Uint8Array | bigint | null;
   /** Lamport clock of the database for this change (used to track whether or not a client has seen changes from another database) */
   db_version: number;
   /** Lamport clock of the column for this change (used for merging) */

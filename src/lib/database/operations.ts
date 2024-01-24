@@ -1,6 +1,27 @@
 import type { Operation, Node, Change, EncodedChanges } from "../core/types";
+import { encode as genericEncode, decode as genericDecode } from "./encoder";
 import type { Kysely } from "kysely";
 import { sql } from "kysely";
+
+const schema = [
+  ["site_id", "object"],
+  ["cid", "string"],
+  ["pk", "object"],
+  ["table", "string"],
+  ["val", "any"],
+  ["db_version", "number"],
+  ["col_version", "number"],
+  ["cl", "number"],
+  ["seq", "number"],
+] as const;
+
+function encode(changes: Change[]): EncodedChanges {
+  return genericEncode(changes, schema);
+}
+
+function decode(encoded: EncodedChanges) {
+  return genericDecode(encoded, schema);
+}
 
 function toBytes(data: string) {
   return Uint8Array.from([...data].map((x) => x.charCodeAt(0)));
@@ -8,47 +29,6 @@ function toBytes(data: string) {
 
 function fromBytes(data: Uint8Array) {
   return String.fromCharCode(...data);
-}
-
-function encode(changes: Change[]): EncodedChanges {
-  if (!changes.length) return [];
-  return [
-    fromBytes(changes[0].site_id),
-    ...changes.flatMap((x) => [
-      x.cid,
-      fromBytes(x.pk),
-      x.table,
-      JSON.stringify(x.val),
-      x.db_version,
-      x.col_version,
-      x.cl,
-      x.seq,
-    ]),
-  ];
-}
-
-function decode(encoded: EncodedChanges) {
-  if (!encoded[0]) return [];
-  const client = toBytes(encoded[0]);
-  const changes: Change[] = [];
-  for (let i = 1; i < encoded.length; i += 8) {
-    const data = JSON.parse(encoded[i + 3] as string);
-    changes.push({
-      site_id: client,
-      cid: encoded[i] as string,
-      pk: toBytes(encoded[i + 1] as string) as Uint8Array,
-      table: encoded[i + 2] as string,
-      val:
-        data && typeof data === "object"
-          ? new Uint8Array(Object.values(data))
-          : data,
-      db_version: encoded[i + 4] as number,
-      col_version: encoded[i + 5] as number,
-      cl: encoded[i + 6] as number,
-      seq: encoded[i + 7] as number,
-    });
-  }
-  return changes;
 }
 
 function selectVersion(this: Kysely<any>) {
@@ -157,10 +137,8 @@ function finalize(this: Kysely<any>) {
 }
 
 function affectedTables(target: Node | EncodedChanges): string[] {
-  if (Array.isArray(target)) {
-    const tables = new Set<string>();
-    for (let i = 3; i < target.length; i += 8) tables.add(target[i] as string);
-    return [...tables];
+  if (typeof target === "string") {
+    return [...new Set(decode(target).map(x => x.table))];
   }
   if (target.kind === "TableNode") {
     return [target.table.identifier.name];

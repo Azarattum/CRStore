@@ -84,7 +84,7 @@ function database<T extends CRSchema>(
           .execute();
         if (changes.length) listener(changes);
       });
-    } else listener([]);
+    } else listener("");
 
     return () => tables.forEach((x) => listeners.get(x)?.delete(listener));
   }
@@ -143,8 +143,8 @@ function database<T extends CRSchema>(
     const tables = affectedTables(changes);
 
     listeners.get("*")?.forEach((x) => callbacks.add(x));
-    tables.forEach(
-      (table) => listeners.get(table)?.forEach((x) => callbacks.add(x)),
+    tables.forEach((table) =>
+      listeners.get(table)?.forEach((x) => callbacks.add(x)),
     );
 
     const promises = [...callbacks].map((x) => x(changes, sender));
