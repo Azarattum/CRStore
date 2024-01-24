@@ -115,11 +115,13 @@ it("encodes and decodes", () => {
   ];
 
   const sampleEncoded =
-    `*%o2eSRXb/RVy7EEBPfVP3Mw==,order,ASFM4IsM,pla,,yback,` +
-    `&AQID*$78,2*%1,0,playlist*"ASFCMzGo*"library,+-1*!1,` +
-    `3,track,?1,4,date,^1704614751,5,order,'ZI,` +
-    `2,6,playback* AQwQo2eSRXb/RVy7EEBPfVP3Mw==* devices` +
-    `,!,4,7,progress,+0.00700311693548387,79,10,0`;
+    `*2o2eSRXb/RVy7EEBPfVP3Mw==,order,ASFM` +
+    `4IsM,pla,,yback,&AQID*178,2*21,0,play` +
+    `list*/ASFCMzGo*/library,+-1*.1,3,trac` +
+    `k,?1,4,date,^1704614751,5,order,'ZI,2` +
+    `,6,playback*-AQwQo2eSRXb/RVy7EEBPfVP3` +
+    `Mw==*-devices,!,4,7,progress,+0.00700` +
+    `311693548387,79,10,0`;
 
   expect(encode(samplePlain, schema)).toBe(sampleEncoded);
   expect(decode(sampleEncoded, schema)).toEqual(samplePlain);
@@ -131,7 +133,7 @@ it("escapes split characters", () => {
     ["other", "string"],
   ] as const;
   expect(encode([{ test: ",,,", other: "***" }], schema)).toBe(
-    ",,,,,,,,******"
+    ",,,,,,,,******",
   );
   expect(decode(",,,,,,,,******", schema)).toEqual([
     { test: ",,,", other: "***" },
@@ -147,8 +149,8 @@ it("compacts repeating sequences", () => {
     { repeated: "42" },
   ];
 
-  expect(encode(repeated, schema)).toBe("*!+42,'42");
-  expect(decode("*!+42,'42", schema)).toEqual(repeated);
+  expect(encode(repeated, schema)).toBe("*.+42,'42");
+  expect(decode("*.+42,'42", schema)).toEqual(repeated);
 });
 
 it("handles empty data", () => {
@@ -174,9 +176,9 @@ it("handles null, undefined and empty values", () => {
       { id: 5, name: false },
       { id: 6, name: new Uint8Array([]) },
     ],
-    schema
+    schema,
   );
-  expect(encoded).toBe(",1,',2* !,3,4,+0,5,?0,6,&");
+  expect(encoded).toBe(",1,',2*-!,3,4,+0,5,?0,6,&");
 
   const decoded = decode(encoded, schema);
   expect(decoded).toEqual([

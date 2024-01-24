@@ -15,7 +15,7 @@ const types = {
 
 const encoders = {
   any: (x: any): string =>
-    typeof x in types && x != null
+    (typeof x) in types && x != null
       ? types[typeof x as keyof typeof types] +
           encoders[typeof x as keyof typeof encoders]?.(x as never) ||
         x.toString()
@@ -30,7 +30,7 @@ const encoders = {
 const decoders = {
   any: (x: string): Uint8Array | null | number | string | boolean | bigint =>
     decoders[types[x[0] as keyof typeof types] as keyof typeof decoders]?.(
-      x.slice(1)
+      x.slice(1),
     ),
   object: (x: string) =>
     Uint8Array.from([...atob(x)].map((x) => x.charCodeAt(0))),
@@ -43,7 +43,7 @@ const decoders = {
 
 export function encode<TSchema extends Schema>(
   data: FromSchema<TSchema>[],
-  schema: TSchema
+  schema: TSchema,
 ) {
   const entries: [string, number][] = [];
   const last: Record<string, any> = {};
@@ -62,7 +62,7 @@ export function encode<TSchema extends Schema>(
   return entries
     .map(
       ([data, count]) =>
-        (count > 1 ? "*" + String.fromCharCode(count + 30) : ",") + data
+        (count > 1 ? "*" + String.fromCharCode(count + 43) : ",") + data,
     )
     .join("");
 }
@@ -83,7 +83,7 @@ export function decode<TSchema extends Schema>(data: string, schema: TSchema) {
     const single = buffer[0] === ",";
     items.push([
       buffer.slice(single ? 1 : 2),
-      single ? 1 : buffer.charCodeAt(1) - 30,
+      single ? 1 : buffer.charCodeAt(1) - 43,
     ]);
     position = next;
   }
