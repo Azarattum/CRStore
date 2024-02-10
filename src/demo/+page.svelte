@@ -9,5 +9,5 @@
   <li><a href="frameworks/react">React</a></li>
   <li><a href="frameworks/solid">Solid</a></li>
   <li><a href="frameworks/svelte">Svelte</a></li>
-  <li><a href="frameworks/svelte">Vanilla</a></li>
+  <li><a href="frameworks/vanilla">Vanilla</a></li>
 </ul>
