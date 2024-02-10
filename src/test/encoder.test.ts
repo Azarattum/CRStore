@@ -1,4 +1,4 @@
-import { decode, encode } from "../lib/database/encoder";
+import { chunk, decode, encode } from "../lib/database/encoder";
 import { expect, it } from "vitest";
 
 it("encodes and decodes", () => {
@@ -189,4 +189,51 @@ it("handles null, undefined and empty values", () => {
     { id: 5, name: false },
     { id: 6, name: new Uint8Array([]) },
   ]);
+});
+
+it("chunks values", () => {
+  const v = (version: number) => ({ db_version: version });
+  const vs = (version: number, length: number) =>
+    Array.from<ReturnType<typeof v>>({ length }).fill(v(version));
+
+  expect(chunk([v(1), v(2), v(3), v(4), v(5), v(6)], { size: 2 })).toEqual([
+    [v(1), v(2)],
+    [v(3), v(4)],
+    [v(5), v(6)],
+  ]);
+
+  expect(
+    chunk([v(3), ...vs(5, 5), v(8), v(10), v(11), v(11)], { size: 5 }),
+  ).toEqual([[v(3)], vs(5, 5), [v(8), v(10), v(11), v(11)]]);
+
+  expect(
+    chunk([v(3), v(3), v(8), ...vs(5, 5), v(10), v(11), v(11)], { size: 7 }),
+  ).toEqual([
+    [v(3), v(3), v(8)],
+    [...vs(5, 5), v(10)],
+    [v(11), v(11)],
+  ]);
+
+  expect(chunk([v(1), v(2), v(3)], { size: 1 })).toEqual([
+    [v(1)],
+    [v(2)],
+    [v(3)],
+  ]);
+
+  expect(
+    chunk([v(3), ...vs(5, 6), v(8), v(10), v(11), v(11)], { size: 5 }),
+  ).toEqual([[v(3)], vs(5, 5), [v(5), v(8), v(10), v(11), v(11)]]);
+
+  expect(
+    chunk([v(3), ...vs(5, 6), v(8), v(10), v(11), v(11)], {
+      strict: false,
+      size: 5,
+    }),
+  ).toEqual([[v(3)], vs(5, 6), [v(8), v(10), v(11), v(11)]]);
+});
+
+it("does not chunks small changesets", () => {
+  const v = (version: number) => ({ db_version: version });
+  const changes = [v(1), v(2), v(3), v(4)];
+  expect(chunk(changes, { size: 5 })[0]).toBe(changes);
 });

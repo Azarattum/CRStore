@@ -107,6 +107,33 @@ export function decode<TSchema extends Schema>(data: string, schema: TSchema) {
   return decoded;
 }
 
+export function chunk<T extends { db_version: number }>(
+  items: T[],
+  { size = 1000, strict = true } = {},
+) {
+  if (items.length <= size) return [items];
+  const chunks: T[][] = [];
+
+  for (let offset = 0; offset < items.length; ) {
+    const firstVersion = items[offset].db_version;
+    const edgeVersion = items[offset + size]?.db_version;
+    const predicate = (x: T) => x.db_version === edgeVersion;
+
+    let edgeIndex = Infinity;
+    if (firstVersion === edgeVersion) {
+      if (strict) edgeIndex = offset + size;
+      else edgeIndex = items.findLastIndex(predicate, offset + size) + 1;
+    } else if (edgeVersion != null) {
+      edgeIndex = items.findIndex(predicate, offset);
+    }
+
+    chunks.push(items.slice(offset, edgeIndex));
+    offset = edgeIndex;
+  }
+
+  return chunks;
+}
+
 type Types = {
   object: Uint8Array;
   boolean: boolean;
