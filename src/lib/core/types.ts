@@ -133,14 +133,20 @@ interface Connection<S> extends Kysely<S> {
   updateVersion(version?: number): Executable<any>;
   insertChanges(changes: EncodedChanges): Executable<void>;
   selectClient(): Executable<string>;
-  changesSince(
-    since: number,
-    filter?: string | null,
-  ): Executable<EncodedChanges>;
   applyOperation<T extends any[], R>(
     operation: Operation<T, R, S>,
     ...args: T
   ): Executable<{ result: Awaited<R>; changes: EncodedChanges }>;
+
+  changesSince(since: number): Executable<EncodedChanges>;
+  changesSince(
+    since: number,
+    options: { filter?: string | null; chunk?: false },
+  ): Executable<EncodedChanges>;
+  changesSince(
+    since: number,
+    options: { filter?: string | null; chunk: true },
+  ): Executable<EncodedChanges[]>;
 }
 
 interface CoreDatabase<S> {

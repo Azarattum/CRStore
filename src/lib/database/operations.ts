@@ -1,5 +1,9 @@
 import type { Operation, Node, Change, EncodedChanges } from "../core/types";
-import { encode as genericEncode, decode as genericDecode } from "./encoder";
+import {
+  encode as genericEncode,
+  decode as genericDecode,
+  chunk,
+} from "./encoder";
 import type { Kysely } from "kysely";
 import { sql } from "kysely";
 
@@ -60,7 +64,10 @@ function selectClient(this: Kysely<any>) {
 function changesSince(
   this: Kysely<any>,
   since: number,
-  filter?: string | null,
+  {
+    filter = undefined as string | number | undefined,
+    chunk: areChunked = false,
+  } = {},
 ) {
   let query = this.selectFrom("crsql_changes")
     // Overwrite `site_id` with the local one
@@ -87,14 +94,24 @@ function changesSince(
     .$castTo<Change>();
 
   return {
-    execute: () => query.execute().then(encode),
+    execute: () =>
+      query
+        .execute()
+        .then((changes) =>
+          areChunked
+            ? chunk(changes, { strict: false }).map(encode)
+            : encode(changes),
+        ),
   };
 }
 
 function insertChanges(this: Kysely<any>, changes: EncodedChanges) {
   const run = async (db: typeof this) => {
     if (!changes.length) return;
-    await db.insertInto("crsql_changes").values(decode(changes)).execute();
+    const inserts = chunk(decode(changes)).map((changeset) =>
+      db.insertInto("crsql_changes").values(changeset).execute(),
+    );
+    await Promise.all(inserts);
     await updateVersion.bind(db)().execute();
   };
   return {
@@ -138,7 +155,7 @@ function finalize(this: Kysely<any>) {
 
 function affectedTables(target: Node | EncodedChanges): string[] {
   if (typeof target === "string") {
-    return [...new Set(decode(target).map(x => x.table))];
+    return [...new Set(decode(target).map((x) => x.table))];
   }
   if (target.kind === "TableNode") {
     return [target.table.identifier.name];

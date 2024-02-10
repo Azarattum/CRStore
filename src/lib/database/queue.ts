@@ -27,7 +27,9 @@ function queue<S>(
               const rows = await query(trx).catch((x) => ({ [error]: x }));
               result.set(id, rows);
             }
-            trigger?.(await changesSince.bind(trx)(current).execute());
+            trigger?.(
+              (await changesSince.bind(trx)(current).execute()) as string,
+            );
           })
           .catch((reason) => {
             if (String(reason).includes("driver has already been destroyed")) {

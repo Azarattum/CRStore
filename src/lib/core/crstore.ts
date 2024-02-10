@@ -80,9 +80,12 @@ function database<T extends CRSchema>(
     if (options) {
       connection.then(async (db) => {
         const changes = await db
-          .changesSince(options.version, options.client)
+          .changesSince(options.version, {
+            filter: options.client,
+            chunk: true,
+          })
           .execute();
-        if (changes.length) listener(changes);
+        if (changes.length) changes.forEach((x) => listener(x));
       });
     } else listener("");
 
@@ -96,8 +99,11 @@ function database<T extends CRSchema>(
     const { current, synced } = await db.selectVersion().execute();
     if (current <= synced) return;
 
-    const changes = await db.changesSince(synced, null).execute();
-    await remotePush(changes);
+    const changes = await db
+      .changesSince(synced, { filter: null, chunk: true })
+      .execute();
+
+    await Promise.all(changes.map(remotePush));
     await db.updateVersion(current).execute();
   }
 
