@@ -31,8 +31,8 @@ async function init<T extends CRSchema>(
   type DB = Schema<T>;
   if (connections.has(file)) return connections.get(file) as Connection<DB>;
 
-  const { database, browser } = await load(file, paths);
-  const Dialect = browser ? CRDialect : SqliteDialect;
+  const { database, env } = await load(file, paths);
+  const Dialect = env === "browser" ? CRDialect : SqliteDialect;
   const kysely = new Kysely<DB>({
     dialect: new Dialect({ database }),
     plugins: [new JSONPlugin()],

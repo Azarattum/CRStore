@@ -59,8 +59,9 @@ it("stores data", async () => {
 it("handles errors", async () => {
   const table2 = replicated((db) => db.selectFrom("test2" as any).selectAll());
   const table = replicated((db) => db.selectFrom("test").selectAll());
-  expect(table2).rejects.toThrowError();
-  expect(table).resolves.toBeTruthy();
+
+  expect(table2.then()).rejects.toThrowError();
+  expect(table.then()).resolves.toBeTruthy();
   await delay(100);
   expect(errored).toHaveBeenCalled();
 });

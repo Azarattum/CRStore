@@ -232,7 +232,7 @@ function store<Schema, Type>(
       if (!operation) return refresh();
       return update(operation, ...args);
     },
-    then(resolve?: (x: Type[]) => any, reject?: (e: any) => any) {
+    then(resolve: (x: Type[]) => any = (x) => x, reject?: (e: any) => any) {
       let data: Type[] = [];
       const done = subscribe((x) => (data = x));
       // It is hard to know whether the current store's state is dirty,

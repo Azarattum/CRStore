@@ -1,6 +1,6 @@
 {
   "name": "crstore",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Conflict-free replicated store.",
   "license": "MIT",
   "repository": {
@@ -94,7 +94,8 @@
     },
     "./runtime": {
       "types": "./runtime/index.d.ts",
-      "node": "./runtime/native.js",
+      "bun": "./runtime/bun.js",
+      "node": "./runtime/node.js",
       "default": "./runtime/browser.js"
     }
   },
