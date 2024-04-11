@@ -63,15 +63,16 @@ const todos = replicated((db) => db.selectFrom("todos").selectAll(), {
     return db
       .updateTable("todos")
       .set({ completed: sql`NOT(completed)` })
-      .where("id", "=", id);
+      .where("id", "=", id)
+      .execute();
   },
   remove(db, id: string) {
-    return db.deleteFrom("todos").where("id", "=", id);
+    return db.deleteFrom("todos").where("id", "=", id).execute();
   },
 });
 
 // Call an update manually
-todos.update((db) => db.insertInto("todos").values({ ... }));
+todos.update((db) => db.insertInto("todos").values({ ... }).execute());
 // Call an action
 todos.toggle("id");
 ```
