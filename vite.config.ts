@@ -43,7 +43,9 @@ const config = {
       {
         find: "crstore/runtime",
         customResolver: (_0: any, _1: any, { ssr }: { ssr?: boolean }) =>
-          ssr ? resolve("./runtime/server.js") : resolve("./runtime/browser.js"),
+          ssr
+            ? resolve("./runtime/server.js")
+            : resolve("./runtime/browser.js"),
       } as any,
     ],
   },

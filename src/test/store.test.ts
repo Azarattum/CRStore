@@ -129,7 +129,7 @@ it("unsubscribes from stores", async () => {
   expect(unsubbed).toHaveBeenCalledTimes(1);
   expect(subbed).toHaveBeenCalledTimes(1);
 
-  const stop = target.subscribe(() => { });
+  const stop = target.subscribe(() => {});
   await delay(50);
 
   expect(executed).toHaveBeenCalledTimes(1);
