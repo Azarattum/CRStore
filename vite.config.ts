@@ -29,6 +29,13 @@ const config = {
         });
         applyWSSHandler({ wss, router });
       },
+      async closeBundle() {
+        await (await import("./src/demo/ssr/stores")).close();
+        await (await import("./src/demo/todo/routes")).close();
+        await (await import("./src/demo/library/routes")).close();
+        await (await import("./src/demo/sortable/routes")).close();
+        await (await import("./src/demo/frameworks/routes")).close();
+      },
     },
   ],
   resolve: {

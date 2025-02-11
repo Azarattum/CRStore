@@ -6,7 +6,7 @@ import type {
   Bound,
   View,
 } from "./core/types";
-import { derived, get, type Readable, type StoresValues } from "svelte/store";
+import { derived, get, type Readable } from "svelte/store";
 import { database as coreDatabase } from "./core/crstore";
 import type { CRSchema } from "./database/schema";
 
@@ -34,6 +34,11 @@ function database<S extends CRSchema>(
     ...rest,
   };
 }
+
+type StoresValues<T> =
+  T extends Readable<infer U>
+    ? U
+    : { [K in keyof T]: T[K] extends Readable<infer U> ? U : never };
 
 type SvelteStore<S, D extends any[] = []> = <T, A extends Actions<S>>(
   view: View<S, T, D>,

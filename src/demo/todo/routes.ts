@@ -4,7 +4,7 @@ import { router, procedure } from "../trpc";
 import { database } from "../../lib";
 import { schema } from "./schema";
 
-const { subscribe, merge } = database(schema, { name: "data/todo.db" });
+const { subscribe, merge, close } = database(schema, { name: "data/todo.db" });
 
 const routes = router({
   push: procedure.input(any()).mutation(({ input }) => merge(input)),
@@ -15,4 +15,4 @@ const routes = router({
     ),
 });
 
-export { routes };
+export { routes, close };

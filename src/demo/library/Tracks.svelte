@@ -8,10 +8,10 @@
 </script>
 
 <table>
-  <thead>
-    <th>Artist</th><th>Title</th><th>Album</th>
-  </thead>
   <tbody>
+    <tr>
+      <th>Artist</th><th>Title</th><th>Album</th>
+    </tr>
     {#each tracks as track (track.id)}
       <tr>
         <td>{track.artist || "-"}</td>

@@ -10,7 +10,7 @@ const schema = object({
 const client = trpc as any; // Fixes circular referencing
 const browser = "window" in globalThis;
 
-export const { replicated, merge, subscribe } = database(schema, {
+export const { replicated, merge, subscribe, close } = database(schema, {
   ssr: true,
   name: "data/ssr.db",
   push: browser ? client.ssr.push.mutate : undefined,

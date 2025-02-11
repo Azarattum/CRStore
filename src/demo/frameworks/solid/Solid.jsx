@@ -18,7 +18,7 @@ export const Component = () => {
         .where("text", "like", filter + "%")
         .selectAll(),
     {
-      create(db, text ) {
+      create(db, text) {
         return db.insertInto("items").values({ text }).execute();
       },
     },
@@ -31,9 +31,13 @@ export const Component = () => {
       <ol>
         <Index each={items()}>{(x) => <li>{x().text}</li>}</Index>
       </ol>
-      <input type="text" placeholder="Create" onKeyDown={(e) => {
-         if (e.code === "Enter") items.create(e.currentTarget.value);
-      }} />
+      <input
+        type="text"
+        placeholder="Create"
+        onKeyDown={(e) => {
+          if (e.code === "Enter") items.create(e.currentTarget.value);
+        }}
+      />
       <input
         type="text"
         placeholder="Filter"

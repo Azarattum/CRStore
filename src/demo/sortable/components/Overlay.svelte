@@ -88,7 +88,8 @@
 </script>
 
 <aside>
-  <iframe bind:this={frame} title="Overlay" frameborder="0" scrolling="no" />
+  <iframe bind:this={frame} title="Overlay" frameborder="0" scrolling="no">
+  </iframe>
 </aside>
 
 <style>
