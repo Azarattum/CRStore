@@ -129,7 +129,7 @@ it("unsubscribes from stores", async () => {
   expect(unsubbed).toHaveBeenCalledTimes(1);
   expect(subbed).toHaveBeenCalledTimes(1);
 
-  const stop = target.subscribe(() => {});
+  const stop = target.subscribe(() => { });
   await delay(50);
 
   expect(executed).toHaveBeenCalledTimes(1);
@@ -197,6 +197,8 @@ it("chunks changesets sent to network", async () => {
 });
 
 afterAll(async () => {
-  close();
+  await close();
   await rm("./test.db");
+  await rm("./test.db-shm", { force: true });
+  await rm("./test.db-wal", { force: true });
 });

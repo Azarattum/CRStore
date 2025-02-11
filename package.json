@@ -65,6 +65,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@types/bun": "^1.2.2",
     "@vlcn.io/crsqlite": "0.16.3",
     "@vlcn.io/crsqlite-wasm": "0.16.0",
     "better-sqlite3": "^11.8.1",
@@ -94,8 +95,7 @@
     },
     "./runtime": {
       "types": "./runtime/index.d.ts",
-      "bun": "./runtime/bun.js",
-      "node": "./runtime/node.js",
+      "node": "./runtime/server.js",
       "default": "./runtime/browser.js"
     }
   },

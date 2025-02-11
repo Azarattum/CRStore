@@ -1,6 +1,7 @@
 import { extensionPath } from "@vlcn.io/crsqlite";
-import SQLite from "bun:sqlite";
 import { platform } from "os";
+
+let isSQLiteUnchanged = true;
 
 /**
  * @param {string} file
@@ -8,10 +9,14 @@ import { platform } from "os";
  * @returns {Promise<{ database: any, env: "bun" }>}
  */
 export async function load(file, paths) {
+  const { Database: SQLite } = await import("bun:sqlite");
   if (platform() === "darwin") {
-    SQLite.setCustomSQLite(
-      paths.binding || "/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib",
-    );
+    paths.binding ??= "/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib";
+  }
+
+  if (paths.binding && isSQLiteUnchanged) {
+    SQLite.setCustomSQLite(paths.binding);
+    isSQLiteUnchanged = false;
   }
 
   const database = new SQLite(file);
